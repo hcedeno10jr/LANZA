@@ -33,6 +33,9 @@
   --accent:#1f2bff;       /* electric blue */
   --accent-rgb:31,43,255;
   --accent-hi:#4f5bff;    /* lighter blue for glows and charts */
+  --accent-deep:#10167f;  /* dark shade for mountains and art */
+  --accent-tint:#cfd3ff;  /* pale shade for trails and labels */
+  --on-accent:#fff;       /* text on accent buttons */
   --ok:#32d74b;           /* status dot */
   --miss:#ff453a;
   --strava:#fc4c02;       /* Strava's brand color, required on its button */
@@ -59,15 +62,15 @@ a{color:var(--text)}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.65) 70%,#000 100%);pointer-events:none}
 .fab{position:absolute;top:calc(14px + var(--safe-t));right:16px;z-index:5;width:48px;height:48px;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.35)}
 .fab img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.fab .ini{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:linear-gradient(150deg,#5b66ff,#1f2bff);color:#fff;font-weight:700;font-size:17px;letter-spacing:.5px}
-.fab:has(.ini){background:linear-gradient(150deg,#5b66ff,#1f2bff)}
-.acct .who .av{background:linear-gradient(150deg,#5b66ff,#1f2bff);color:#fff}
+.fab .ini{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:linear-gradient(150deg,var(--accent-hi),var(--accent));color:var(--on-accent);font-weight:700;font-size:17px;letter-spacing:.5px}
+.fab:has(.ini){background:linear-gradient(150deg,var(--accent-hi),var(--accent))}
+.acct .who .av{background:linear-gradient(150deg,var(--accent-hi),var(--accent));color:var(--on-accent)}
 .fab .badge{position:absolute;right:-1px;top:-1px;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #fff}
-.fab.live{background:var(--accent);color:#fff}
+.fab.live{background:var(--accent);color:var(--on-accent)}
 .langbtn{margin-inline-start:6px;display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font:600 11px/1 var(--font);letter-spacing:.06em}
 .langgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;text-align:start}
 .langgrid button{text-align:start;padding:12px 14px;border-radius:16px;background:var(--bg);border:1px solid var(--line);color:var(--text);font:500 15px/1.2 var(--font);display:flex;justify-content:space-between;align-items:center;gap:8px}
-.langgrid button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 0 18px rgba(31,43,255,.35)}
+.langgrid button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 0 18px rgba(var(--accent-rgb),.35)}
 .goal{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:start;width:100%;color:inherit}
 .goal .ring{flex:none;width:44px;height:44px;position:absolute;top:14px;inset-inline-end:14px}
 .goal{position:relative}
@@ -75,7 +78,7 @@ a{color:var(--text)}
 .goal .gv{margin-top:0;font-size:32px;font-weight:700;letter-spacing:-.02em}
 .goal .gv small{font-size:13px;font-weight:500;color:var(--muted);margin-inline-start:4px}
 .goal .edit{margin-inline-start:auto;color:var(--faint)}
-.install{display:flex;gap:12px;align-items:center;text-align:start;background:linear-gradient(135deg,rgba(31,43,255,.22),rgba(31,43,255,.06));border:1px solid rgba(31,43,255,.35)}
+.install{display:flex;gap:12px;align-items:center;text-align:start;background:linear-gradient(135deg,rgba(var(--accent-rgb),.22),rgba(var(--accent-rgb),.06));border:1px solid rgba(var(--accent-rgb),.35)}
 .install img{width:44px;height:44px;border-radius:11px;flex:none}
 .install .t{font-weight:600;font-size:14.5px}
 .install .d{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
@@ -98,9 +101,9 @@ a{color:var(--text)}
 .quicklink:active{color:var(--text)}
 .goalchips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .goalchips button{padding:11px 0;border-radius:12px;background:var(--card2);color:var(--muted);font-weight:700;font-size:15px}
-.goalchips button.on{background:var(--accent);color:#fff}
+.goalchips button.on{background:var(--accent);color:var(--on-accent)}
 .onb{text-align:center;gap:16px}
-.onb .art{height:190px;border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,rgba(31,43,255,.55),#050507 70%);display:grid;place-items:center;overflow:hidden}
+.onb .art{height:190px;border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,rgba(var(--accent-rgb),.55),#050507 70%);display:grid;place-items:center;overflow:hidden}
 .onb .art svg{width:100%;height:100%}
 .onb h2{font-size:30px}
 .onb p{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
@@ -142,7 +145,7 @@ a{color:var(--text)}
 /* ---------- pills ---------- */
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:17px 20px;border-radius:999px;font-weight:600;font-size:15.5px;background:var(--card2);color:var(--text);transition:transform .08s,filter .15s}
 .btn:active{transform:scale(.98)}
-.btn.primary{background:var(--accent);color:#fff;box-shadow:0 10px 36px rgba(var(--accent-rgb),.35)}
+.btn.primary{background:var(--accent);color:var(--on-accent);box-shadow:0 10px 36px rgba(var(--accent-rgb),.35)}
 .btn.outline{background:transparent;box-shadow:inset 0 0 0 1px #3a3a40}
 .btn.strava{background:var(--strava);color:#fff}
 .btn.sm{width:auto;padding:9px 16px;font-size:13.5px}
@@ -175,7 +178,7 @@ details.custom summary::-webkit-details-marker{display:none}
 .namechips button.on{background:#fff;color:#000}
 .throwpick{display:grid;gap:10px;margin-top:14px}
 .namechips.sub button{font-size:12.5px;padding:7px 12px;font-weight:500}
-.namechips.sub button.on{background:var(--accent);color:#fff}
+.namechips.sub button.on{background:var(--accent);color:var(--on-accent)}
 .tbar{display:grid;grid-template-columns:96px 1fr auto;gap:4px 12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
 .tbar:last-child{border-bottom:0}
 .tbar .n{font-weight:600;font-size:14.5px}
@@ -184,7 +187,7 @@ details.custom summary::-webkit-details-marker{display:none}
 .tbar .v{font-weight:700;font-size:15px;text-align:right;min-width:44px}
 .tbar .d{grid-column:2 / 4;font-size:12px;color:var(--muted)}
 .tbar .up{color:var(--ok)} .tbar .down{color:var(--miss)}
-.focus{background:rgba(31,43,255,.14);border:1px solid rgba(91,102,255,.35);border-radius:16px;padding:14px;margin:6px 0 10px;display:grid;gap:10px}
+.focus{background:rgba(var(--accent-rgb),.14);border:1px solid rgba(var(--accent-rgb),.35);border-radius:16px;padding:14px;margin:6px 0 10px;display:grid;gap:10px}
 .focus b{color:#fff}
 .focus p{margin:0;font-size:14px;line-height:1.45;color:var(--text)}
 .stylerow{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
@@ -237,7 +240,7 @@ body.flow-mode nav.tabs{display:none}
 .outcome:active{transform:scale(.96)}
 .outcome .n{font-size:64px;font-weight:700;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .outcome .cap{color:inherit;opacity:.7;font-size:10px}
-.outcome.make{background:var(--accent);color:#fff;box-shadow:0 10px 36px rgba(var(--accent-rgb),.3)}
+.outcome.make{background:var(--accent);color:var(--on-accent);box-shadow:0 10px 36px rgba(var(--accent-rgb),.3)}
 .outcome.miss{background:var(--card);color:#fff}
 .flash-make{animation:fm .45s}.flash-miss{animation:fx .45s}
 @keyframes fm{0%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.8)}100%{box-shadow:0 0 0 22px rgba(var(--accent-rgb),0)}}
@@ -287,7 +290,7 @@ a.tag{text-decoration:none}
 .item .r{grid-row:1/3;grid-column:2;text-align:right;font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
 .item .r small{display:block;font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--muted)}
 .rank{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--card2);font-size:12px;font-weight:700;margin-right:8px;vertical-align:1px}
-.rank.top{background:var(--accent);color:#fff}
+.rank.top{background:var(--accent);color:var(--on-accent)}
 .tag{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--card2);color:var(--muted);margin-left:6px}
 .tag.strava{background:rgba(252,76,2,.15);color:var(--strava)}
 .empty{color:var(--faint);text-align:center;padding:18px;font-size:14px}
@@ -327,6 +330,14 @@ label.f{display:grid;gap:6px}
 .brank.top .pos svg{display:block;width:100%;height:100%}
 .storyimg{display:block;width:min(62vw,300px);aspect-ratio:9/16;margin:0 auto;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.5);background:#000}
 #shareModal,#postModal{place-items:center;padding:16px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.swatches button{width:36px;height:36px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
+.swatches button.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25),inset 0 0 0 3px #000}
+.swatches button.team{width:auto;padding:0 14px;border-radius:999px;color:#fff;font-weight:700;font-size:13px}
+.teamtabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.teamtabs button{flex:none;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:var(--card2);color:var(--muted);font-weight:600;font-size:13.5px;white-space:nowrap}
+.teamtabs button.on{background:#fff;color:#000}
+.teamtabs i{width:10px;height:10px;border-radius:50%;flex:none}
 /* The sticker is transparent: preview it over a photo-like backdrop. */
 .stickwrap{width:100%;max-height:44dvh;aspect-ratio:4/5;margin:0 auto;border-radius:18px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(160deg,#6b7a8f,#2f3b4a 45%,#1b2430 70%,#4a3a2a)}
 .stickwrap img{height:92%;width:auto;max-width:96%;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
@@ -359,7 +370,7 @@ nav.tabs button::after{content:"";width:5px;height:5px;border-radius:50%;backgro
 nav.tabs button.on{color:#fff}
 nav.tabs button.on::after{background:var(--accent-hi)}
 nav.tabs{touch-action:none;user-select:none;-webkit-user-select:none}
-nav.tabs .lens{position:absolute;left:0;top:6px;height:52px;width:76px;border-radius:26px;pointer-events:none;opacity:0;transform:translateX(0) scale(.9);transition:opacity .18s,transform .18s;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 20px rgba(31,43,255,.35);backdrop-filter:blur(6px) saturate(1.6);-webkit-backdrop-filter:blur(6px) saturate(1.6)}
+nav.tabs .lens{position:absolute;left:0;top:6px;height:52px;width:76px;border-radius:26px;pointer-events:none;opacity:0;transform:translateX(0) scale(.9);transition:opacity .18s,transform .18s;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 20px rgba(var(--accent-rgb),.35);backdrop-filter:blur(6px) saturate(1.6);-webkit-backdrop-filter:blur(6px) saturate(1.6)}
 nav.tabs.dragging .lens{opacity:1;transition:opacity .18s}
 nav.tabs button.hover{color:#fff}
 nav.tabs button{position:relative;z-index:1}
@@ -538,13 +549,16 @@ nav.tabs button{position:relative;z-index:1}
       <label class="f"><span class="cap">Team code</span><input type="text" id="codeInput" maxlength="20" placeholder="BLAZE-24" autocapitalize="characters"></label>
       <button class="btn primary" id="joinTeam">Join team</button>
       <button class="btn outline" id="createTeam">Create a new team</button>
+      <button class="btn hidden" id="cancelJoin">Cancel</button>
       <p class="note">Share the code only with your team. Players connected to Strava are marked as verified.</p>
     </div>
     <div id="teamBoard" class="hidden" style="display:grid;grid-template-columns:minmax(0,1fr);gap:14px">
+      <div class="teamtabs hidden" id="teamTabs"></div>
       <div class="seg" id="teamRangeSeg"><button id="rangeWeek" class="on">This week</button><button id="range4">Last 4 weeks</button></div>
       <div class="note hidden" id="teamNote"></div>
       <div class="card hidden" id="teamNameCard" style="display:grid;gap:10px">
         <label class="f"><span class="cap">Team name</span><input type="text" id="teamNameInput" maxlength="30" placeholder="Panama Blaze"></label>
+        <div><span class="cap">Team color</span><div class="swatches" id="teamColors"></div></div>
         <button class="btn primary" id="saveTeamName">Save</button>
       </div>
       <div class="card" id="challengeCard"></div>
@@ -553,7 +567,8 @@ nav.tabs button{position:relative;z-index:1}
       <div class="card"><div class="label-row"><span class="cap">Recent sessions</span></div><div class="list" id="teamRecent"></div></div>
       <div class="card" style="text-align:center"><div class="cap">Team code</div><div class="code" id="teamCodeOut"></div>
         <button class="btn primary" id="inviteTeam" style="margin-top:12px">Invite teammates</button>
-        <button class="btn" id="renameTeam" style="margin-top:10px">Rename team</button>
+        <button class="btn" id="renameTeam" style="margin-top:10px">Edit name and color</button>
+        <button class="btn" id="joinAnother" style="margin-top:10px">Join another team</button>
         <div class="seg" style="margin-top:10px"><button id="copyCode">Copy code</button><button id="refreshTeam">Refresh</button><button id="leaveTeam">Leave</button></div></div>
     </div>
   </div>
@@ -596,6 +611,7 @@ nav.tabs button{position:relative;z-index:1}
     <div class="sec" id="acctStrava"></div>
     <div class="sec hidden" id="acctPro"></div>
     <div class="sec"><span class="cap">Weekly goal · sessions per week</span><div class="goalchips" id="goalChips"></div></div>
+    <div class="sec"><span class="cap">App color</span><div class="swatches" id="appColors"></div></div>
     <div class="sec"><span class="cap">Backup</span><div class="status-line" style="justify-content:flex-start;text-align:start" id="backupLine"></div>
       <div class="row"><button class="btn sm" id="exportData">Download my data</button><button class="btn sm" id="importData">Restore from file</button><button class="btn sm hidden" id="deleteBackup">Delete my backup</button></div>
       <input type="file" id="importFile" accept="application/json,.json" class="hidden"></div>
@@ -698,7 +714,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.21.0';
+const APP_VERSION = '2.22.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -721,9 +737,10 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
   'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }));
 // PB: the LANZA spearhead diamond that marks a player's best session score.
-const PB = '<svg class="pbm" viewBox="0 0 32 44" aria-label="Personal best"><polygon points="16,1 31,23 16,43 1,23" fill="#3a46ff"/><polygon points="16,7 27,23 16,37 5,23" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.4"/></svg>';
+const PB = '<svg class="pbm" viewBox="0 0 32 44" aria-label="Personal best"><polygon points="16,1 31,23 16,43 1,23" style="fill:var(--accent)"/><polygon points="16,7 27,23 16,37 5,23" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.4"/></svg>';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const AC = () => ({ a: css('--accent'), hi: css('--accent-hi'), rgb: css('--accent-rgb'), deep: css('--accent-deep'), tint: css('--accent-tint') });
 /* ---------- languages ----------
    English text in the code is the key; i18n.js holds the other languages
    (LANZA_I18N.strings[code][english] = translation). {name} marks a value. */
@@ -785,8 +802,8 @@ function heroArt(kind) {
   const A = css('--accent'), H = css('--accent-hi');
   const sky = `<defs>
     <radialGradient id="g1" cx="50%" cy="18%" r="75%"><stop offset="0" stop-color="${H}" stop-opacity=".95"/><stop offset=".35" stop-color="${A}" stop-opacity=".75"/><stop offset=".75" stop-color="#05062a" stop-opacity=".6"/><stop offset="1" stop-color="#000"/></radialGradient>
-    <linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a2080"/><stop offset="1" stop-color="#05061a"/></linearGradient>
-    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#cfd3ff" stop-opacity=".9"/></linearGradient>
+    <linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${css('--accent-deep')}"/><stop offset="1" stop-color="#05061a"/></linearGradient>
+    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="${css('--accent-tint')}" stop-opacity=".9"/></linearGradient>
     <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
     <filter id="soft"><feGaussianBlur stdDeviation="1.4"/></filter>
   </defs>
@@ -811,9 +828,9 @@ function heroArt(kind) {
     <ellipse cx="210" cy="205" rx="150" ry="40" fill="${A}" filter="url(#glow)" opacity=".7"/>
     <ellipse cx="210" cy="200" rx="140" ry="36" fill="#0b0c18"/>
     <ellipse cx="210" cy="196" rx="140" ry="34" fill="none" stroke="${H}" stroke-width="3"/>
-    <ellipse cx="210" cy="194" rx="100" ry="22" fill="none" stroke="#2b33a8" stroke-width="1.5"/>
+    <ellipse cx="210" cy="194" rx="100" ry="22" fill="none" stroke="${css('--accent-deep')}" stroke-width="1.5"/>
     <ellipse cx="170" cy="186" rx="60" ry="8" fill="#fff" opacity=".08"/></g>
-    ${[0, 1, 2, 3].map(i => `<path d="M${-20 + i * 6} ${150 + i * 22} C 30 ${150 + i * 20} 60 ${170 + i * 14} ${80 + i * 4} ${185 + i * 10}" stroke="#cfd3ff" stroke-opacity="${.5 - i * .1}" stroke-width="${2 - i * .3}" fill="none"/>`).join('')}`;
+    ${[0, 1, 2, 3].map(i => `<path d="M${-20 + i * 6} ${150 + i * 22} C 30 ${150 + i * 20} 60 ${170 + i * 14} ${80 + i * 4} ${185 + i * 10}" stroke="${css('--accent-tint')}" stroke-opacity="${.5 - i * .1}" stroke-width="${2 - i * .3}" fill="none"/>`).join('')}`;
   const field = `<g stroke="${H}" stroke-opacity=".35" stroke-width="1.5" fill="none">
     <path d="M-40 430 L150 260 L250 260 L440 430"/><path d="M70 330 L330 330"/><path d="M200 260 L200 430" stroke-dasharray="6 8"/></g>
     ${[[120, 300, .8], [270, 292, .7], [205, 270, .55]].map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})" fill="#05060b" stroke="${H}" stroke-opacity=".7" stroke-width="2">
@@ -821,6 +838,27 @@ function heroArt(kind) {
     <path d="M60 140 C150 90 250 110 290 180" fill="none" stroke="url(#trail)" stroke-width="2.5"/>
     <ellipse cx="294" cy="186" rx="15" ry="4.5" fill="#e9ebff" transform="rotate(10 294 186)"/>`;
   return `<svg viewBox="0 0 400 430" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${sky}${kind === 'disc' ? disc : kind === 'field' ? field : thrower}</svg>`;
+}
+/* ---------- app colour: brand blue, a colour the athlete picks, or their team's colour ---------- */
+const PALETTE = ['#1f2bff', '#0a84ff', '#00a6a6', '#12b76a', '#f5b700', '#ff6a13', '#e5212b', '#ff2d87', '#7a2cff'];
+const DEFAULT_ACCENT = '#1f2bff';
+const hexRgb = (h) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const rgbHex = (c) => '#' + c.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+const mixHex = (h, to, t) => rgbHex(hexRgb(h).map((v, i) => v + (to[i] - v) * t));
+const isHex = (h) => /^#[0-9a-f]{6}$/i.test(h || '');
+function themeColor() {
+  const pick = LS.get('themeColor', 'auto');
+  if (isHex(pick)) return pick;
+  const t = activeTeam(); return t && isHex(t.color) ? t.color : DEFAULT_ACCENT;
+}
+let themeNow = '';
+function applyTheme() {
+  const h = themeColor(); if (h === themeNow) return; themeNow = h;
+  const [r, g, b] = hexRgb(h), lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255, st = document.documentElement.style;
+  st.setProperty('--accent', h); st.setProperty('--accent-rgb', `${r},${g},${b}`);
+  st.setProperty('--accent-hi', mixHex(h, [255, 255, 255], .28)); st.setProperty('--accent-deep', mixHex(h, [0, 0, 0], .5));
+  st.setProperty('--accent-tint', mixHex(h, [255, 255, 255], .78)); st.setProperty('--on-accent', lum > .62 ? '#000' : '#fff');
+  paintHeroes();
 }
 function paintHeroes() {
   document.querySelectorAll('.art[data-art]').forEach((el, i) => {
@@ -1556,7 +1594,7 @@ function drawCard(s) {
   const g = c.getContext('2d'), font = (wt, px) => `${wt} ${px}px Manrope, -apple-system, system-ui, sans-serif`;
   g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
   let gr = g.createRadialGradient(W * .5, 0, 0, W * .5, 0, H * .85);
-  gr.addColorStop(0, '#4651ff'); gr.addColorStop(.45, 'rgba(31,43,255,.45)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  gr.addColorStop(0, AC().hi); gr.addColorStop(.45, `rgba(${AC().rgb},.45)`); gr.addColorStop(1, 'rgba(0,0,0,0)');
   g.fillStyle = gr; g.fillRect(0, 0, W, H);
   // logo + wordmark
   g.save(); g.translate(96, 112); g.rotate(40 * Math.PI / 180); g.scale(.085, .085); g.translate(-200, -408);
@@ -1576,7 +1614,7 @@ function drawCard(s) {
   g.fillStyle = '#fff'; g.font = font(300, 64); g.fillText(sessionTitle(s), 96, 900, W - 192);
   g.font = font(200, 230); g.fillText(String(s.skill_score), 88, 1150);
   const sw = g.measureText(String(s.skill_score)).width;
-  g.fillStyle = '#c9ccff'; g.font = font(700, 28); g.letterSpacing = '6px'; g.fillText(`${scoreBand(s.skill_score).toUpperCase()}${isPB(s) ? ' · ' + tr('NEW PB') : ''}`, 120 + sw, 1080); g.letterSpacing = '0px';
+  g.fillStyle = AC().tint; g.font = font(700, 28); g.letterSpacing = '6px'; g.fillText(`${scoreBand(s.skill_score).toUpperCase()}${isPB(s) ? ' · ' + tr('NEW PB') : ''}`, 120 + sw, 1080); g.letterSpacing = '0px';
   g.fillStyle = '#fff'; g.font = font(500, 44); g.fillText(`${s.makes}/${s.attempts} · ${Math.round(s.accuracy * 100)}% · ${tr('streak {n}', { n: s.best_streak })}`, 120 + sw, 1142);
   g.fillStyle = 'rgba(255,255,255,.55)'; g.font = font(500, 28);
   const url = appUrl().replace(/^https?:\/\//, '');
@@ -1608,9 +1646,9 @@ function drawStory(s) {
   const rr = (x, y, w, h, r) => { g.beginPath(); g.roundRect ? g.roundRect(x, y, w, h, r) : g.rect(x, y, w, h); };
   g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
   let gr = g.createRadialGradient(W * .5, 120, 0, W * .5, 120, 1300);
-  gr.addColorStop(0, '#4f5bff'); gr.addColorStop(.4, 'rgba(31,43,255,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  gr.addColorStop(0, AC().hi); gr.addColorStop(.4, `rgba(${AC().rgb},.55)`); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
   gr = g.createRadialGradient(W * .5, H + 200, 0, W * .5, H + 200, 900);
-  gr.addColorStop(0, 'rgba(31,43,255,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  gr.addColorStop(0, `rgba(${AC().rgb},.55)`); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
   // the sticker card
   const cx = 110, cy = 330, cw = W - 220, ch = 1240;
   g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 80; g.shadowOffsetY = 30;
@@ -1619,13 +1657,13 @@ function drawStory(s) {
   // art: the drawn target glowing on navy, like album art
   const ax = cx + 56, ay = cy + 56, aw = cw - 112, ah = 560;
   g.save(); rr(ax, ay, aw, ah, 40); g.clip();
-  const ag = g.createLinearGradient(0, ay, 0, ay + ah); ag.addColorStop(0, '#1a22a8'); ag.addColorStop(1, '#05061a'); g.fillStyle = ag; g.fillRect(ax, ay, aw, ah);
+  const ag = g.createLinearGradient(0, ay, 0, ay + ah); ag.addColorStop(0, AC().deep); ag.addColorStop(1, '#05061a'); g.fillStyle = ag; g.fillRect(ax, ay, aw, ah);
   const pts = s.shape && s.shape.pts;
   if (pts && pts.length > 2) {
     const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), bw = Math.max(...xs) - Math.min(...xs) || 1, bh = Math.max(...ys) - Math.min(...ys) || 1;
     const k = Math.min((aw - 200) / bw, (ah - 200) / bh), ox = ax + aw / 2 - (Math.min(...xs) + bw / 2) * k, oy = ay + ah / 2 + (Math.min(...ys) + bh / 2) * k;
     g.beginPath(); pts.forEach(([x, y], i) => g[i ? 'lineTo' : 'moveTo'](ox + x * k, oy - y * k)); g.closePath();
-    g.fillStyle = 'rgba(79,91,255,.28)'; g.fill(); g.shadowColor = '#4f5bff'; g.shadowBlur = 40; g.lineWidth = 10; g.lineJoin = 'round'; g.strokeStyle = '#6d77ff'; g.stroke(); g.shadowBlur = 0;
+    g.fillStyle = `rgba(${AC().rgb},.28)`; g.fill(); g.shadowColor = AC().hi; g.shadowBlur = 40; g.lineWidth = 10; g.lineJoin = 'round'; g.strokeStyle = AC().hi; g.stroke(); g.shadowBlur = 0;
   }
   // logo in the art corner
   g.save(); g.translate(ax + 64, ay + 70); g.rotate(40 * Math.PI / 180); g.scale(.075, .075); g.translate(-200, -408);
@@ -1641,15 +1679,15 @@ function drawStory(s) {
   y += 230; g.fillStyle = '#fff'; g.font = font(700, 220); g.fillText(String(s.skill_score), tx, y);
   let sx = tx + g.measureText(String(s.skill_score)).width + 34;
   if (isPB(s)) {
-    g.save(); g.translate(sx, y - 150); g.scale(1.6, 1.6); g.shadowColor = '#4f5bff'; g.shadowBlur = 24;
-    g.fillStyle = '#3a46ff'; g.beginPath(); [[16, 1], [31, 23], [16, 43], [1, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.fill(); g.shadowBlur = 0;
+    g.save(); g.translate(sx, y - 150); g.scale(1.6, 1.6); g.shadowColor = AC().hi; g.shadowBlur = 24;
+    g.fillStyle = AC().a; g.beginPath(); [[16, 1], [31, 23], [16, 43], [1, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.fill(); g.shadowBlur = 0;
     g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 2; g.beginPath(); [[16, 7], [27, 23], [16, 37], [5, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.stroke(); g.restore();
     sx += 70;
   }
   // Labels to the right of the score; each line shrinks its type rather than squeezing letters.
   const fitLine = (t, x, yy, max, px) => { g.font = font(700, px); while (px > 18 && g.measureText(t).width > max) g.font = font(700, --px); g.fillText(t, x, yy); };
   const room = cx + cw - 56 - sx;
-  g.fillStyle = '#c9ccff'; g.letterSpacing = '5px';
+  g.fillStyle = AC().tint; g.letterSpacing = '5px';
   fitLine(tr('Skill score').toUpperCase(), sx, y - 112, room, 30);
   fitLine(scoreBand(s.skill_score).toUpperCase(), sx, y - 66, room, 30);
   if (isPB(s)) { g.fillStyle = '#fff'; fitLine(tr('NEW PB').toUpperCase(), sx, y - 20, room, 30); }
@@ -1714,8 +1752,8 @@ function drawSticker(s, team = '') {
   g.font = font(600, 26); g.letterSpacing = '5px'; g.fillText(tr('Skill score').toUpperCase(), W / 2, 680); g.letterSpacing = '0px';
   g.font = font(800, 150); const sc = String(s.skill_score), sw = g.measureText(sc).width; g.fillText(sc, W / 2, 820);
   if (isPB(s)) {
-    g.save(); g.translate(W / 2 + sw / 2 + 24, 712); g.scale(1.9, 1.9); g.shadowColor = '#4f5bff'; g.shadowBlur = 16;
-    g.fillStyle = '#3a46ff'; g.beginPath(); [[16, 1], [31, 23], [16, 43], [1, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.fill(); g.shadowBlur = 0;
+    g.save(); g.translate(W / 2 + sw / 2 + 24, 712); g.scale(1.9, 1.9); g.shadowColor = AC().hi; g.shadowBlur = 16;
+    g.fillStyle = AC().a; g.beginPath(); [[16, 1], [31, 23], [16, 43], [1, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.fill(); g.shadowBlur = 0;
     g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 2; g.beginPath(); [[16, 7], [27, 23], [16, 37], [5, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.stroke(); g.restore();
   }
   g.font = font(600, 28); g.globalAlpha = .9; g.fillText(`${throwLabel(s)} · ${scoreBand(s.skill_score)}`, W / 2, 872); g.globalAlpha = 1;
@@ -1825,6 +1863,7 @@ function renderAcct() {
       : `<span class="cap">LANZA Pro</span><p class="note" style="text-align:start;margin:0">${tr('No ads, unlimited sessions, and coach view with every player\'s throws.')}</p><button class="btn primary" id="acctGoPro">${tr('Go Pro')}${state.config.proPrice ? ' · ' + esc(state.config.proPrice) : ''}</button>`;
     if ($('acctGoPro')) $('acctGoPro').onclick = goPro;
   }
+  renderAppColors();
   $('goalChips').innerHTML = [1, 2, 3, 4, 5, 6, 7].map(n => `<button type="button" data-g="${n}" class="${n === goalN() ? 'on' : ''}">${n}</button>`).join('');
   renderBackupLine();
   $('deleteBackup').classList.toggle('hidden', !state.strava || LS.get('backupOff', false));
@@ -1832,6 +1871,12 @@ function renderAcct() {
   $('acctVersion').textContent = `${BRAND.name} ${APP_VERSION}`;
   $('acctLang').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>${esc(langInfo().name)}`;
 }
+function renderAppColors() {
+  const pick = LS.get('themeColor', 'auto'), t = activeTeam(), tc = t && isHex(t.color) ? t.color : '';
+  $('appColors').innerHTML = (tc ? `<button type="button" data-c="auto" class="team ${pick === 'auto' ? 'on' : ''}" style="background:${tc}"><span>${esc(tr('Team'))}</span></button>` : '')
+    + PALETTE.map(c => `<button type="button" data-c="${c}" aria-label="${c}" class="${pick === c || (!tc && pick === 'auto' && c === DEFAULT_ACCENT) ? 'on' : ''}" style="background:${c}"></button>`).join('');
+}
+$('appColors').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; LS.set('themeColor', b.dataset.c); applyTheme(); renderAppColors(); hapticTick(); };
 $('goalChips').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; LS.set('goal', +b.dataset.g); hapticTick(); renderAcct(); renderGoal(); backupSoon(); };
 $('acctLang').onclick = () => { $('acctModal').classList.add('hidden'); openLang(false); };
 $('acctInstall').onclick = () => { $('acctModal').classList.add('hidden'); doInstall(); };
@@ -1888,7 +1933,7 @@ $('goalCard').onclick = () => openAcct();
 
 /* Best score card → top 5 ranking, with the score to beat and a one-tap start. */
 // #1 badge: the LANZA spearhead diamond with its inner rim line. 
-const BADGE = '<svg viewBox="0 0 32 44" aria-label="1"><defs><linearGradient id="bdg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b66ff"/><stop offset="1" stop-color="#1f2bff"/></linearGradient></defs><polygon points="16,1 31,23 16,43 1,23" fill="url(#bdg)"/><polygon points="16,5 28,23 16,39 4,23" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/><text x="16" y="23.5" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="800" font-family="Manrope,system-ui,sans-serif">1</text></svg>';
+const BADGE = '<svg viewBox="0 0 32 44" aria-label="1"><defs><linearGradient id="bdg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent-hi)"/><stop offset="1" style="stop-color:var(--accent)"/></linearGradient></defs><polygon points="16,1 31,23 16,43 1,23" fill="url(#bdg)"/><polygon points="16,5 28,23 16,39 4,23" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/><text x="16" y="23.5" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="800" font-family="Manrope,system-ui,sans-serif">1</text></svg>';
 function openBest() {
   const top = [...state.sessions].sort((a, b) => b.skill_score - a.skill_score || new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
   const best = top[0]?.skill_score || 0, fifth = top.length === 5 ? top[4].skill_score : null;
@@ -1932,7 +1977,10 @@ async function restoreBackup() {
     const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'load', access_token: token }) });
     const added = mergeSessions(d.sessions), p = d.profile;
     if (p) {
-      if (!state.profile.team && p.team) state.profile.team = p.team;
+      if (!state.profile.team && p.team) { state.profile.team = p.team; state.profile.teamName = p.teamName || ''; }
+      // add any teams this athlete joined on another phone
+      if (Array.isArray(p.teams)) { const ts = teamsList(); p.teams.forEach(t => { if (t && t.code && !ts.some(x => x.code === t.code)) ts.push({ code: t.code, name: t.name || '', color: t.color || '' }); }); }
+      applyTheme();
       if (!state.profile.name && p.name) state.profile.name = p.name;
       saveProfile(); if (LS.get('goal', null) == null && p.goal) LS.set('goal', p.goal);
     }
@@ -2119,48 +2167,83 @@ $('stravaUpload').onclick = uploadToStrava;
    Team board
    ============================================================================= */
 let teamRange = 'week', teamData = null;
+// A session goes to every team the athlete is on; team_shared lists the codes it reached ("A,B").
+const sharedCodes = (s) => (s.team_shared || '').split(',').filter(Boolean);
+const missingTeams = (s) => teamsList().map(t => t.code).filter(c => !sharedCodes(s).includes(c));
 async function shareToTeam(s) {
-  if (!state.profile.team || !s) return;
-  try {
-    const token = state.strava ? await stravaToken() : null;
-    await api('/team', { method: 'POST', body: JSON.stringify({ code: state.profile.team, name: state.profile.name, access_token: token, session: s }) });
-    s.team_shared = state.profile.team;
-  } catch { s.team_shared = null; }
-  saveSessions();
+  if (!s || !teamsList().length) return;
+  const done = new Set(sharedCodes(s)), token = state.strava ? await stravaToken().catch(() => null) : null;
+  for (const code of missingTeams(s)) {
+    try { await api('/team', { method: 'POST', body: JSON.stringify({ code, name: state.profile.name, access_token: token, session: s }) }); done.add(code); } catch {}
+  }
+  s.team_shared = [...done].join(',') || null; saveSessions();
   if (s === current) renderTeamStatus();
 }
-async function retryPendingShares() { if (!state.profile.team || !state.config.online) return; for (const s of state.sessions.filter(x => x.team_shared !== state.profile.team).slice(0, 10)) await shareToTeam(s); }
+async function retryPendingShares() { if (!teamsList().length || !state.config.online) return; for (const s of state.sessions.slice(0, 10).filter(x => missingTeams(x).length)) await shareToTeam(s); }
 function renderTeamStatus() {
   const el = $('teamStatus');
   if (!current) return;
-  if (!state.profile.team) { el.className = 'status-line'; el.innerHTML = tr('{link} to compare with teammates', { link: `<a href="#" id="goTeam">${tr('Join your team')}</a>` }); $('goTeam').onclick = (e) => { e.preventDefault(); showView('team'); }; return; }
-  el.className = 'status-line ' + (current.team_shared ? 'ok' : '');
-  el.innerHTML = current.team_shared ? `<span class="dot ok"></span>${tr('Shared with team {team}', { team: esc(teamLabel()) })}` : tr('Will share with team {team} when you\'re online', { team: esc(teamLabel()) });
+  if (!teamsList().length) { el.className = 'status-line'; el.innerHTML = tr('{link} to compare with teammates', { link: `<a href="#" id="goTeam">${tr('Join your team')}</a>` }); $('goTeam').onclick = (e) => { e.preventDefault(); showView('team'); }; return; }
+  const names = (codes) => codes.map(c => teamName(teamsList().find(t => t.code === c)) || c).join(' · '), miss = missingTeams(current);
+  el.className = 'status-line ' + (miss.length ? '' : 'ok');
+  el.innerHTML = miss.length ? tr('Will share with team {team} when you\'re online', { team: esc(names(miss)) }) : `<span class="dot ok"></span>${tr('Shared with team {team}', { team: esc(names(sharedCodes(current))) })}`;
 }
 function renderTeamView() {
-  const has = !!state.profile.team;
-  $('teamJoin').classList.toggle('hidden', has); $('teamBoard').classList.toggle('hidden', !has); $('teamHeadStats').classList.toggle('hidden', !has);
+  const has = !!state.profile.team, form = !has || joiningAnother;
+  $('teamJoin').classList.toggle('hidden', !form); $('teamBoard').classList.toggle('hidden', form); $('teamHeadStats').classList.toggle('hidden', form);
+  $('cancelJoin').classList.toggle('hidden', !has); renderTeamTabs();
   $('nameInput').value = state.profile.name || '';
-  if (has) { $('teamCodeOut').textContent = state.profile.team; loadTeam(); }
+  if (has && !form) { $('teamCodeOut').textContent = state.profile.team; loadTeam(); }
   renderTeamName();
 }
-// Teams have an optional name (shared on the server); the code still identifies the team.
-const teamLabel = () => state.profile.teamName || state.profile.team;
+// Athletes can be on several teams (e.g. a club at home and a national squad). profile.teams holds
+// them all; profile.team / teamName mirror the one shown on the Team tab.
+function teamsList() {
+  const p = state.profile; if (!Array.isArray(p.teams)) p.teams = [];
+  if (p.team && !p.teams.some(t => t.code === p.team)) p.teams.unshift({ code: p.team, name: p.teamName || '', color: '' });
+  return p.teams;
+}
+const activeTeam = () => teamsList().find(t => t.code === state.profile.team) || null;
+const teamName = (t) => (t && (t.name || t.code)) || '';
+const teamLabel = () => teamName(activeTeam()) || state.profile.team;
+function setTeamMeta(code, patch) {
+  const t = teamsList().find(x => x.code === code); if (!t) return;
+  Object.assign(t, patch); if (code === state.profile.team) state.profile.teamName = t.name || '';
+  saveProfile(); applyTheme();
+}
+function switchTeam(code) { state.profile.team = code; state.profile.teamName = (activeTeam() || {}).name || ''; saveProfile(); teamData = null; applyTheme(); renderTeamView(); }
+function renderTeamTabs() {
+  const ts = teamsList(), el = $('teamTabs');
+  el.classList.toggle('hidden', ts.length < 2);
+  el.innerHTML = ts.map(t => `<button data-c="${esc(t.code)}" class="${t.code === state.profile.team ? 'on' : ''}"><i style="background:${isHex(t.color) ? t.color : 'var(--muted)'}"></i>${esc(teamName(t))}</button>`).join('');
+  el.querySelectorAll('button').forEach(b => b.onclick = () => { if (b.dataset.c !== state.profile.team) switchTeam(b.dataset.c); });
+}
+let joiningAnother = false;
+$('joinAnother').onclick = () => { joiningAnother = true; renderTeamView(); $('codeInput').value = ''; $('codeInput').focus(); };
+$('cancelJoin').onclick = () => { joiningAnother = false; renderTeamView(); };
 function renderTeamName(edit) {
-  const has = !!state.profile.team, nm = state.profile.teamName || '';
+  const has = !!state.profile.team && !joiningAnother, nm = state.profile.teamName || '';
   const tt = $('teamTitle'); tt.textContent = has && nm ? nm : tr('Team'); tt.style.fontSize = '';
   // long names shrink to stay on one line
   const L = tt.textContent.length; if (L > 8) tt.style.fontSize = `${parseFloat(getComputedStyle(tt).fontSize) * Math.max(.42, 8.5 / L)}px`;
   const show = has && (edit || !nm);
   $('teamNameCard').classList.toggle('hidden', !show); $('renameTeam').classList.toggle('hidden', !nm);
-  if (show) { $('teamNameInput').value = nm; if (edit) $('teamNameInput').focus(); }
+  if (show) {
+    $('teamNameInput').value = nm; pickedTeamColor = (activeTeam() || {}).color || '';
+    paintTeamSwatches(); if (edit) $('teamNameInput').focus();
+  }
+}
+let pickedTeamColor = '';
+function paintTeamSwatches() {
+  $('teamColors').innerHTML = PALETTE.map(c => `<button type="button" data-c="${c}" aria-label="${c}" class="${c === pickedTeamColor ? 'on' : ''}" style="background:${c}"></button>`).join('');
+  $('teamColors').querySelectorAll('button').forEach(b => b.onclick = () => { pickedTeamColor = b.dataset.c; paintTeamSwatches(); hapticTick(); });
 }
 $('renameTeam').onclick = () => { renderTeamName(true); $('teamNameCard').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
 $('saveTeamName').onclick = async () => {
   const nm = $('teamNameInput').value.trim().slice(0, 30);
   if (!nm) { $('teamNameInput').focus(); return; }
-  state.profile.teamName = nm; saveProfile(); renderTeamName(); toast(tr('Team name saved'));
-  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'name', code: state.profile.team, team_name: nm, name: state.profile.name }) }); } catch {}
+  setTeamMeta(state.profile.team, { name: nm, color: pickedTeamColor }); renderTeamName(); renderTeamTabs(); toast(tr('Team saved'));
+  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'name', code: state.profile.team, team_name: nm, team_color: pickedTeamColor, name: state.profile.name }) }); } catch {}
 };
 $('teamNameInput').onkeydown = (e) => { if (e.key === 'Enter') $('saveTeamName').click(); };
 function joinTeam(code, teamName = '') {
@@ -2168,8 +2251,10 @@ function joinTeam(code, teamName = '') {
   code = code.trim().toUpperCase().replace(/\s+/g, '-');
   if (!/^[A-Z0-9-]{4,20}$/.test(code)) { toast(tr('Team codes are 4 to 20 letters, numbers or dashes')); return; }
   if (!name && !state.strava) { toast(tr('Add your name so teammates know who you are')); $('nameInput').focus(); return; }
-  state.profile = { ...state.profile, name: name || state.profile.name, team: code, teamName: String(teamName).trim().slice(0, 30) }; saveProfile();
-  renderTeamView(); toast(tr('Joined team {code}', { code: teamLabel() })); track('team_join'); retryPendingShares();
+  const ts = teamsList();
+  if (!ts.some(t => t.code === code)) ts.push({ code, name: String(teamName).trim().slice(0, 30), color: '' });
+  state.profile = { ...state.profile, name: name || state.profile.name, team: code, teams: ts, teamName: (ts.find(t => t.code === code) || {}).name || '' }; saveProfile();
+  joiningAnother = false; teamData = null; applyTheme(); renderTeamView(); toast(tr('Joined team {code}', { code: teamLabel() })); track('team_join'); retryPendingShares();
 }
 $('joinTeam').onclick = () => joinTeam($('codeInput').value);
 $('createTeam').onclick = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); renderTeamName(true); };
@@ -2178,7 +2263,11 @@ $('inviteTeam').onclick = () => {
   const text = tr('Join my team {code} on {app} and log your throwing practice.', { code: state.profile.teamName ? `${state.profile.teamName} (${state.profile.team})` : state.profile.team, app: BRAND.name });
   if (navigator.share) navigator.share({ title: BRAND.name, text, url }).catch(() => {}); else copyText(`${text} ${url}`);
 };
-$('leaveTeam').onclick = () => { state.profile.team = ''; state.profile.teamName = ''; saveProfile(); renderTeamView(); };
+$('leaveTeam').onclick = () => {
+  const rest = teamsList().filter(t => t.code !== state.profile.team);
+  state.profile.teams = rest; state.profile.team = rest[0] ? rest[0].code : ''; state.profile.teamName = rest[0] ? rest[0].name : '';
+  saveProfile(); teamData = null; applyTheme(); renderTeamView();
+};
 $('copyCode').onclick = () => { try { navigator.clipboard.writeText(state.profile.team).then(() => toast(tr('Code copied')), () => toast(state.profile.team)); } catch { toast(state.profile.team); } };
 $('rangeWeek').onclick = () => { teamRange = 'week'; $('rangeWeek').classList.add('on'); $('range4').classList.remove('on'); renderBoard(); };
 $('range4').onclick = () => { teamRange = '4w'; $('range4').classList.add('on'); $('rangeWeek').classList.remove('on'); renderBoard(); };
@@ -2187,7 +2276,8 @@ async function loadTeam() {
   $('teamNote').classList.add('hidden');
   try {
     teamData = await api(`/team?code=${encodeURIComponent(state.profile.team)}&weeks=6`);
-    if (teamData.name && teamData.name !== state.profile.teamName) { state.profile.teamName = teamData.name; saveProfile(); renderTeamName(); }
+    const t = activeTeam(), nm = teamData.name || (t && t.name) || '', col = isHex(teamData.color) ? teamData.color : (t && t.color) || '';
+    if (t && (nm !== t.name || col !== t.color)) { setTeamMeta(t.code, { name: nm, color: col }); renderTeamName(); renderTeamTabs(); }
   }
   catch {
     teamData = { sessions: exampleTeam() };
@@ -2487,7 +2577,7 @@ window.addEventListener('resize', () => { if (currentView === 'target') layoutDr
 
 document.title = BRAND.name; $('brandWord').textContent = BRAND.name;
 applyLang(); translateStatic();
-paintHeroes(); renderStravaPill(); showView('setup');
+applyTheme(); renderStravaPill(); showView('setup');
 // Language picker: first launch (nothing saved yet) and the Language button in the You sheet. Changing reloads
 // the app, so every screen, chart and voice setting starts in the new language.
 function openLang(first) {
@@ -2501,7 +2591,7 @@ function openLang(first) {
 /* ---------- first launch: language → three intro screens → team invite ---------- */
 const ART = {
   draw: '<svg viewBox="0 0 320 190"><path d="M0 150H320" stroke="#2c2c34" stroke-width="2"/><g fill="#20233a"><circle cx="70" cy="70" r="11"/><path d="M60 84h20l4 40h-6l-2 26h-14l-2-26h-6z"/></g><path d="M150 60q40-28 88-6q34 18 18 56q-16 40-66 34q-52-6-40-84z" fill="rgba(108,117,255,.18)" stroke="#fff" stroke-width="3" stroke-dasharray="9 7"/><circle cx="262" cy="104" r="9" fill="#fff"/><path d="M262 104l14 22" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>',
-  log: '<svg viewBox="0 0 320 190"><rect x="40" y="48" width="112" height="96" rx="24" fill="#1f2bff"/><path d="M76 98l14 14 28-30" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="168" y="48" width="112" height="96" rx="24" fill="#1c1c20"/><path d="M206 78l36 36M242 78l-36 36" stroke="#8e8e93" stroke-width="7" stroke-linecap="round"/><g fill="#fff" opacity=".85"><rect x="148" y="160" width="24" height="6" rx="3"/></g></svg>',
+  log: '<svg viewBox="0 0 320 190"><rect x="40" y="48" width="112" height="96" rx="24" style="fill:var(--accent)"/><path d="M76 98l14 14 28-30" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="168" y="48" width="112" height="96" rx="24" fill="#1c1c20"/><path d="M206 78l36 36M242 78l-36 36" stroke="#8e8e93" stroke-width="7" stroke-linecap="round"/><g fill="#fff" opacity=".85"><rect x="148" y="160" width="24" height="6" rx="3"/></g></svg>',
   post: '<svg viewBox="0 0 320 190"><rect x="56" y="22" width="208" height="146" rx="18" fill="#fff"/><circle cx="84" cy="50" r="12" fill="#c8c8ce"/><rect x="104" y="42" width="80" height="7" rx="3" fill="#1d1d1f"/><rect x="104" y="54" width="54" height="6" rx="3" fill="#a0a0a6"/><text x="76" y="98" font-family="system-ui" font-weight="800" font-size="17" fill="#1d1d1f">Evening hucks</text><text x="76" y="122" font-family="system-ui" font-size="12" fill="#3a3a3c">Skill Score 66/100 · Sharp</text><text x="76" y="140" font-family="system-ui" font-size="12" fill="#3a3a3c">#2 of 9 this month</text><path d="M238 48l-5-10h-7l12 24 12-24h-7z" fill="#fc4c02"/><path d="M233 38l-6-12-6 12h-5l11-22 11 22z" fill="#fc4c02" opacity=".55"/></svg>'
 };
 const ONB = [
@@ -2542,7 +2632,7 @@ const inviteTeamName = (new URLSearchParams(location.search).get('tn') || '').tr
 const inviteCode = (() => { const c = (new URLSearchParams(location.search).get('team') || '').trim().toUpperCase(); return /^[A-Z0-9-]{4,20}$/.test(c) ? c : ''; })();
 function openInvite(code) {
   const q = new URLSearchParams(location.search); q.delete('team'); q.delete('tn'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
-  if (state.profile.team === code) { toast(tr('You’re already on team {code}', { code })); return nextIntro(); }
+  if (teamsList().some(t => t.code === code)) { switchTeam(code); toast(tr('You’re already on team {code}', { code: teamLabel() })); return nextIntro(); }
   $('inviteTitle').textContent = tr('Join team {code}?', { code: inviteTeamName || code });
   $('inviteName').value = state.profile.name || ''; $('inviteModal').classList.remove('hidden');
   $('inviteJoin').onclick = () => {

@@ -71,7 +71,7 @@ export async function handle(req, store, fetchImpl = fetch) {
     rows.sort((a, b) => b.created_at.localeCompare(a.created_at));
     const challenge = await store.get(`challenge/${code}/${monthKey()}`, { type: 'json' });
     const meta = await store.get(`meta/${code}`, { type: 'json' });
-    return [{ code, name: (meta && meta.name) || null, week: isoWeek(new Date()), month: monthKey(), challenge: challenge || null, sessions: rows }, 200];
+    return [{ code, name: (meta && meta.name) || null, color: (meta && meta.color) || null, week: isoWeek(new Date()), month: monthKey(), challenge: challenge || null, sessions: rows }, 200];
   }
   if (req.method === 'POST') {
     let body;
@@ -82,9 +82,10 @@ export async function handle(req, store, fetchImpl = fetch) {
     if (body.action === 'name') {
       const name = String(body.team_name || '').replace(/\s+/g, ' ').trim().slice(0, 30);
       if (!name) return [{ error: 'Add a team name' }, 400];
-      const meta = { name, by: String(body.name || '').trim().slice(0, 40), set_at: new Date().toISOString() };
+      const color = /^#[0-9a-f]{6}$/i.test(body.team_color || '') ? body.team_color.toLowerCase() : '';
+      const meta = { name, color, by: String(body.name || '').trim().slice(0, 40), set_at: new Date().toISOString() };
       await store.setJSON(`meta/${code}`, meta);
-      return [{ ok: true, name }, 200];
+      return [{ ok: true, name, color }, 200];
     }
     // Monthly team challenge, e.g. 2000 throws as a team. Anyone on the team can set it.
     if (body.action === 'challenge') {

@@ -753,7 +753,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Conectado a Strava",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Ahora abre LANZA desde tu pantalla de inicio. Termina de conectarse sola. Puedes cerrar esta página.",
 "Post to Strava?": "¿Subir a Strava?",
-"Show \"{team} trains on {app}\"": "Mostrar \"{team} trains on {app}\""
+"Show \"{team} trains on {app}\"": "Mostrar \"{team} trains on {app}\"",
+"Cancel": "Cancelar",
+"Team saved": "Equipo guardado",
+"Edit name and color": "Editar nombre y color",
+"Join another team": "Unirme a otro equipo",
+"App color": "Color de la app",
+"Team color": "Color del equipo",
+"No sessions this week yet.": "Aún no hay sesiones esta semana.",
+"No sessions in the last 4 weeks yet.": "Aún no hay sesiones en las últimas 4 semanas."
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1120,7 +1128,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Conectado ao Strava",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Agora abra o LANZA pela tela de início. Ele termina de conectar sozinho. Pode fechar esta página.",
 "Post to Strava?": "Postar no Strava?",
-"Show \"{team} trains on {app}\"": "Mostrar \"{team} trains on {app}\""
+"Show \"{team} trains on {app}\"": "Mostrar \"{team} trains on {app}\"",
+"Cancel": "Cancelar",
+"Team saved": "Time salvo",
+"Edit name and color": "Editar nome e cor",
+"Join another team": "Entrar em outro time",
+"App color": "Cor do app",
+"Team color": "Cor do time",
+"No sessions this week yet.": "Nenhuma sessão nesta semana ainda.",
+"No sessions in the last 4 weeks yet.": "Nenhuma sessão nas últimas 4 semanas ainda."
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1491,7 +1507,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Connecté à Strava",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Ouvre maintenant LANZA depuis ton écran d'accueil. La connexion se termine toute seule. Tu peux fermer cette page.",
 "Post to Strava?": "Publier sur Strava ?",
-"Show \"{team} trains on {app}\"": "Afficher « {team} trains on {app} »"
+"Show \"{team} trains on {app}\"": "Afficher « {team} trains on {app} »",
+"Cancel": "Annuler",
+"Team saved": "Équipe enregistrée",
+"Edit name and color": "Modifier le nom et la couleur",
+"Join another team": "Rejoindre une autre équipe",
+"App color": "Couleur de l'app",
+"Team color": "Couleur de l'équipe",
+"No sessions this week yet.": "Pas encore de séance cette semaine.",
+"No sessions in the last 4 weeks yet.": "Pas encore de séance ces 4 dernières semaines."
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -1863,7 +1887,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Mit Strava verbunden",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Öffne jetzt LANZA über deinen Home-Bildschirm. Die Verbindung wird automatisch abgeschlossen. Du kannst diese Seite schließen.",
 "Post to Strava?": "Auf Strava posten?",
-"Show \"{team} trains on {app}\"": "„{team} trains on {app}“ anzeigen"
+"Show \"{team} trains on {app}\"": "„{team} trains on {app}“ anzeigen",
+"Cancel": "Abbrechen",
+"Team saved": "Team gespeichert",
+"Edit name and color": "Name und Farbe bearbeiten",
+"Join another team": "Einem weiteren Team beitreten",
+"App color": "App-Farbe",
+"Team color": "Teamfarbe",
+"No sessions this week yet.": "Diese Woche noch keine Einheiten.",
+"No sessions in the last 4 weeks yet.": "In den letzten 4 Wochen noch keine Einheiten."
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2249,7 +2281,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Connesso a Strava",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Ora apri LANZA dalla schermata Home. La connessione si completa da sola. Puoi chiudere questa pagina.",
 "Post to Strava?": "Pubblicare su Strava?",
-"Show \"{team} trains on {app}\"": "Mostra \"{team} trains on {app}\""
+"Show \"{team} trains on {app}\"": "Mostra \"{team} trains on {app}\"",
+"Cancel": "Annulla",
+"Team saved": "Squadra salvata",
+"Edit name and color": "Modifica nome e colore",
+"Join another team": "Unisciti a un'altra squadra",
+"App color": "Colore dell’app",
+"Team color": "Colore della squadra",
+"No sessions this week yet.": "Ancora nessuna sessione questa settimana.",
+"No sessions in the last 4 weeks yet.": "Ancora nessuna sessione nelle ultime 4 settimane."
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -2603,7 +2643,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Verbonden met Strava",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Open LANZA nu vanaf je beginscherm. Het verbinden rondt vanzelf af. Je kunt deze pagina sluiten.",
 "Post to Strava?": "Op Strava zetten?",
-"Show \"{team} trains on {app}\"": "Toon \"{team} trains on {app}\""
+"Show \"{team} trains on {app}\"": "Toon \"{team} trains on {app}\"",
+"Cancel": "Annuleren",
+"Team saved": "Team opgeslagen",
+"Edit name and color": "Naam en kleur bewerken",
+"Join another team": "Nog een team joinen",
+"App color": "App-kleur",
+"Team color": "Teamkleur",
+"No sessions this week yet.": "Nog geen sessies deze week.",
+"No sessions in the last 4 weeks yet.": "Nog geen sessies in de afgelopen 4 weken."
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3008,7 +3056,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Stravaに接続しました",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "ホーム画面からLANZAを開いてください。接続は自動で完了します。このページは閉じてかまいません。",
 "Post to Strava?": "Stravaに投稿しますか？",
-"Show \"{team} trains on {app}\"": "「{team} trains on {app}」を表示"
+"Show \"{team} trains on {app}\"": "「{team} trains on {app}」を表示",
+"Cancel": "キャンセル",
+"Team saved": "チームを保存しました",
+"Edit name and color": "名前と色を編集",
+"Join another team": "別のチームに参加",
+"App color": "アプリの色",
+"Team color": "チームカラー",
+"No sessions this week yet.": "今週のセッションはまだありません。",
+"No sessions in the last 4 weeks yet.": "過去4週間のセッションはまだありません。"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -3408,7 +3464,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "已连接 Strava",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "现在从主屏幕打开 LANZA，它会自动完成连接。你可以关闭此页面。",
 "Post to Strava?": "发布到 Strava？",
-"Show \"{team} trains on {app}\"": "显示“{team} trains on {app}”"
+"Show \"{team} trains on {app}\"": "显示“{team} trains on {app}”",
+"Cancel": "取消",
+"Team saved": "队伍已保存",
+"Edit name and color": "编辑名称和颜色",
+"Join another team": "加入另一个队伍",
+"App color": "应用颜色",
+"Team color": "队伍颜色",
+"No sessions this week yet.": "本周还没有训练。",
+"No sessions in the last 4 weeks yet.": "过去 4 周还没有训练。"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -3808,7 +3872,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "已連接 Strava",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "現在從主畫面開啟 LANZA，它會自動完成連接。你可以關閉此頁面。",
 "Post to Strava?": "發佈到 Strava？",
-"Show \"{team} trains on {app}\"": "顯示「{team} trains on {app}」"
+"Show \"{team} trains on {app}\"": "顯示「{team} trains on {app}」",
+"Cancel": "取消",
+"Team saved": "隊伍已儲存",
+"Edit name and color": "編輯名稱與顏色",
+"Join another team": "加入另一個隊伍",
+"App color": "App 顏色",
+"Team color": "隊伍顏色",
+"No sessions this week yet.": "本週還沒有訓練。",
+"No sessions in the last 4 weeks yet.": "過去 4 週還沒有訓練。"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -4212,7 +4284,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Strava에 연결됨",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "이제 홈 화면에서 LANZA를 여세요. 연결이 자동으로 완료돼요. 이 페이지는 닫아도 돼요.",
 "Post to Strava?": "Strava에 올릴까요?",
-"Show \"{team} trains on {app}\"": "\"{team} trains on {app}\" 표시"
+"Show \"{team} trains on {app}\"": "\"{team} trains on {app}\" 표시",
+"Cancel": "취소",
+"Team saved": "팀을 저장했어요",
+"Edit name and color": "이름과 색상 편집",
+"Join another team": "다른 팀 가입",
+"App color": "앱 색상",
+"Team color": "팀 색상",
+"No sessions this week yet.": "이번 주 세션이 아직 없어요.",
+"No sessions in the last 4 weeks yet.": "최근 4주 동안 세션이 아직 없어요."
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -4617,7 +4697,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "מחובר ל-Strava",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "עכשיו פתח את LANZA ממסך הבית. החיבור יושלם לבד. אפשר לסגור את הדף הזה.",
 "Post to Strava?": "לפרסם ב-Strava?",
-"Show \"{team} trains on {app}\"": "הצג \"{team} trains on {app}\""
+"Show \"{team} trains on {app}\"": "הצג \"{team} trains on {app}\"",
+"Cancel": "ביטול",
+"Team saved": "הקבוצה נשמרה",
+"Edit name and color": "עריכת שם וצבע",
+"Join another team": "הצטרפות לקבוצה נוספת",
+"App color": "צבע האפליקציה",
+"Team color": "צבע הקבוצה",
+"No sessions this week yet.": "אין עדיין אימונים השבוע.",
+"No sessions in the last 4 weeks yet.": "אין עדיין אימונים ב-4 השבועות האחרונים."
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -4987,7 +5075,15 @@ window.LANZA_I18N = {
 "Connected to Strava": "Strava से जुड़ गया",
 "Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "अब होम स्क्रीन से LANZA खोलें। कनेक्शन अपने आप पूरा हो जाएगा। आप यह पेज बंद कर सकते हैं।",
 "Post to Strava?": "Strava पर पोस्ट करें?",
-"Show \"{team} trains on {app}\"": "\"{team} trains on {app}\" दिखाएँ"
+"Show \"{team} trains on {app}\"": "\"{team} trains on {app}\" दिखाएँ",
+"Cancel": "रद्द करें",
+"Team saved": "टीम सेव हो गई",
+"Edit name and color": "नाम और रंग बदलें",
+"Join another team": "दूसरी टीम से जुड़ें",
+"App color": "ऐप का रंग",
+"Team color": "टीम का रंग",
+"No sessions this week yet.": "इस हफ़्ते अभी कोई सेशन नहीं।",
+"No sessions in the last 4 weeks yet.": "पिछले 4 हफ़्तों में अभी कोई सेशन नहीं।"
 }
 }
 };
