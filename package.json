@@ -1,5 +1,5 @@
 {
-  "name": "lanza",
+  "name": "kinetic-metrics-os",
   "private": true,
   "type": "module",
   "description": "Throwing practice tracker with Strava upload and team board",

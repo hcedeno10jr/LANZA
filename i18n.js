@@ -775,7 +775,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "Sugerido: más o menos una sesión por semana por jugador.",
 "Suggested: about 160 throws a month per player.": "Sugerido: unos 160 lanzamientos al mes por jugador.",
 "Suggested: about 90 makes a month per player.": "Sugerido: unos 90 aciertos al mes por jugador.",
-"4 weeks": "4 semanas"
+"4 weeks": "4 semanas",
+"Season {years}": "Temporada {years}",
+"Change dates": "Cambiar fechas",
+"End season and start a new one": "Terminar temporada e iniciar una nueva",
+"Tap again to end this season and start a new one today": "Toca otra vez para terminar esta temporada y empezar una nueva hoy",
+"Change end date": "Cambiar fecha de fin"
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1164,7 +1169,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "Sugerido: cerca de uma sessão por semana por jogador.",
 "Suggested: about 160 throws a month per player.": "Sugerido: cerca de 160 arremessos por mês por jogador.",
 "Suggested: about 90 makes a month per player.": "Sugerido: cerca de 90 acertos por mês por jogador.",
-"4 weeks": "4 semanas"
+"4 weeks": "4 semanas",
+"Season {years}": "Temporada {years}",
+"Change dates": "Mudar datas",
+"End season and start a new one": "Encerrar temporada e começar outra",
+"Tap again to end this season and start a new one today": "Toque de novo para encerrar esta temporada e começar uma nova hoje",
+"Change end date": "Mudar data de término"
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1557,7 +1567,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "Suggestion : environ une séance par semaine et par joueur.",
 "Suggested: about 160 throws a month per player.": "Suggestion : environ 160 lancers par mois et par joueur.",
 "Suggested: about 90 makes a month per player.": "Suggestion : environ 90 réussites par mois et par joueur.",
-"4 weeks": "4 semaines"
+"4 weeks": "4 semaines",
+"Season {years}": "Saison {years}",
+"Change dates": "Modifier les dates",
+"End season and start a new one": "Terminer la saison et en commencer une nouvelle",
+"Tap again to end this season and start a new one today": "Touche encore pour terminer cette saison et en commencer une nouvelle aujourd’hui",
+"Change end date": "Modifier la date de fin"
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -1951,7 +1966,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "Vorschlag: etwa eine Einheit pro Woche und Spieler.",
 "Suggested: about 160 throws a month per player.": "Vorschlag: etwa 160 Würfe pro Monat und Spieler.",
 "Suggested: about 90 makes a month per player.": "Vorschlag: etwa 90 Treffer pro Monat und Spieler.",
-"4 weeks": "4 Wochen"
+"4 weeks": "4 Wochen",
+"Season {years}": "Saison {years}",
+"Change dates": "Daten ändern",
+"End season and start a new one": "Saison beenden und neue starten",
+"Tap again to end this season and start a new one today": "Nochmal tippen, um diese Saison zu beenden und heute eine neue zu starten",
+"Change end date": "Enddatum ändern"
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2359,7 +2379,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "Suggerito: circa una sessione a settimana per giocatore.",
 "Suggested: about 160 throws a month per player.": "Suggerito: circa 160 lanci al mese per giocatore.",
 "Suggested: about 90 makes a month per player.": "Suggerito: circa 90 centri al mese per giocatore.",
-"4 weeks": "4 settimane"
+"4 weeks": "4 settimane",
+"Season {years}": "Stagione {years}",
+"Change dates": "Cambia date",
+"End season and start a new one": "Chiudi la stagione e iniziane una nuova",
+"Tap again to end this season and start a new one today": "Tocca di nuovo per chiudere questa stagione e iniziarne una nuova oggi",
+"Change end date": "Cambia data di fine"
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -2735,7 +2760,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "Voorstel: ongeveer één sessie per week per speler.",
 "Suggested: about 160 throws a month per player.": "Voorstel: ongeveer 160 worpen per maand per speler.",
 "Suggested: about 90 makes a month per player.": "Voorstel: ongeveer 90 vangsten per maand per speler.",
-"4 weeks": "4 weken"
+"4 weeks": "4 weken",
+"Season {years}": "Seizoen {years}",
+"Change dates": "Data wijzigen",
+"End season and start a new one": "Seizoen afsluiten en een nieuw beginnen",
+"Tap again to end this season and start a new one today": "Tik nogmaals om dit seizoen af te sluiten en vandaag een nieuw te beginnen",
+"Change end date": "Einddatum wijzigen"
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3162,7 +3192,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "目安：1人あたり週1回のセッション。",
 "Suggested: about 160 throws a month per player.": "目安：1人あたり月160投。",
 "Suggested: about 90 makes a month per player.": "目安：1人あたり月90キャッチ。",
-"4 weeks": "4週間"
+"4 weeks": "4週間",
+"Season {years}": "{years}シーズン",
+"Change dates": "日付を変更",
+"End season and start a new one": "シーズンを終えて新しいシーズンを開始",
+"Tap again to end this season and start a new one today": "もう一度タップすると今シーズンを終え、今日から新シーズンを開始します",
+"Change end date": "終了日を変更"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -3584,7 +3619,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "建议：每位队员每周约一次训练。",
 "Suggested: about 160 throws a month per player.": "建议：每位队员每月约 160 次投掷。",
 "Suggested: about 90 makes a month per player.": "建议：每位队员每月约 90 次命中。",
-"4 weeks": "4 周"
+"4 weeks": "4 周",
+"Season {years}": "{years} 赛季",
+"Change dates": "修改日期",
+"End season and start a new one": "结束本赛季并开始新赛季",
+"Tap again to end this season and start a new one today": "再点一次即结束本赛季，并从今天开始新赛季",
+"Change end date": "修改结束日期"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4006,7 +4046,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "建議：每位隊員每週約一次訓練。",
 "Suggested: about 160 throws a month per player.": "建議：每位隊員每月約 160 次投擲。",
 "Suggested: about 90 makes a month per player.": "建議：每位隊員每月約 90 次命中。",
-"4 weeks": "4 週"
+"4 weeks": "4 週",
+"Season {years}": "{years} 賽季",
+"Change dates": "修改日期",
+"End season and start a new one": "結束本賽季並開始新賽季",
+"Tap again to end this season and start a new one today": "再點一次即結束本賽季，並從今天開始新賽季",
+"Change end date": "修改結束日期"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -4432,7 +4477,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "추천: 선수 1명당 주 1회 정도.",
 "Suggested: about 160 throws a month per player.": "추천: 선수 1명당 월 160회 정도 던지기.",
 "Suggested: about 90 makes a month per player.": "추천: 선수 1명당 월 90회 정도 성공.",
-"4 weeks": "4주"
+"4 weeks": "4주",
+"Season {years}": "{years} 시즌",
+"Change dates": "날짜 변경",
+"End season and start a new one": "시즌 종료 후 새 시즌 시작",
+"Tap again to end this season and start a new one today": "한 번 더 누르면 이번 시즌을 끝내고 오늘부터 새 시즌을 시작해요",
+"Change end date": "종료일 변경"
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -4859,7 +4909,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "מוצע: בערך אימון אחד בשבוע לכל שחקן.",
 "Suggested: about 160 throws a month per player.": "מוצע: בערך 160 זריקות בחודש לכל שחקן.",
 "Suggested: about 90 makes a month per player.": "מוצע: בערך 90 קליעות בחודש לכל שחקן.",
-"4 weeks": "4 שבועות"
+"4 weeks": "4 שבועות",
+"Season {years}": "עונת {years}",
+"Change dates": "שינוי תאריכים",
+"End season and start a new one": "סיום העונה ופתיחת עונה חדשה",
+"Tap again to end this season and start a new one today": "הקש שוב כדי לסיים את העונה ולפתוח עונה חדשה היום",
+"Change end date": "שינוי תאריך סיום"
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -5251,7 +5306,12 @@ window.LANZA_I18N = {
 "Suggested: about one session a week per player.": "सुझाव: हर खिलाड़ी हफ़्ते में लगभग एक सेशन।",
 "Suggested: about 160 throws a month per player.": "सुझाव: हर खिलाड़ी महीने में लगभग 160 थ्रो।",
 "Suggested: about 90 makes a month per player.": "सुझाव: हर खिलाड़ी महीने में लगभग 90 सफल कैच।",
-"4 weeks": "4 हफ़्ते"
+"4 weeks": "4 हफ़्ते",
+"Season {years}": "सीज़न {years}",
+"Change dates": "तारीखें बदलें",
+"End season and start a new one": "सीज़न खत्म करें और नया शुरू करें",
+"Tap again to end this season and start a new one today": "यह सीज़न खत्म कर आज से नया शुरू करने के लिए फिर टैप करें",
+"Change end date": "खत्म होने की तारीख बदलें"
 }
 }
 };

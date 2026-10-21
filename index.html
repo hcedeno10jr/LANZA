@@ -720,7 +720,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.23.0';
+const APP_VERSION = '2.24.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -2265,7 +2265,9 @@ function joinTeam(code, teamName = '') {
   joiningAnother = false; teamData = null; applyTheme(); renderTeamView(); toast(tr('Joined team {code}', { code: teamLabel() })); track('team_join'); retryPendingShares();
 }
 $('joinTeam').onclick = () => joinTeam($('codeInput').value);
-$('createTeam').onclick = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); setTeamMeta(`LZ-${c}`, { owner: true }); renderTeamName(true); };
+$('createTeam').onclick = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); setTeamMeta(`LZ-${c}`, { owner: true }); renderTeamName(true);
+  const start = isoDay(new Date()); saveSeason({ name: seasonName(start), start, end: firstSeasonEnd(start) }, true);
+};
 $('inviteTeam').onclick = () => {
   const url = `${location.origin}${location.pathname}?team=${encodeURIComponent(state.profile.team)}${state.profile.teamName ? '&tn=' + encodeURIComponent(state.profile.teamName) : ''}&src=invite`;
   const text = tr('Join my team {code} on {app} and log your throwing practice.', { code: state.profile.teamName ? `${state.profile.teamName} (${state.profile.team})` : state.profile.team, app: BRAND.name });
@@ -2281,11 +2283,33 @@ function setRange(r) { teamRange = r; [['week', 'rangeWeek'], ['4w', 'range4'], 
 $('rangeWeek').onclick = () => setRange('week');
 $('range4').onclick = () => setRange('4w');
 $('rangeSeason').onclick = () => setRange('season');
-/* ---------- season: dates the team's creator sets; default is the calendar year ---------- */
+/* ---------- season: a year-long view. Ultimate seasons mostly end with nationals and Euros in
+   October, so the default runs November 1 to October 31. A captain can end it and start a new
+   one-year season on their own date. ---------- */
 const isoDay = (d) => d.toISOString().slice(0, 10);
+const seasonName = (start) => { const y = +start.slice(0, 4), end = new Date(oneYearFrom(start)); return tr('Season {years}', { years: end.getFullYear() > y ? `${y}–${String(end.getFullYear()).slice(2)}` : y }); };
+function oneYearFrom(start) { const d = new Date(start + 'T12:00:00'); d.setFullYear(d.getFullYear() + 1); d.setDate(d.getDate() - 1); return isoDay(d); }
+function defaultSeason() {
+  const t = new Date(), y = t.getMonth() >= 10 ? t.getFullYear() : t.getFullYear() - 1, start = `${y}-11-01`;
+  return { name: seasonName(start), start, end: `${y + 1}-10-31`, auto: true };
+}
+// A new team's first season runs from the day it's created to the next October 31 (or the one
+// after, if that's under two months away). When a season ends, the next one starts the day after
+// and runs a year, so a team only ever has to pick an end date.
+function firstSeasonEnd(start) {
+  const d = new Date(start + 'T12:00:00'), y = d.getFullYear(); let end = `${y}-10-31`;
+  if (end < start || (new Date(end + 'T12:00:00') - d) < 60 * 864e5) end = `${y + 1}-10-31`;
+  return end;
+}
 function season() {
-  const s = (teamData && teamData.season) || (activeTeam() || {}).season, y = new Date().getFullYear();
-  return s && s.start ? s : { name: tr('{year} season', { year: y }), start: `${y}-01-01`, end: `${y}-12-31`, auto: true };
+  let s = (teamData && teamData.season) || (activeTeam() || {}).season; const today = isoDay(new Date());
+  if (!s || !s.start || !s.end) return defaultSeason();
+  for (let i = 0; s.end < today && i < 50; i++) { const d = new Date(s.end + 'T12:00:00'); d.setDate(d.getDate() + 1); const start = isoDay(d); s = { name: seasonName(start), start, end: oneYearFrom(start), auto: true }; }
+  return s;
+}
+async function saveSeason(sn, quiet) {
+  if (teamData) teamData.season = sn; setTeamMeta(state.profile.team, { season: sn }); renderSeason(); renderBoard(); ensureSeasonData(); if (!quiet) toast(tr('Season saved'));
+  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'season', code: state.profile.team, season: sn, name: state.profile.name }) }); } catch {}
 }
 const inSeason = (iso, se = season()) => { const d = iso.slice(0, 10); return d >= se.start && d <= se.end; };
 const isOwner = () => !!(activeTeam() || {}).owner;
@@ -2297,21 +2321,25 @@ function renderSeason(edit) {
   const fmt = (d) => new Date(d + 'T12:00:00').toLocaleDateString(fmtLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
   if (edit) {
     el.innerHTML = `<div style="display:grid;gap:10px">
-      <label class="f"><span class="cap">${tr('Season name')}</span><input type="text" id="seName" maxlength="40" value="${esc(se.auto ? '' : se.name)}" placeholder="${esc(tr('{year} season', { year: new Date().getFullYear() }))}"></label>
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px"><label class="f"><span class="cap">${tr('Starts')}</span><input type="date" id="seStart" value="${se.start}"></label><label class="f"><span class="cap">${tr('Ends')}</span><input type="date" id="seEnd" value="${se.end}"></label></div>
+      <label class="f"><span class="cap">${tr('Season name')}</span><input type="text" id="seName" maxlength="40" value="${esc(se.auto ? '' : se.name)}" placeholder="${esc(se.name)}"></label>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px"><label class="f"><span class="cap">${tr('Starts')}</span><input type="date" id="seStart" value="${se.start}" disabled></label><label class="f"><span class="cap">${tr('Ends')}</span><input type="date" id="seEnd" value="${se.end}" min="${se.start}"></label></div>
       <button class="btn primary" id="seSave">${tr('Save season')}</button></div>`;
     $('seSave').onclick = async () => {
-      const name = $('seName').value.trim().slice(0, 40) || tr('{year} season', { year: $('seStart').value.slice(0, 4) }), start = $('seStart').value, end = $('seEnd').value;
+      const start = $('seStart').value, end = $('seEnd').value;
       if (!start || !end || end < start) { toast(tr('Check the season dates')); return; }
-      const sn = { name, start, end };
-      if (teamData) teamData.season = sn; setTeamMeta(state.profile.team, { season: sn }); renderSeason(); renderBoard(); ensureSeasonData(); toast(tr('Season saved'));
-      try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'season', code: state.profile.team, season: sn, name: state.profile.name }) }); } catch {}
+      saveSeason({ name: $('seName').value.trim().slice(0, 40) || seasonName(start), start, end });
     };
     return;
   }
-  el.innerHTML = `<div class="label-row"><span class="cap">${tr('Season')}</span>${isOwner() ? `<a href="#" class="cap" id="seEdit">${tr(se.auto ? 'Set dates' : 'Change')}</a>` : ''}</div>
-    <div class="chal" style="margin:4px 0 0"><b style="font-size:22px">${esc(se.name)}</b></div><div class="cap" style="text-transform:none;letter-spacing:0">${fmt(se.start)} – ${fmt(se.end)}</div>`;
-  if ($('seEdit')) $('seEdit').onclick = (e) => { e.preventDefault(); renderSeason(true); };
+  const confirming = renderSeason.confirm;
+  el.innerHTML = `<div class="label-row"><span class="cap">${tr('Season')}</span>${isOwner() ? `<a href="#" class="cap" id="seEdit">${tr('Change end date')}</a>` : ''}</div>
+    <div class="chal" style="margin:4px 0 0"><b style="font-size:22px">${esc(se.name)}</b></div><div class="cap" style="text-transform:none;letter-spacing:0">${fmt(se.start)} – ${fmt(se.end)}</div>
+    ${isOwner() ? `<button class="btn ${confirming ? 'primary' : ''}" id="seNew" style="margin-top:12px">${tr(confirming ? 'Tap again to end this season and start a new one today' : 'End season and start a new one')}</button>` : ''}`;
+  if ($('seEdit')) $('seEdit').onclick = (e) => { e.preventDefault(); renderSeason.confirm = false; renderSeason(true); };
+  if ($('seNew')) $('seNew').onclick = () => {
+    if (!renderSeason.confirm) { renderSeason.confirm = true; renderSeason(); clearTimeout(renderSeason.t); renderSeason.t = setTimeout(() => { renderSeason.confirm = false; renderSeason(); }, 4000); return; }
+    renderSeason.confirm = false; const start = isoDay(new Date()); saveSeason({ name: seasonName(start), start, end: oneYearFrom(start) });
+  };
 }
 $('refreshTeam').onclick = () => loadTeam();
 async function loadTeam() {
