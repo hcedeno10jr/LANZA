@@ -71,7 +71,7 @@ export async function handle(req, store, fetchImpl = fetch) {
     rows.sort((a, b) => b.created_at.localeCompare(a.created_at));
     const challenge = await store.get(`challenge/${code}/${monthKey()}`, { type: 'json' });
     const meta = await store.get(`meta/${code}`, { type: 'json' });
-    return [{ code, name: (meta && meta.name) || null, color: (meta && meta.color) || null, season: (meta && meta.season) || null, week: isoWeek(new Date()), month: monthKey(), challenge: challenge || null, sessions: rows }, 200];
+    return [{ code, name: (meta && meta.name) || null, color: (meta && meta.color) || null, season: (meta && meta.season) || null, has_captain: !!(meta && meta.cap), week: isoWeek(new Date()), month: monthKey(), challenge: challenge || null, sessions: rows }, 200];
   }
   if (req.method === 'POST') {
     let body;
@@ -88,13 +88,17 @@ export async function handle(req, store, fetchImpl = fetch) {
       await store.setJSON(`meta/${code}`, meta);
       return [{ ok: true, name, color }, 200];
     }
-    // Season dates, set by whoever created the team; the Season view counts sessions between them.
+    // Season dates, set by the team's captains; the Season view counts sessions between them.
     if (body.action === 'season') {
       const se = body.season || {}, day = /^\d{4}-\d{2}-\d{2}$/;
       if (!day.test(se.start || '') || !day.test(se.end || '') || se.end < se.start) return [{ error: 'Check the season dates' }, 400];
       const prev = (await store.get(`meta/${code}`, { type: 'json' })) || {};
+      // Captains hold a key; the first one to save a season sets it, and captain invite links share it.
+      const cap = String(body.cap || '');
+      if (!/^[A-Za-z0-9-]{8,64}$/.test(cap)) return [{ error: 'Only captains can change the season' }, 403];
+      if (prev.cap && prev.cap !== cap) return [{ error: 'Only captains can change the season' }, 403];
       const season = { name: String(se.name || '').trim().slice(0, 40) || `${se.start.slice(0, 4)} season`, start: se.start, end: se.end };
-      await store.setJSON(`meta/${code}`, { ...prev, season });
+      await store.setJSON(`meta/${code}`, { ...prev, season, cap: prev.cap || cap });
       return [{ ok: true, season }, 200];
     }
     // Monthly team challenge, e.g. 2000 throws as a team. Anyone on the team can set it.

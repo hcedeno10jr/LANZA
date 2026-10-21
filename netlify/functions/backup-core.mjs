@@ -25,7 +25,7 @@ export function cleanSession(s) {
 export function cleanProfile(p) {
   p = p || {};
   return { name: str(p.name, 40), team: str(p.team, 20).toUpperCase().replace(/[^A-Z0-9-]/g, ''), teamName: str(p.teamName, 30),
-    teams: (Array.isArray(p.teams) ? p.teams : []).slice(0, 10).map((t) => ({ code: str(t && t.code, 20).toUpperCase().replace(/[^A-Z0-9-]/g, ''), name: str(t && t.name, 30), color: /^#[0-9a-f]{6}$/i.test(t && t.color) ? t.color : '', owner: !!(t && t.owner) })).filter((t) => t.code),
+    teams: (Array.isArray(p.teams) ? p.teams : []).slice(0, 10).map((t) => ({ code: str(t && t.code, 20).toUpperCase().replace(/[^A-Z0-9-]/g, ''), name: str(t && t.name, 30), color: /^#[0-9a-f]{6}$/i.test(t && t.color) ? t.color : '', owner: !!(t && t.owner), ck: /^[A-Za-z0-9-]{8,64}$/.test(t && t.ck) ? t.ck : '' })).filter((t) => t.code),
     goal: Math.round(num(p.goal, 1, 7, 3)) };
 }
 // Union by session id; the newer copy (the one just sent) wins.

@@ -720,7 +720,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.24.2';
+const APP_VERSION = '2.25.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1987,7 +1987,7 @@ async function restoreBackup() {
     if (p) {
       if (!state.profile.team && p.team) { state.profile.team = p.team; state.profile.teamName = p.teamName || ''; }
       // add any teams this athlete joined on another phone
-      if (Array.isArray(p.teams)) { const ts = teamsList(); p.teams.forEach(t => { if (t && t.code && !ts.some(x => x.code === t.code)) ts.push({ code: t.code, name: t.name || '', color: t.color || '', owner: !!t.owner }); }); }
+      if (Array.isArray(p.teams)) { const ts = teamsList(); p.teams.forEach(t => { if (t && t.code && !ts.some(x => x.code === t.code)) ts.push({ code: t.code, name: t.name || '', color: t.color || '', owner: !!t.owner, ck: t.ck || '' }); }); }
       applyTheme();
       if (!state.profile.name && p.name) state.profile.name = p.name;
       saveProfile(); if (LS.get('goal', null) == null && p.goal) LS.set('goal', p.goal);
@@ -2309,12 +2309,15 @@ function season() {
 }
 async function saveSeason(sn, quiet) {
   if (teamData) teamData.season = sn; setTeamMeta(state.profile.team, { season: sn }); renderSeason(); renderBoard(); ensureSeasonData(); if (!quiet) toast(tr('Season saved'));
-  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'season', code: state.profile.team, season: sn, name: state.profile.name }) }); } catch {}
+  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'season', code: state.profile.team, season: sn, cap: capKey(), name: state.profile.name }) }); }
+  catch (e) { if (e.status === 403) { setTeamMeta(state.profile.team, { owner: false }); toast(tr('Only captains can change the season')); loadTeam(); } }
 }
 const inSeason = (iso, se = season()) => { const d = iso.slice(0, 10); return d >= se.start && d <= se.end; };
 const isOwner = () => !!(activeTeam() || {}).owner;
+// Captain key: proves captain rights to the server and travels in captain invite links.
+function capKey() { const t = activeTeam(); if (!t) return ''; if (!t.ck) setTeamMeta(t.code, { ck: uuid().replace(/[^A-Za-z0-9]/g, '').slice(0, 24) }); return activeTeam().ck; }
 // Teams made before captains were tracked: whoever sets the first season becomes captain.
-const canClaim = () => !isOwner() && !!state.profile.team && !!teamData && !teamData.season;
+const canClaim = () => !isOwner() && !!state.profile.team && !!teamData && !teamData.has_captain && !teamData.season;
 const seasonWeeks = () => Math.min(52, Math.max(6, Math.ceil((Date.now() - new Date(season().start)) / (7 * 864e5)) + 1));
 async function ensureSeasonData() { if (teamData && (teamData.weeks || 6) < seasonWeeks()) await loadTeam(); }
 function renderSeason(edit) {
@@ -2337,7 +2340,13 @@ function renderSeason(edit) {
   el.innerHTML = `<div class="label-row"><span class="cap">${tr('Season')}</span>${isOwner() ? `<a href="#" class="cap" id="seEdit">${tr('Change end date')}</a>` : ''}</div>
     <div class="chal" style="margin:4px 0 0"><b style="font-size:22px">${esc(se.name)}</b></div><div class="cap" style="text-transform:none;letter-spacing:0">${fmt(se.start)} – ${fmt(se.end)}</div>
     ${isOwner() ? `<button class="btn ${confirming ? 'primary' : ''}" id="seNew" style="margin-top:12px">${tr(confirming ? 'Tap again to end this season and start a new one today' : 'End season and start a new one')}</button>` : ''}
+    ${isOwner() ? `<button class="btn" id="seCap" style="margin-top:8px">${tr('Share the captain role')}</button>` : ''}
     ${canClaim() ? `<button class="btn" id="seClaim" style="margin-top:12px">${tr("I'm the captain, manage the season")}</button>` : ''}`;
+  if ($('seCap')) $('seCap').onclick = () => {
+    const t = activeTeam(), url = `${location.origin}${location.pathname}?team=${encodeURIComponent(t.code)}${t.name ? '&tn=' + encodeURIComponent(t.name) : ''}&cap=${capKey()}&src=captain`;
+    const text = tr('You’re now a captain of {team} on {app}. Open this link to manage the season.', { team: teamLabel(), app: BRAND.name });
+    if (navigator.share) navigator.share({ title: BRAND.name, text, url }).catch(() => {}); else copyText(`${text} ${url}`);
+  };
   if ($('seClaim')) $('seClaim').onclick = () => { setTeamMeta(state.profile.team, { owner: true }); renderSeason(); };
   if ($('seEdit')) $('seEdit').onclick = (e) => { e.preventDefault(); renderSeason.confirm = false; renderSeason(true); };
   if ($('seNew')) $('seNew').onclick = () => {
@@ -2719,16 +2728,18 @@ $('onbSkip').onclick = () => closeOnb();
 
 // Team invite links look like https://app/?team=BLAZE-24
 const inviteTeamName = (new URLSearchParams(location.search).get('tn') || '').trim().slice(0, 30);
+const inviteCap = (() => { const c = new URLSearchParams(location.search).get('cap') || ''; return /^[A-Za-z0-9-]{8,64}$/.test(c) ? c : ''; })();
 const inviteCode = (() => { const c = (new URLSearchParams(location.search).get('team') || '').trim().toUpperCase(); return /^[A-Z0-9-]{4,20}$/.test(c) ? c : ''; })();
 function openInvite(code) {
-  const q = new URLSearchParams(location.search); q.delete('team'); q.delete('tn'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
-  if (teamsList().some(t => t.code === code)) { switchTeam(code); toast(tr('You’re already on team {code}', { code: teamLabel() })); return nextIntro(); }
+  const q = new URLSearchParams(location.search); q.delete('team'); q.delete('tn'); q.delete('cap'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
+  const makeCaptain = () => { if (inviteCap) { setTeamMeta(code, { owner: true, ck: inviteCap }); toast(tr('You’re now a captain of {team}', { team: teamLabel() })); renderTeamView(); } };
+  if (teamsList().some(t => t.code === code)) { switchTeam(code); if (inviteCap) makeCaptain(); else toast(tr('You’re already on team {code}', { code: teamLabel() })); return nextIntro(); }
   $('inviteTitle').textContent = tr('Join team {code}?', { code: inviteTeamName || code });
   $('inviteName').value = state.profile.name || ''; $('inviteModal').classList.remove('hidden');
   $('inviteJoin').onclick = () => {
     const name = $('inviteName').value.trim();
     if (!name && !state.strava) { toast(tr('Add your name so teammates know who you are')); $('inviteName').focus(); return; }
-    $('nameInput').value = name; joinTeam(code, inviteTeamName); $('inviteModal').classList.add('hidden'); showView('team'); nextIntro();
+    $('nameInput').value = name; joinTeam(code, inviteTeamName); makeCaptain(); $('inviteModal').classList.add('hidden'); showView('team'); nextIntro();
   };
   $('inviteNo').onclick = () => { $('inviteModal').classList.add('hidden'); nextIntro(); };
 }
