@@ -59,7 +59,7 @@ export async function handle(req, store, fetchImpl = fetch) {
   if (req.method === 'GET') {
     const code = (url.searchParams.get('code') || '').toUpperCase();
     if (!CODE_RE.test(code)) return [{ error: 'Team code must be 4-20 letters, numbers or dashes.' }, 400];
-    const weeks = Math.round(num(url.searchParams.get('weeks'), 1, 12, 4));
+    const weeks = Math.round(num(url.searchParams.get('weeks'), 1, 52, 4));
     const keys = [];
     for (let i = 0; i < weeks; i++) {
       const { blobs } = await store.list({ prefix: `${code}/${isoWeek(new Date(Date.now() - i * 7 * 864e5))}/` });
@@ -71,7 +71,7 @@ export async function handle(req, store, fetchImpl = fetch) {
     rows.sort((a, b) => b.created_at.localeCompare(a.created_at));
     const challenge = await store.get(`challenge/${code}/${monthKey()}`, { type: 'json' });
     const meta = await store.get(`meta/${code}`, { type: 'json' });
-    return [{ code, name: (meta && meta.name) || null, color: (meta && meta.color) || null, week: isoWeek(new Date()), month: monthKey(), challenge: challenge || null, sessions: rows }, 200];
+    return [{ code, name: (meta && meta.name) || null, color: (meta && meta.color) || null, season: (meta && meta.season) || null, week: isoWeek(new Date()), month: monthKey(), challenge: challenge || null, sessions: rows }, 200];
   }
   if (req.method === 'POST') {
     let body;
@@ -83,9 +83,19 @@ export async function handle(req, store, fetchImpl = fetch) {
       const name = String(body.team_name || '').replace(/\s+/g, ' ').trim().slice(0, 30);
       if (!name) return [{ error: 'Add a team name' }, 400];
       const color = /^#[0-9a-f]{6}$/i.test(body.team_color || '') ? body.team_color.toLowerCase() : '';
-      const meta = { name, color, by: String(body.name || '').trim().slice(0, 40), set_at: new Date().toISOString() };
+      const prev = (await store.get(`meta/${code}`, { type: 'json' })) || {};
+      const meta = { ...prev, name, color, by: String(body.name || '').trim().slice(0, 40), set_at: new Date().toISOString() };
       await store.setJSON(`meta/${code}`, meta);
       return [{ ok: true, name, color }, 200];
+    }
+    // Season dates, set by whoever created the team; the Season view counts sessions between them.
+    if (body.action === 'season') {
+      const se = body.season || {}, day = /^\d{4}-\d{2}-\d{2}$/;
+      if (!day.test(se.start || '') || !day.test(se.end || '') || se.end < se.start) return [{ error: 'Check the season dates' }, 400];
+      const prev = (await store.get(`meta/${code}`, { type: 'json' })) || {};
+      const season = { name: String(se.name || '').trim().slice(0, 40) || `${se.start.slice(0, 4)} season`, start: se.start, end: se.end };
+      await store.setJSON(`meta/${code}`, { ...prev, season });
+      return [{ ok: true, season }, 200];
     }
     // Monthly team challenge, e.g. 2000 throws as a team. Anyone on the team can set it.
     if (body.action === 'challenge') {

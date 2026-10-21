@@ -331,6 +331,10 @@ label.f{display:grid;gap:6px}
 .storyimg{display:block;width:min(62vw,300px);aspect-ratio:9/16;margin:0 auto;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.5);background:#000}
 #shareModal,#postModal{place-items:center;padding:16px}
 .swatches{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.colorbtn{display:flex;width:100%;align-items:center;justify-content:space-between;background:none;padding:0;color:var(--text)}
+.colorbtn .cur{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.colorbtn i{width:22px;height:22px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.18),0 0 14px rgba(var(--accent-rgb),.6)}
+.colorbtn svg{transition:transform .2s}.colorbtn.open svg{transform:rotate(90deg)}
 .swatches button{width:36px;height:36px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
 .swatches button.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25),inset 0 0 0 3px #000}
 .swatches button.team{width:auto;padding:0 14px;border-radius:999px;color:#fff;font-weight:700;font-size:13px}
@@ -554,7 +558,8 @@ nav.tabs button{position:relative;z-index:1}
     </div>
     <div id="teamBoard" class="hidden" style="display:grid;grid-template-columns:minmax(0,1fr);gap:14px">
       <div class="teamtabs hidden" id="teamTabs"></div>
-      <div class="seg" id="teamRangeSeg"><button id="rangeWeek" class="on">This week</button><button id="range4">Last 4 weeks</button></div>
+      <div class="seg" id="teamRangeSeg"><button id="rangeWeek" class="on">This week</button><button id="range4">4 weeks</button><button id="rangeSeason">Season</button></div>
+      <div class="card hidden" id="seasonCard"></div>
       <div class="note hidden" id="teamNote"></div>
       <div class="card hidden" id="teamNameCard" style="display:grid;gap:10px">
         <label class="f"><span class="cap">Team name</span><input type="text" id="teamNameInput" maxlength="30" placeholder="Panama Blaze"></label>
@@ -611,7 +616,8 @@ nav.tabs button{position:relative;z-index:1}
     <div class="sec" id="acctStrava"></div>
     <div class="sec hidden" id="acctPro"></div>
     <div class="sec"><span class="cap">Weekly goal · sessions per week</span><div class="goalchips" id="goalChips"></div></div>
-    <div class="sec"><span class="cap">App color</span><div class="swatches" id="appColors"></div></div>
+    <div class="sec"><button type="button" class="colorbtn" id="appColorBtn"><span class="cap">App color</span><span class="cur"><i id="appColorDot"></i><span id="appColorName"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></button>
+      <div class="swatches hidden" id="appColors"></div></div>
     <div class="sec"><span class="cap">Backup</span><div class="status-line" style="justify-content:flex-start;text-align:start" id="backupLine"></div>
       <div class="row"><button class="btn sm" id="exportData">Download my data</button><button class="btn sm" id="importData">Restore from file</button><button class="btn sm hidden" id="deleteBackup">Delete my backup</button></div>
       <input type="file" id="importFile" accept="application/json,.json" class="hidden"></div>
@@ -714,7 +720,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.22.0';
+const APP_VERSION = '2.23.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1840,7 +1846,7 @@ async function disconnectStrava() {
 }
 
 /* ---------- the "You" sheet: Strava, weekly goal, backup, install, language, privacy ---------- */
-function openAcct() { renderAcct(); $('acctModal').classList.remove('hidden'); }
+function openAcct() { $('appColors').classList.add('hidden'); $('appColorBtn').classList.remove('open'); renderAcct(); $('acctModal').classList.remove('hidden'); }
 $('acctClose').onclick = () => $('acctModal').classList.add('hidden');
 $('acctModal').onclick = (e) => { if (e.target.id === 'acctModal') $('acctModal').classList.add('hidden'); };
 function renderAcct() {
@@ -1873,10 +1879,12 @@ function renderAcct() {
 }
 function renderAppColors() {
   const pick = LS.get('themeColor', 'auto'), t = activeTeam(), tc = t && isHex(t.color) ? t.color : '';
+  $('appColorDot').style.background = themeColor(); $('appColorName').textContent = pick === 'auto' && tc ? teamName(t) : '';
   $('appColors').innerHTML = (tc ? `<button type="button" data-c="auto" class="team ${pick === 'auto' ? 'on' : ''}" style="background:${tc}"><span>${esc(tr('Team'))}</span></button>` : '')
     + PALETTE.map(c => `<button type="button" data-c="${c}" aria-label="${c}" class="${pick === c || (!tc && pick === 'auto' && c === DEFAULT_ACCENT) ? 'on' : ''}" style="background:${c}"></button>`).join('');
 }
-$('appColors').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; LS.set('themeColor', b.dataset.c); applyTheme(); renderAppColors(); hapticTick(); };
+$('appColors').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; LS.set('themeColor', b.dataset.c); applyTheme(); renderAppColors(); hapticTick(); setTimeout(() => $('appColors').classList.add('hidden'), 250); $('appColorBtn').classList.remove('open'); };
+$('appColorBtn').onclick = () => { const open = $('appColors').classList.toggle('hidden'); $('appColorBtn').classList.toggle('open', !open); hapticTick(); };
 $('goalChips').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; LS.set('goal', +b.dataset.g); hapticTick(); renderAcct(); renderGoal(); backupSoon(); };
 $('acctLang').onclick = () => { $('acctModal').classList.add('hidden'); openLang(false); };
 $('acctInstall').onclick = () => { $('acctModal').classList.add('hidden'); doInstall(); };
@@ -1979,7 +1987,7 @@ async function restoreBackup() {
     if (p) {
       if (!state.profile.team && p.team) { state.profile.team = p.team; state.profile.teamName = p.teamName || ''; }
       // add any teams this athlete joined on another phone
-      if (Array.isArray(p.teams)) { const ts = teamsList(); p.teams.forEach(t => { if (t && t.code && !ts.some(x => x.code === t.code)) ts.push({ code: t.code, name: t.name || '', color: t.color || '' }); }); }
+      if (Array.isArray(p.teams)) { const ts = teamsList(); p.teams.forEach(t => { if (t && t.code && !ts.some(x => x.code === t.code)) ts.push({ code: t.code, name: t.name || '', color: t.color || '', owner: !!t.owner }); }); }
       applyTheme();
       if (!state.profile.name && p.name) state.profile.name = p.name;
       saveProfile(); if (LS.get('goal', null) == null && p.goal) LS.set('goal', p.goal);
@@ -2257,7 +2265,7 @@ function joinTeam(code, teamName = '') {
   joiningAnother = false; teamData = null; applyTheme(); renderTeamView(); toast(tr('Joined team {code}', { code: teamLabel() })); track('team_join'); retryPendingShares();
 }
 $('joinTeam').onclick = () => joinTeam($('codeInput').value);
-$('createTeam').onclick = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); renderTeamName(true); };
+$('createTeam').onclick = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); setTeamMeta(`LZ-${c}`, { owner: true }); renderTeamName(true); };
 $('inviteTeam').onclick = () => {
   const url = `${location.origin}${location.pathname}?team=${encodeURIComponent(state.profile.team)}${state.profile.teamName ? '&tn=' + encodeURIComponent(state.profile.teamName) : ''}&src=invite`;
   const text = tr('Join my team {code} on {app} and log your throwing practice.', { code: state.profile.teamName ? `${state.profile.teamName} (${state.profile.team})` : state.profile.team, app: BRAND.name });
@@ -2269,13 +2277,50 @@ $('leaveTeam').onclick = () => {
   saveProfile(); teamData = null; applyTheme(); renderTeamView();
 };
 $('copyCode').onclick = () => { try { navigator.clipboard.writeText(state.profile.team).then(() => toast(tr('Code copied')), () => toast(state.profile.team)); } catch { toast(state.profile.team); } };
-$('rangeWeek').onclick = () => { teamRange = 'week'; $('rangeWeek').classList.add('on'); $('range4').classList.remove('on'); renderBoard(); };
-$('range4').onclick = () => { teamRange = '4w'; $('range4').classList.add('on'); $('rangeWeek').classList.remove('on'); renderBoard(); };
+function setRange(r) { teamRange = r; [['week', 'rangeWeek'], ['4w', 'range4'], ['season', 'rangeSeason']].forEach(([k, id]) => $(id).classList.toggle('on', k === r)); renderSeason(); renderBoard(); if (r === 'season') ensureSeasonData(); }
+$('rangeWeek').onclick = () => setRange('week');
+$('range4').onclick = () => setRange('4w');
+$('rangeSeason').onclick = () => setRange('season');
+/* ---------- season: dates the team's creator sets; default is the calendar year ---------- */
+const isoDay = (d) => d.toISOString().slice(0, 10);
+function season() {
+  const s = (teamData && teamData.season) || (activeTeam() || {}).season, y = new Date().getFullYear();
+  return s && s.start ? s : { name: tr('{year} season', { year: y }), start: `${y}-01-01`, end: `${y}-12-31`, auto: true };
+}
+const inSeason = (iso, se = season()) => { const d = iso.slice(0, 10); return d >= se.start && d <= se.end; };
+const isOwner = () => !!(activeTeam() || {}).owner;
+const seasonWeeks = () => Math.min(52, Math.max(6, Math.ceil((Date.now() - new Date(season().start)) / (7 * 864e5)) + 1));
+async function ensureSeasonData() { if (teamData && (teamData.weeks || 6) < seasonWeeks()) await loadTeam(); }
+function renderSeason(edit) {
+  const el = $('seasonCard'), se = season(), show = teamRange === 'season';
+  el.classList.toggle('hidden', !show); if (!show) return;
+  const fmt = (d) => new Date(d + 'T12:00:00').toLocaleDateString(fmtLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
+  if (edit) {
+    el.innerHTML = `<div style="display:grid;gap:10px">
+      <label class="f"><span class="cap">${tr('Season name')}</span><input type="text" id="seName" maxlength="40" value="${esc(se.auto ? '' : se.name)}" placeholder="${esc(tr('{year} season', { year: new Date().getFullYear() }))}"></label>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px"><label class="f"><span class="cap">${tr('Starts')}</span><input type="date" id="seStart" value="${se.start}"></label><label class="f"><span class="cap">${tr('Ends')}</span><input type="date" id="seEnd" value="${se.end}"></label></div>
+      <button class="btn primary" id="seSave">${tr('Save season')}</button></div>`;
+    $('seSave').onclick = async () => {
+      const name = $('seName').value.trim().slice(0, 40) || tr('{year} season', { year: $('seStart').value.slice(0, 4) }), start = $('seStart').value, end = $('seEnd').value;
+      if (!start || !end || end < start) { toast(tr('Check the season dates')); return; }
+      const sn = { name, start, end };
+      if (teamData) teamData.season = sn; setTeamMeta(state.profile.team, { season: sn }); renderSeason(); renderBoard(); ensureSeasonData(); toast(tr('Season saved'));
+      try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'season', code: state.profile.team, season: sn, name: state.profile.name }) }); } catch {}
+    };
+    return;
+  }
+  el.innerHTML = `<div class="label-row"><span class="cap">${tr('Season')}</span>${isOwner() ? `<a href="#" class="cap" id="seEdit">${tr(se.auto ? 'Set dates' : 'Change')}</a>` : ''}</div>
+    <div class="chal" style="margin:4px 0 0"><b style="font-size:22px">${esc(se.name)}</b></div><div class="cap" style="text-transform:none;letter-spacing:0">${fmt(se.start)} – ${fmt(se.end)}</div>`;
+  if ($('seEdit')) $('seEdit').onclick = (e) => { e.preventDefault(); renderSeason(true); };
+}
 $('refreshTeam').onclick = () => loadTeam();
 async function loadTeam() {
   $('teamNote').classList.add('hidden');
   try {
-    teamData = await api(`/team?code=${encodeURIComponent(state.profile.team)}&weeks=6`);
+    const weeks = seasonWeeks();
+    teamData = await api(`/team?code=${encodeURIComponent(state.profile.team)}&weeks=${weeks}`); teamData.weeks = weeks;
+    if (teamData.season && JSON.stringify(teamData.season) !== JSON.stringify((activeTeam() || {}).season)) setTeamMeta(state.profile.team, { season: teamData.season });
+    if (seasonWeeks() > weeks) { teamData = await api(`/team?code=${encodeURIComponent(state.profile.team)}&weeks=${seasonWeeks()}`); teamData.weeks = seasonWeeks(); }
     const t = activeTeam(), nm = teamData.name || (t && t.name) || '', col = isHex(teamData.color) ? teamData.color : (t && t.color) || '';
     if (t && (nm !== t.name || col !== t.color)) { setTeamMeta(t.code, { name: nm, color: col }); renderTeamName(); renderTeamTabs(); }
   }
@@ -2284,12 +2329,13 @@ async function loadTeam() {
     $('teamNote').textContent = tr('Example data. The live team board turns on once the app is deployed.');
     $('teamNote').classList.remove('hidden');
   }
-  renderBoard();
+  renderSeason(); renderBoard();
 }
 function renderBoard() {
   if (!teamData) return;
   const all = teamData.sessions, wk = weekKey();
-  const rows = teamRange === 'week' ? all.filter(s => weekKey(new Date(s.created_at)) === wk) : all.filter(s => Date.now() - new Date(s.created_at) < 28 * 864e5);
+  const se = season();
+  const rows = teamRange === 'week' ? all.filter(s => weekKey(new Date(s.created_at)) === wk) : teamRange === 'season' ? all.filter(s => inSeason(s.created_at, se)) : all.filter(s => Date.now() - new Date(s.created_at) < 28 * 864e5);
   const by = new Map();
   rows.forEach(s => { if (!by.has(s.athlete_key)) by.set(s.athlete_key, []); by.get(s.athlete_key).push(s); });
   const board = [...by.values()].map(rs => {
@@ -2300,7 +2346,7 @@ function renderBoard() {
   $('tActive').textContent = board.length; $('tAcc').textContent = (att ? Math.round(mk / att * 100) : 0) + '%';
   $('tAvg').textContent = rows.length ? Math.round(rows.reduce((a, s) => a + s.skill_score, 0) / rows.length) : 0;
   $('boardList').innerHTML = board.length ? board.map((r, i) => `<div class="item tap" data-k="${esc(r.key)}"><div class="t"><span class="rank ${i === 0 ? 'top' : ''}">${i + 1}</span>${esc(r.name)}${r.verified ? '<span class="tag strava">Strava ✓</span>' : ''}</div><div class="r">${Math.round(r.avg)}<small>${PB}${tr('BEST {n}', { n: r.best })}</small></div><div class="d">${Math.round(r.acc * 100)}% · ${tr(r.n === 1 ? '{n} session' : '{n} sessions', { n: r.n })} · ${tr('{n} throws', { n: r.att })}</div></div>`).join('')
-    : `<div class="empty">${tr(teamRange === 'week' ? 'No sessions this week yet.' : 'No sessions in the last 4 weeks yet.')}</div>`;
+    : `<div class="empty">${tr(teamRange === 'week' ? 'No sessions this week yet.' : teamRange === 'season' ? 'No sessions this season yet.' : 'No sessions in the last 4 weeks yet.')}</div>`;
   // Accountability: anyone seen in the last 4 weeks with no session this week.
   const seen = new Map(); all.forEach(s => { if (!seen.has(s.athlete_key)) seen.set(s.athlete_key, s); });
   const active = new Set(all.filter(s => weekKey(new Date(s.created_at)) === wk).map(s => s.athlete_key));
@@ -2320,6 +2366,14 @@ function sessionItem(s, best) {
 }
 /* ---------- monthly team challenge ---------- */
 const CH_KINDS = { throws: 'Team throws', makes: 'Team makes', sessions: 'Team sessions' };
+// Suggested monthly goals, sized for a 12-18 player squad (or the real roster when bigger):
+// about one session a week each, ~40 throws a session, ~55% caught. Reachable, but only if most of the team shows up.
+function chSuggest(kind) {
+  const seen = new Set(((teamData && teamData.sessions) || []).filter(s => Date.now() - new Date(s.created_at) < 28 * 864e5).map(s => s.athlete_key)).size;
+  const n = seen >= 12 ? seen : 15, per = { sessions: 4, throws: 160, makes: 88 }[kind], step = { sessions: 5, throws: 100, makes: 50 }[kind];
+  return Math.max(step, Math.round(n * per / step) * step);
+}
+const chHint = (k) => tr({ sessions: 'Suggested: about one session a week per player.', throws: 'Suggested: about 160 throws a month per player.', makes: 'Suggested: about 90 makes a month per player.' }[k]);
 function renderChallenge() {
   const el = $('challengeCard'), c = teamData && teamData.challenge, m = new Date().toISOString().slice(0, 7);
   const month = teamData.sessions.filter(s => s.created_at.slice(0, 7) === m);
@@ -2337,8 +2391,12 @@ function renderChallenge() {
   el.innerHTML = `<div class="label-row"><span class="cap">${tr('Monthly challenge')}</span></div>
     <p class="note" style="text-align:start;margin:0 0 10px">${tr('Set one goal for the whole team this month.')}</p>
     <div class="seg" id="chKind">${Object.entries(CH_KINDS).map(([k, v]) => `<button data-k="${k}" class="${k === kind ? 'on' : ''}">${tr(v)}</button>`).join('')}</div>
-    <div class="pform" style="margin-top:10px"><input type="number" inputmode="numeric" id="chTarget" min="1" value="${c ? c.target : 2000}"><button class="btn sm primary" id="chSet">${tr('Set challenge')}</button></div>`;
-  $('chKind').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; $('chKind').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); };
+    <div class="pform" style="margin-top:10px"><input type="number" inputmode="numeric" id="chTarget" min="1" value="${c && c.kind === kind ? c.target : chSuggest(kind)}"><button class="btn sm primary" id="chSet">${tr('Set challenge')}</button></div>
+    <div class="cap" id="chHint" style="margin-top:8px;text-transform:none;letter-spacing:0">${chHint(kind)}</div>`;
+  $('chKind').onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return; $('chKind').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    $('chTarget').value = c && c.kind === b.dataset.k ? c.target : chSuggest(b.dataset.k); $('chHint').textContent = chHint(b.dataset.k);
+  };
   $('chSet').onclick = async () => {
     const k = $('chKind').querySelector('.on').dataset.k, target = Math.round(+$('chTarget').value);
     if (!(target > 0)) return;
