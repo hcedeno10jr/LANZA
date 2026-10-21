@@ -780,7 +780,10 @@ window.LANZA_I18N = {
 "Change dates": "Cambiar fechas",
 "End season and start a new one": "Terminar temporada e iniciar una nueva",
 "Tap again to end this season and start a new one today": "Toca otra vez para terminar esta temporada y empezar una nueva hoy",
-"Change end date": "Cambiar fecha de fin"
+"Change end date": "Cambiar fecha de fin",
+"Connect once. Then post any session in one tap.": "Conéctate una vez. Luego sube cualquier sesión con un toque.",
+"Share it on Strava": "Compártelo en Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "Sube cualquier sesión a Strava con un toque, con tu Skill Score, y tu equipo ve quién se puso a trabajar."
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1174,7 +1177,10 @@ window.LANZA_I18N = {
 "Change dates": "Mudar datas",
 "End season and start a new one": "Encerrar temporada e começar outra",
 "Tap again to end this season and start a new one today": "Toque de novo para encerrar esta temporada e começar uma nova hoje",
-"Change end date": "Mudar data de término"
+"Change end date": "Mudar data de término",
+"Connect once. Then post any session in one tap.": "Conecte uma vez. Depois, poste qualquer sessão com um toque.",
+"Share it on Strava": "Compartilhe no Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "Poste qualquer sessão no Strava com um toque, com seu Skill Score, e seu time vê quem treinou de verdade."
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1572,7 +1578,10 @@ window.LANZA_I18N = {
 "Change dates": "Modifier les dates",
 "End season and start a new one": "Terminer la saison et en commencer une nouvelle",
 "Tap again to end this season and start a new one today": "Touche encore pour terminer cette saison et en commencer une nouvelle aujourd’hui",
-"Change end date": "Modifier la date de fin"
+"Change end date": "Modifier la date de fin",
+"Connect once. Then post any session in one tap.": "Connecte-toi une fois. Ensuite, publie n’importe quelle séance en un geste.",
+"Share it on Strava": "Partage-le sur Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "Publie n’importe quelle séance sur Strava en un geste avec ton Skill Score, et ton équipe voit qui a bossé."
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -1971,7 +1980,10 @@ window.LANZA_I18N = {
 "Change dates": "Daten ändern",
 "End season and start a new one": "Saison beenden und neue starten",
 "Tap again to end this season and start a new one today": "Nochmal tippen, um diese Saison zu beenden und heute eine neue zu starten",
-"Change end date": "Enddatum ändern"
+"Change end date": "Enddatum ändern",
+"Connect once. Then post any session in one tap.": "Einmal verbinden. Dann jede Session mit einem Tipp posten.",
+"Share it on Strava": "Teile es auf Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "Poste jede Session mit einem Tipp auf Strava, mit deinem Skill Score, und dein Team sieht, wer trainiert hat."
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2384,7 +2396,10 @@ window.LANZA_I18N = {
 "Change dates": "Cambia date",
 "End season and start a new one": "Chiudi la stagione e iniziane una nuova",
 "Tap again to end this season and start a new one today": "Tocca di nuovo per chiudere questa stagione e iniziarne una nuova oggi",
-"Change end date": "Cambia data di fine"
+"Change end date": "Cambia data di fine",
+"Connect once. Then post any session in one tap.": "Collegati una volta. Poi pubblica qualsiasi sessione con un tocco.",
+"Share it on Strava": "Condividilo su Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "Pubblica qualsiasi sessione su Strava con un tocco e il tuo Skill Score, e la squadra vede chi si è allenato."
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -2765,7 +2780,10 @@ window.LANZA_I18N = {
 "Change dates": "Data wijzigen",
 "End season and start a new one": "Seizoen afsluiten en een nieuw beginnen",
 "Tap again to end this season and start a new one today": "Tik nogmaals om dit seizoen af te sluiten en vandaag een nieuw te beginnen",
-"Change end date": "Einddatum wijzigen"
+"Change end date": "Einddatum wijzigen",
+"Connect once. Then post any session in one tap.": "Eén keer verbinden. Daarna post je elke sessie met één tik.",
+"Share it on Strava": "Deel het op Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "Post elke sessie met één tik op Strava met je Skill Score, en je team ziet wie er heeft getraind."
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3197,7 +3215,10 @@ window.LANZA_I18N = {
 "Change dates": "日付を変更",
 "End season and start a new one": "シーズンを終えて新しいシーズンを開始",
 "Tap again to end this season and start a new one today": "もう一度タップすると今シーズンを終え、今日から新シーズンを開始します",
-"Change end date": "終了日を変更"
+"Change end date": "終了日を変更",
+"Connect once. Then post any session in one tap.": "一度つなぐだけ。あとはワンタップでセッションを投稿。",
+"Share it on Strava": "Stravaでシェア",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "どのセッションもワンタップでSkill Score付きでStravaに投稿。チームは誰が練習したか見られます。"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -3624,7 +3645,10 @@ window.LANZA_I18N = {
 "Change dates": "修改日期",
 "End season and start a new one": "结束本赛季并开始新赛季",
 "Tap again to end this season and start a new one today": "再点一次即结束本赛季，并从今天开始新赛季",
-"Change end date": "修改结束日期"
+"Change end date": "修改结束日期",
+"Connect once. Then post any session in one tap.": "连接一次，之后一键发布任何训练。",
+"Share it on Strava": "分享到 Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "一键把任何训练连同 Skill Score 发布到 Strava，队友能看到谁在努力。"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4051,7 +4075,10 @@ window.LANZA_I18N = {
 "Change dates": "修改日期",
 "End season and start a new one": "結束本賽季並開始新賽季",
 "Tap again to end this season and start a new one today": "再點一次即結束本賽季，並從今天開始新賽季",
-"Change end date": "修改結束日期"
+"Change end date": "修改結束日期",
+"Connect once. Then post any session in one tap.": "連接一次，之後一鍵發布任何訓練。",
+"Share it on Strava": "分享到 Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "一鍵把任何訓練連同 Skill Score 發布到 Strava，隊友能看到誰在努力。"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -4482,7 +4509,10 @@ window.LANZA_I18N = {
 "Change dates": "날짜 변경",
 "End season and start a new one": "시즌 종료 후 새 시즌 시작",
 "Tap again to end this season and start a new one today": "한 번 더 누르면 이번 시즌을 끝내고 오늘부터 새 시즌을 시작해요",
-"Change end date": "종료일 변경"
+"Change end date": "종료일 변경",
+"Connect once. Then post any session in one tap.": "한 번만 연결하세요. 그다음엔 한 번 탭으로 세션을 올려요.",
+"Share it on Strava": "Strava에 공유",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "한 번 탭으로 Skill Score와 함께 세션을 Strava에 올리고, 팀은 누가 연습했는지 봐요."
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -4914,7 +4944,10 @@ window.LANZA_I18N = {
 "Change dates": "שינוי תאריכים",
 "End season and start a new one": "סיום העונה ופתיחת עונה חדשה",
 "Tap again to end this season and start a new one today": "הקש שוב כדי לסיים את העונה ולפתוח עונה חדשה היום",
-"Change end date": "שינוי תאריך סיום"
+"Change end date": "שינוי תאריך סיום",
+"Connect once. Then post any session in one tap.": "מתחברים פעם אחת. אחר כך מעלים כל אימון בנגיעה אחת.",
+"Share it on Strava": "שתפו ב-Strava",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "העלו כל אימון ל-Strava בנגיעה אחת עם ה-Skill Score, והקבוצה רואה מי התאמן."
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -5311,7 +5344,10 @@ window.LANZA_I18N = {
 "Change dates": "तारीखें बदलें",
 "End season and start a new one": "सीज़न खत्म करें और नया शुरू करें",
 "Tap again to end this season and start a new one today": "यह सीज़न खत्म कर आज से नया शुरू करने के लिए फिर टैप करें",
-"Change end date": "खत्म होने की तारीख बदलें"
+"Change end date": "खत्म होने की तारीख बदलें",
+"Connect once. Then post any session in one tap.": "एक बार कनेक्ट करें। फिर किसी भी सेशन को एक टैप में पोस्ट करें।",
+"Share it on Strava": "Strava पर शेयर करें",
+"Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.": "किसी भी सेशन को एक टैप में अपने Skill Score के साथ Strava पर पोस्ट करें, और टीम देखेगी कि किसने मेहनत की।"
 }
 }
 };

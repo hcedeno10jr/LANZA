@@ -720,7 +720,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.24.0';
+const APP_VERSION = '2.24.1';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1858,7 +1858,7 @@ function renderAcct() {
     $('acctAuto').onchange = (e) => LS.set('autoStrava2', e.target.checked);
     $('stravaOff').onclick = disconnectStrava;
   } else {
-    el.innerHTML = `<span class="cap">Strava</span><p class="note" style="text-align:start;margin:0">${tr(stravaReady() ? 'Connect once. After that every session posts itself.' : 'Strava goes live once the app is deployed.')}</p>
+    el.innerHTML = `<span class="cap">Strava</span><p class="note" style="text-align:start;margin:0">${tr(stravaReady() ? 'Connect once. Then post any session in one tap.' : 'Strava goes live once the app is deployed.')}</p>
       <button class="btn-strava" id="acctConnect">${STRAVA_ICON} Connect with Strava</button>${POWERED}`;
     $('acctConnect').onclick = connectStrava;
   }
@@ -2063,7 +2063,7 @@ function renderStravaBox(msg, cls) {
   btn.classList.remove('hidden'); btn.disabled = false;
   $('stravaLabel').textContent = state.strava ? tr('Upload to Strava') : 'Strava';
   st.className = 'status-line ' + (cls || '');
-  st.textContent = msg || (stravaReady() ? (state.strava ? tr('Signed in as {name}', { name: state.strava.athlete?.firstname || tr('Strava athlete') }) : tr('Connect once. After that every session posts itself.')) : tr('Strava goes live once the app is deployed.'));
+  st.textContent = msg || (stravaReady() ? (state.strava ? tr('Signed in as {name}', { name: state.strava.athlete?.firstname || tr('Strava athlete') }) : tr('Connect once. Then post any session in one tap.')) : tr('Strava goes live once the app is deployed.'));
 }
 // On iPhone the home-screen app and Safari keep separate storage, and Strava's sign-in always
 // returns in Safari. So the installed app tags its sign-in as a hand-off: Safari finishes the
@@ -2683,7 +2683,7 @@ const ART = {
 const ONB = [
   { art: 'draw', title: 'Draw any target', text: 'Trace a teammate, a cone or a gap in the trees. The field is drawn to real scale.' },
   { art: 'log', title: 'Make or miss', text: 'Tap after every throw, or go hands-free and just say “make” or “miss”.' },
-  { art: 'post', title: 'It posts itself', text: 'Every session lands on Strava with your Skill Score, and your team sees who put in the work.' }
+  { art: 'post', title: 'Share it on Strava', text: 'Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.' }
 ];
 let onbI = 0;
 function openOnb() { onbI = 0; paintOnb(); $('onbModal').classList.remove('hidden'); }
