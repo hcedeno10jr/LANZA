@@ -59,6 +59,9 @@ a{color:var(--text)}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.65) 70%,#000 100%);pointer-events:none}
 .fab{position:absolute;top:calc(14px + var(--safe-t));right:16px;z-index:5;width:48px;height:48px;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.35)}
 .fab img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.fab .ini{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:linear-gradient(150deg,#5b66ff,#1f2bff);color:#fff;font-weight:700;font-size:17px;letter-spacing:.5px}
+.fab:has(.ini){background:linear-gradient(150deg,#5b66ff,#1f2bff)}
+.acct .who .av{background:linear-gradient(150deg,#5b66ff,#1f2bff);color:#fff}
 .fab .badge{position:absolute;right:-1px;top:-1px;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #fff}
 .fab.live{background:var(--accent);color:#fff}
 .langbtn{margin-inline-start:6px;display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font:600 11px/1 var(--font);letter-spacing:.06em}
@@ -682,7 +685,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.20.1';
+const APP_VERSION = '2.20.2';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1741,9 +1744,15 @@ const stravaReady = () => !!state.config.stravaClientId;
 const STRAVA_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.4 17.9l-2.1-4.1h-3.1l5.2 10.2 5.1-10.2h-3.1zM10.2 0L3.3 13.8h4.1l2.8-5.5 2.8 5.5h4.1z"/></svg>';
 // Strava brand rules: its own orange button, "Powered by Strava" next to Strava data, "View on Strava" links.
 const POWERED = '<div class="powered">Powered by <b>STRAVA</b></div>';
+// Strava sends a placeholder path (avatar/athlete/large.png) when there's no photo: show initials instead.
+const photoOf = (a) => a && /^https:\/\//.test(a.profile || '') && !/avatar\/athlete/.test(a.profile) ? a.profile : '';
+const initialsOf = (a) => ((a && a.firstname || state.profile.name || '?').trim()[0] + ((a && a.lastname || '').trim()[0] || '')).toUpperCase();
+const avatarHTML = (a, cls = '') => photoOf(a)
+  ? `<img src="${esc(photoOf(a))}" alt="" onerror="this.outerHTML='<span class=&quot;ini ${cls}&quot;>${esc(initialsOf(a))}</span>'">`
+  : `<span class="ini ${cls}">${esc(initialsOf(a))}</span>`;
 function renderStravaPill() {
   const a = state.strava && state.strava.athlete, f = $('profileFab');
-  f.innerHTML = a ? (a.profile ? `<img src="${esc(a.profile)}" alt="">` : `<span style="font-weight:700">${esc((a.firstname || '?')[0])}</span>`) + '<span class="badge"></span>'
+  f.innerHTML = a ? avatarHTML(a) + '<span class="badge"></span>'
     : `<span style="color:var(--strava);display:grid">${STRAVA_ICON}</span>`;
   f.setAttribute('aria-label', a ? `Strava: ${a.firstname}` : tr('Connect Strava'));
 }
@@ -1762,7 +1771,7 @@ $('acctModal').onclick = (e) => { if (e.target.id === 'acctModal') $('acctModal'
 function renderAcct() {
   const a = state.strava && state.strava.athlete, el = $('acctStrava');
   if (state.strava) {
-    el.innerHTML = `<span class="cap">Strava</span><div class="who">${a && a.profile ? `<img src="${esc(a.profile)}" alt="">` : `<span class="av">${esc(((a && a.firstname) || '?')[0])}</span>`}<div><b>${esc([a && a.firstname, a && a.lastname].filter(Boolean).join(' ') || tr('Strava athlete'))}</b><div class="cap">${tr('Strava connected')}</div></div></div>
+    el.innerHTML = `<span class="cap">Strava</span><div class="who">${photoOf(a) ? `<img src="${esc(photoOf(a))}" alt="" onerror="this.outerHTML='<span class=&quot;av&quot;>${esc(initialsOf(a))}</span>'">` : `<span class="av">${esc(initialsOf(a))}</span>`}<div><b>${esc([a && a.firstname, a && a.lastname].filter(Boolean).join(' ') || tr('Strava athlete'))}</b><div class="cap">${tr('Strava connected')}</div></div></div>
       <label class="toggle"><input type="checkbox" id="acctAuto" ${autoStrava() ? 'checked' : ''}> ${tr('Post to Strava automatically when I finish')}</label>
       <div class="row">${a && a.id ? `<a class="btn sm viewstrava" href="https://www.strava.com/athletes/${esc(a.id)}" target="_blank" rel="noopener">${tr('View on Strava')}</a>` : ''}<button class="btn sm" id="stravaOff">${tr('Disconnect')}</button></div>${POWERED}`;
     $('acctAuto').onchange = (e) => LS.set('autoStrava', e.target.checked);
