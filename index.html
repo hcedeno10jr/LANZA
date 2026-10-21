@@ -649,6 +649,14 @@ nav.tabs button{position:relative;z-index:1}
 </div>
 
 <!-- Team invite link (?team=CODE) -->
+<!-- Strava sign-in that finished in Safari while the app runs from the home screen -->
+<div class="modal-bg hidden" id="handoffModal">
+  <div class="modal">
+    <h2>Connected to Strava</h2>
+    <p class="note" style="font-size:14px;margin:0">Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.</p>
+  </div>
+</div>
+
 <div class="modal-bg hidden" id="inviteModal">
   <div class="modal">
     <h2 id="inviteTitle"></h2>
@@ -674,7 +682,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.20.0';
+const APP_VERSION = '2.20.1';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1955,8 +1963,13 @@ function renderStravaBox(msg, cls) {
   st.className = 'status-line ' + (cls || '');
   st.textContent = msg || (stravaReady() ? (state.strava ? tr('Signed in as {name}', { name: state.strava.athlete?.firstname || tr('Strava athlete') }) : tr('Connect once. After that every session posts itself.')) : tr('Strava goes live once the app is deployed.'));
 }
+// On iPhone the home-screen app and Safari keep separate storage, and Strava's sign-in always
+// returns in Safari. So the installed app tags its sign-in as a hand-off: Safari finishes the
+// exchange on the server, and the app collects the tokens when it comes back to the front.
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function stravaAuthorize() {
-  const st = uuid(); try { sessionStorage.setItem('kmos.oauthState', st); } catch {}
+  const st = (isStandalone() ? 'h.' : '') + uuid(); try { sessionStorage.setItem('kmos.oauthState', st); } catch {}
+  if (st.startsWith('h.')) LS.set('oauthHandoff', { st, at: Date.now() });
   if (current) LS.set('pendingUpload', current.id);
   const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const p = new URLSearchParams({ client_id: state.config.stravaClientId, redirect_uri: location.origin + location.pathname, response_type: 'code', approval_prompt: 'auto', scope: 'read,activity:write', state: st });
@@ -1969,14 +1982,40 @@ async function handleOAuthReturn() {
   history.replaceState(null, '', location.pathname);
   let expected = null; try { expected = sessionStorage.getItem('kmos.oauthState'); sessionStorage.removeItem('kmos.oauthState'); } catch {}
   if (q.get('error')) { toast(tr('Strava sign-in was cancelled')); return; }
-  if (expected && q.get('state') !== expected) { toast(tr('Strava sign-in failed, please try again')); return; }
+  const qs = q.get('state') || '';
+  if (qs.startsWith('h.')) {
+    // Started in the home-screen app: hand the tokens over through the server.
+    try { await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'exchange', code: q.get('code'), handoff: qs }) }); }
+    catch (e) { toast(e.message); return; }
+    const h = LS.get('oauthHandoff', null);
+    if (h && h.st === qs) return claimHandoff();
+    $('handoffModal').classList.remove('hidden'); return;
+  }
+  if (expected && qs !== expected) { toast(tr('Strava sign-in failed, please try again')); return; }
   if (!(q.get('scope') || '').includes('activity:write')) toast(tr('Signed in, but uploads need the "Upload your activities" permission'));
   try {
     const t = await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'exchange', code: q.get('code') }) });
+    await stravaConnected(t);
+  } catch (e) { toast(e.message); }
+}
+async function claimHandoff() {
+  const h = LS.get('oauthHandoff', null);
+  if (!h || state.strava) return;
+  if (Date.now() - h.at > 20 * 60e3) { LS.del('oauthHandoff'); return; }
+  try {
+    const t = await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'claim', handoff: h.st }) });
+    if (!t || !t.access_token) return;
+    LS.del('oauthHandoff'); await stravaConnected(t);
+  } catch { /* not finished yet; try again next time the app comes to the front */ }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') claimHandoff(); });
+setInterval(() => { if (document.visibilityState === 'visible' && LS.get('oauthHandoff', null)) claimHandoff(); }, 3000);
+async function stravaConnected(t) {
+  try {
     state.strava = t; LS.set('strava', t); renderStravaPill();
     if (t.athlete && !state.profile.name) { state.profile.name = `${t.athlete.firstname} ${(t.athlete.lastname || '').slice(0, 1)}.`.trim(); saveProfile(); }
     toast(tr('Connected to Strava as {name}', { name: t.athlete?.firstname || tr('you') }));
-    renderSetup(); await restoreBackup();
+    renderSetup(); renderAcct(); await restoreBackup();
     const pending = LS.get('pendingUpload', null); LS.del('pendingUpload');
     const row = pending && state.sessions.find(s => s.id === pending);
     if (row) { current = row; renderResult(); showView('result'); uploadToStrava(); }
@@ -2494,7 +2533,7 @@ let recovered = null;
   } else LS.del('live');
 }
 if (!session) nextIntro();
-loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); retryPendingShares(); handleProReturn(); refreshPro(false); });
+loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); retryPendingShares(); handleProReturn(); refreshPro(false); });
 // phrases(): the data words the language files translate (used when adding a language).
 window.LANZA = { version: APP_VERSION, state, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
 })();

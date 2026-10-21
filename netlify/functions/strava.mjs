@@ -2,6 +2,10 @@
 // The client secret never leaves this function.
 import { json, env } from './_shared.mjs';
 
+// Sign-ins started from the home-screen app finish in Safari; the tokens wait here (briefly) for the app.
+const HANDOFF_RE = /^h\.[0-9a-f-]{20,60}$/i, HANDOFF_MS = 20 * 60e3;
+const handoffs = async () => (await import('@netlify/blobs')).getStore({ name: 'lanza-oauth', consistency: 'strong' });
+
 const TOKEN_URL = 'https://www.strava.com/oauth/token';
 const ACTIVITY_URL = 'https://www.strava.com/api/v3/activities';
 
@@ -16,6 +20,16 @@ export default async (req) => {
   try { body = await req.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
   const { action } = body;
 
+  if (action === 'claim') {
+    const key = String(body.handoff || '');
+    if (!HANDOFF_RE.test(key)) return json({ error: 'Bad hand-off' }, 400);
+    const store = await handoffs(), row = await store.get(key, { type: 'json' });
+    if (!row) return json({ pending: true });
+    await store.delete(key);
+    if (Date.now() - row.at > HANDOFF_MS) return json({ pending: true });
+    return json(row.tokens);
+  }
+
   if (action === 'exchange' || action === 'refresh') {
     const params = new URLSearchParams({ client_id: id, client_secret: secret });
     if (action === 'exchange') { params.set('grant_type', 'authorization_code'); params.set('code', String(body.code || '')); }
@@ -23,7 +37,14 @@ export default async (req) => {
     const r = await fetch(TOKEN_URL, { method: 'POST', body: params });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) return json({ error: d.message || 'Strava rejected the sign-in.' }, r.status);
-    return json({ access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at, athlete: pickAthlete(d.athlete) });
+    const tokens = { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at, athlete: pickAthlete(d.athlete) };
+    if (action === 'exchange' && body.handoff) {
+      const key = String(body.handoff);
+      if (!HANDOFF_RE.test(key)) return json({ error: 'Bad hand-off' }, 400);
+      await (await handoffs()).setJSON(key, { at: Date.now(), tokens });
+      return json({ ok: true, handoff: true });
+    }
+    return json(tokens);
   }
 
   if (action === 'upload') {

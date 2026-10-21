@@ -749,7 +749,9 @@ window.LANZA_I18N = {
 "Team name": "Nombre del equipo",
 "Rename team": "Cambiar nombre",
 "Team name saved": "Nombre del equipo guardado",
-"Save": "Guardar"
+"Save": "Guardar",
+"Connected to Strava": "Conectado a Strava",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Ahora abre LANZA desde tu pantalla de inicio. Termina de conectarse sola. Puedes cerrar esta página."
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1112,7 +1114,9 @@ window.LANZA_I18N = {
 "Team name": "Nome do time",
 "Rename team": "Renomear time",
 "Team name saved": "Nome do time salvo",
-"Save": "Salvar"
+"Save": "Salvar",
+"Connected to Strava": "Conectado ao Strava",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Agora abra o LANZA pela tela de início. Ele termina de conectar sozinho. Pode fechar esta página."
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1479,7 +1483,9 @@ window.LANZA_I18N = {
 "Team name": "Nom de l'équipe",
 "Rename team": "Renommer l'équipe",
 "Team name saved": "Nom de l'équipe enregistré",
-"Save": "Enregistrer"
+"Save": "Enregistrer",
+"Connected to Strava": "Connecté à Strava",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Ouvre maintenant LANZA depuis ton écran d'accueil. La connexion se termine toute seule. Tu peux fermer cette page."
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -1847,7 +1853,9 @@ window.LANZA_I18N = {
 "Team name": "Teamname",
 "Rename team": "Team umbenennen",
 "Team name saved": "Teamname gespeichert",
-"Save": "Speichern"
+"Save": "Speichern",
+"Connected to Strava": "Mit Strava verbunden",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Öffne jetzt LANZA über deinen Home-Bildschirm. Die Verbindung wird automatisch abgeschlossen. Du kannst diese Seite schließen."
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2229,7 +2237,9 @@ window.LANZA_I18N = {
 "Team name": "Nome della squadra",
 "Rename team": "Rinomina squadra",
 "Team name saved": "Nome della squadra salvato",
-"Save": "Salva"
+"Save": "Salva",
+"Connected to Strava": "Connesso a Strava",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Ora apri LANZA dalla schermata Home. La connessione si completa da sola. Puoi chiudere questa pagina."
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -2579,7 +2589,9 @@ window.LANZA_I18N = {
 "Team name": "Teamnaam",
 "Rename team": "Team hernoemen",
 "Team name saved": "Teamnaam opgeslagen",
-"Save": "Opslaan"
+"Save": "Opslaan",
+"Connected to Strava": "Verbonden met Strava",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "Open LANZA nu vanaf je beginscherm. Het verbinden rondt vanzelf af. Je kunt deze pagina sluiten."
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -2980,7 +2992,9 @@ window.LANZA_I18N = {
 "Team name": "チーム名",
 "Rename team": "チーム名を変更",
 "Team name saved": "チーム名を保存しました",
-"Save": "保存"
+"Save": "保存",
+"Connected to Strava": "Stravaに接続しました",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "ホーム画面からLANZAを開いてください。接続は自動で完了します。このページは閉じてかまいません。"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -3376,7 +3390,9 @@ window.LANZA_I18N = {
 "Team name": "队名",
 "Rename team": "修改队名",
 "Team name saved": "队名已保存",
-"Save": "保存"
+"Save": "保存",
+"Connected to Strava": "已连接 Strava",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "现在从主屏幕打开 LANZA，它会自动完成连接。你可以关闭此页面。"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -3772,7 +3788,9 @@ window.LANZA_I18N = {
 "Team name": "隊名",
 "Rename team": "修改隊名",
 "Team name saved": "隊名已儲存",
-"Save": "儲存"
+"Save": "儲存",
+"Connected to Strava": "已連接 Strava",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "現在從主畫面開啟 LANZA，它會自動完成連接。你可以關閉此頁面。"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -4172,7 +4190,9 @@ window.LANZA_I18N = {
 "Team name": "팀 이름",
 "Rename team": "팀 이름 변경",
 "Team name saved": "팀 이름을 저장했어요",
-"Save": "저장"
+"Save": "저장",
+"Connected to Strava": "Strava에 연결됨",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "이제 홈 화면에서 LANZA를 여세요. 연결이 자동으로 완료돼요. 이 페이지는 닫아도 돼요."
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -4573,7 +4593,9 @@ window.LANZA_I18N = {
 "Team name": "שם הקבוצה",
 "Rename team": "שינוי שם הקבוצה",
 "Team name saved": "שם הקבוצה נשמר",
-"Save": "שמירה"
+"Save": "שמירה",
+"Connected to Strava": "מחובר ל-Strava",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "עכשיו פתח את LANZA ממסך הבית. החיבור יושלם לבד. אפשר לסגור את הדף הזה."
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -4939,7 +4961,9 @@ window.LANZA_I18N = {
 "Team name": "टीम का नाम",
 "Rename team": "टीम का नाम बदलें",
 "Team name saved": "टीम का नाम सेव हो गया",
-"Save": "सेव करें"
+"Save": "सेव करें",
+"Connected to Strava": "Strava से जुड़ गया",
+"Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.": "अब होम स्क्रीन से LANZA खोलें। कनेक्शन अपने आप पूरा हो जाएगा। आप यह पेज बंद कर सकते हैं।"
 }
 }
 };
