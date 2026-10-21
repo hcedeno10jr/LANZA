@@ -720,7 +720,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.24.1';
+const APP_VERSION = '2.24.2';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -2313,6 +2313,8 @@ async function saveSeason(sn, quiet) {
 }
 const inSeason = (iso, se = season()) => { const d = iso.slice(0, 10); return d >= se.start && d <= se.end; };
 const isOwner = () => !!(activeTeam() || {}).owner;
+// Teams made before captains were tracked: whoever sets the first season becomes captain.
+const canClaim = () => !isOwner() && !!state.profile.team && !!teamData && !teamData.season;
 const seasonWeeks = () => Math.min(52, Math.max(6, Math.ceil((Date.now() - new Date(season().start)) / (7 * 864e5)) + 1));
 async function ensureSeasonData() { if (teamData && (teamData.weeks || 6) < seasonWeeks()) await loadTeam(); }
 function renderSeason(edit) {
@@ -2334,7 +2336,9 @@ function renderSeason(edit) {
   const confirming = renderSeason.confirm;
   el.innerHTML = `<div class="label-row"><span class="cap">${tr('Season')}</span>${isOwner() ? `<a href="#" class="cap" id="seEdit">${tr('Change end date')}</a>` : ''}</div>
     <div class="chal" style="margin:4px 0 0"><b style="font-size:22px">${esc(se.name)}</b></div><div class="cap" style="text-transform:none;letter-spacing:0">${fmt(se.start)} – ${fmt(se.end)}</div>
-    ${isOwner() ? `<button class="btn ${confirming ? 'primary' : ''}" id="seNew" style="margin-top:12px">${tr(confirming ? 'Tap again to end this season and start a new one today' : 'End season and start a new one')}</button>` : ''}`;
+    ${isOwner() ? `<button class="btn ${confirming ? 'primary' : ''}" id="seNew" style="margin-top:12px">${tr(confirming ? 'Tap again to end this season and start a new one today' : 'End season and start a new one')}</button>` : ''}
+    ${canClaim() ? `<button class="btn" id="seClaim" style="margin-top:12px">${tr("I'm the captain, manage the season")}</button>` : ''}`;
+  if ($('seClaim')) $('seClaim').onclick = () => { setTeamMeta(state.profile.team, { owner: true }); renderSeason(); };
   if ($('seEdit')) $('seEdit').onclick = (e) => { e.preventDefault(); renderSeason.confirm = false; renderSeason(true); };
   if ($('seNew')) $('seNew').onclick = () => {
     if (!renderSeason.confirm) { renderSeason.confirm = true; renderSeason(); clearTimeout(renderSeason.t); renderSeason.t = setTimeout(() => { renderSeason.confirm = false; renderSeason(); }, 4000); return; }
