@@ -1,0 +1,66 @@
+// History backup: a copy of each athlete's sessions, keyed by their Strava athlete id.
+// The Strava token proves who is asking, so nobody can read or overwrite someone else's history.
+import { sanitize } from './team-core.mjs';
+
+const MAX_SESSIONS = 5000;
+const num = (v, lo, hi, d) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
+const str = (v, n) => (v == null ? '' : String(v)).slice(0, n);
+
+function cleanShape(sh) {
+  if (!sh || sh.type !== 'path' || !Array.isArray(sh.pts)) return null;
+  const pts = sh.pts.slice(0, 600).filter((p) => Array.isArray(p) && p.length === 2).map(([x, y]) => [+num(x, -500, 500, 0).toFixed(3), +num(y, -500, 500, 0).toFixed(3)]);
+  return pts.length > 2 ? { type: 'path', pts } : null;
+}
+// Everything the app keeps per session; the scored fields go through the same sanitize as the team board.
+export function cleanSession(s) {
+  const b = sanitize(s || {});
+  return {
+    ...b,
+    duration_s: Math.round(num(s.duration_s, 0, 86400, 0)),
+    title: str(s.title, 80),
+    shape: cleanShape(s.shape),
+    team_shared: s.team_shared ? str(s.team_shared, 20) : null
+  };
+}
+export function cleanProfile(p) {
+  p = p || {};
+  return { name: str(p.name, 40), team: str(p.team, 20).toUpperCase().replace(/[^A-Z0-9-]/g, ''), teamName: str(p.teamName, 30), goal: Math.round(num(p.goal, 1, 7, 3)) };
+}
+// Union by session id; the newer copy (the one just sent) wins.
+export function merge(older, newer) {
+  const by = new Map(older.map((s) => [s.id, s]));
+  newer.forEach((s) => by.set(s.id, s));
+  return [...by.values()].sort((a, b) => a.created_at.localeCompare(b.created_at)).slice(-MAX_SESSIONS);
+}
+
+export async function handle(req, store, fetchImpl = fetch) {
+  if (req.method !== 'POST') return [{ error: 'Use POST' }, 405];
+  let body;
+  try { body = await req.json(); } catch { return [{ error: 'Invalid JSON' }, 400]; }
+  if (!body.access_token) return [{ error: 'Connect Strava to use the backup.' }, 401];
+  let athleteId = null;
+  try {
+    const r = await fetchImpl('https://www.strava.com/api/v3/athlete', { headers: { authorization: `Bearer ${body.access_token}` } });
+    if (r.ok) athleteId = (await r.json()).id;
+  } catch { /* handled below */ }
+  if (!athleteId) return [{ error: 'Strava sign-in expired. Connect again.' }, 401];
+  const key = `athlete/${athleteId}`;
+
+  if (body.action === 'load') {
+    const d = await store.get(key, { type: 'json' });
+    return [d || { sessions: [], profile: null, updated_at: null }, 200];
+  }
+  if (body.action === 'save') {
+    if (!Array.isArray(body.sessions)) return [{ error: 'sessions must be a list' }, 400];
+    const incoming = body.sessions.slice(-MAX_SESSIONS).map(cleanSession).filter((s) => s.id);
+    const prev = (await store.get(key, { type: 'json' })) || { sessions: [] };
+    const d = { sessions: merge(prev.sessions || [], incoming), profile: cleanProfile(body.profile), updated_at: new Date().toISOString() };
+    await store.setJSON(key, d);
+    return [{ ok: true, count: d.sessions.length, updated_at: d.updated_at }, 200];
+  }
+  if (body.action === 'delete') {
+    await store.delete(key);
+    return [{ ok: true }, 200];
+  }
+  return [{ error: 'Unknown action' }, 400];
+}

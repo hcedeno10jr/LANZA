@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LANZA Usage</title><meta name="robots" content="noindex">
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#000;color:#e8e8ed;font:15px/1.5 -apple-system,system-ui,'Segoe UI',Roboto,sans-serif;padding:24px 16px 60px}
+main{max-width:860px;margin:0 auto}
+h1{font-weight:300;font-size:36px;margin:0 0 16px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.tile{background:#141416;border-radius:18px;padding:14px}
+.tile b{display:block;font-size:28px;font-weight:700}
+.tile span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8e8e93}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:8px 6px;border-bottom:1px solid #26262a;text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:#8e8e93;font-weight:600;font-size:12px}
+input,button{font:inherit;padding:10px 14px;border-radius:99px;border:1px solid #26262a;background:#141416;color:#fff}
+button{background:#1f2bff;border-color:#1f2bff;font-weight:600}
+.wrap{overflow-x:auto}
+</style></head><body><main>
+<h1>Usage</h1>
+<form id="f" style="display:flex;gap:8px;margin-bottom:20px"><input id="k" type="password" placeholder="Usage key" style="flex:1"><button>Show</button></form>
+<div id="out"></div>
+</main>
+<script>
+const EV = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'pro', 'story'];
+const NAMES = { open: 'Daily opens', install: 'Installs', session: 'Sessions', strava_post: 'Strava posts', team_join: 'Team joins', invite_open: 'Invite opens', pro: 'Pro sign-ups', story: 'Story shares' };
+const sum = (o) => Object.values(o || {}).reduce((a, n) => a + n, 0);
+document.getElementById('k').value = sessionStorage.getItem('uk') || '';
+document.getElementById('f').onsubmit = async (e) => {
+  e.preventDefault(); const k = document.getElementById('k').value; sessionStorage.setItem('uk', k);
+  const r = await fetch('/.netlify/functions/usage?days=30&key=' + encodeURIComponent(k)); const d = await r.json();
+  const out = document.getElementById('out'); if (!r.ok) { out.textContent = d.error || 'Error'; return; }
+  const tot = {}, src = {}; d.days.forEach(day => EV.forEach(ev => { tot[ev] = (tot[ev] || 0) + sum(day[ev]); Object.entries(day[ev] || {}).forEach(([s, n]) => { src[s] = src[s] || {}; src[s][ev] = (src[s][ev] || 0) + n; }); }));
+  out.innerHTML = '<div class="tiles">' + EV.map(ev => `<div class="tile"><b>${tot[ev]}</b><span>${NAMES[ev]} · 30 days</span></div>`).join('') + '</div>'
+    + '<h3>Where people come from</h3><div class="wrap"><table><tr><th>Source</th>' + EV.map(ev => `<th>${NAMES[ev]}</th>`).join('') + '</tr>'
+    + Object.entries(src).sort((a, b) => sum(b[1]) - sum(a[1])).map(([s, v]) => `<tr><td>${s.replace(/</g, '')}</td>${EV.map(ev => `<td>${v[ev] || 0}</td>`).join('')}</tr>`).join('') + '</table></div>'
+    + '<h3>By day</h3><div class="wrap"><table><tr><th>Day</th>' + EV.map(ev => `<th>${NAMES[ev]}</th>`).join('') + '</tr>'
+    + d.days.map(day => `<tr><td>${day.day}</td>${EV.map(ev => `<td>${sum(day[ev])}</td>`).join('')}</tr>`).join('') + '</table></div>';
+};
+</script></body></html>

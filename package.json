@@ -1,0 +1,9 @@
+{
+  "name": "lanza",
+  "private": true,
+  "type": "module",
+  "description": "Throwing practice tracker with Strava upload and team board",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.5"
+  }
+}

@@ -1,0 +1,2503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LANZA</title>
+<meta name="description" content="LANZA: throwing practice for Ultimate Frisbee, with Strava upload and team boards.">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LANZA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap">
+<style>
+/* =========================================================================
+   BRAND TOKENS: a rebrand starts here (plus the BRAND object in the script,
+   icon.svg and manifest.webmanifest). Nothing else hard-codes brand colors.
+   ========================================================================= */
+:root{
+  color-scheme:dark;
+  --bg:#000000;           /* true black */
+  --card:#141416;         /* rounded cards */
+  --card2:#1e1e21;        /* inactive pills, inputs */
+  --line:#26262a;
+  --text:#ffffff;
+  --muted:#8e8e93;
+  --faint:#5c5c62;
+  --accent:#1f2bff;       /* electric blue */
+  --accent-rgb:31,43,255;
+  --accent-hi:#4f5bff;    /* lighter blue for glows and charts */
+  --ok:#32d74b;           /* status dot */
+  --miss:#ff453a;
+  --strava:#fc4c02;       /* Strava's brand color, required on its button */
+  --font:"Manrope",system-ui,-apple-system,"SF Pro Display","Segoe UI",Roboto,sans-serif;
+  --r-card:24px;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--text);font:15px/1.45 var(--font);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;padding-bottom:calc(84px + var(--safe-b))}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent-hi);outline-offset:2px}
+a{color:var(--text)}
+.hidden{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- screens and hero ---------- */
+.screen{max-width:560px;margin:0 auto;position:relative}
+.hero{position:relative;height:min(52vh,430px);min-height:300px;overflow:hidden;background:var(--bg)}
+.hero.short{height:min(34vh,280px);min-height:220px}
+.hero .art{position:absolute;inset:0}
+.hero .art svg,.hero .art img{width:100%;height:100%;display:block;object-fit:cover}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.65) 70%,#000 100%);pointer-events:none}
+.fab{position:absolute;top:calc(14px + var(--safe-t));right:16px;z-index:5;width:48px;height:48px;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.fab img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.fab .badge{position:absolute;right:-1px;top:-1px;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #fff}
+.fab.live{background:var(--accent);color:#fff}
+.langbtn{margin-inline-start:6px;display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font:600 11px/1 var(--font);letter-spacing:.06em}
+.langgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;text-align:start}
+.langgrid button{text-align:start;padding:12px 14px;border-radius:16px;background:var(--bg);border:1px solid var(--line);color:var(--text);font:500 15px/1.2 var(--font);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.langgrid button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 0 18px rgba(31,43,255,.35)}
+.goal{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:start;width:100%;color:inherit}
+.goal .ring{flex:none;width:44px;height:44px;position:absolute;top:14px;inset-inline-end:14px}
+.goal{position:relative}
+.goal .ring circle{fill:none;stroke-width:6}
+.goal .gv{margin-top:0;font-size:32px;font-weight:700;letter-spacing:-.02em}
+.goal .gv small{font-size:13px;font-weight:500;color:var(--muted);margin-inline-start:4px}
+.goal .edit{margin-inline-start:auto;color:var(--faint)}
+.install{display:flex;gap:12px;align-items:center;text-align:start;background:linear-gradient(135deg,rgba(31,43,255,.22),rgba(31,43,255,.06));border:1px solid rgba(31,43,255,.35)}
+.install img{width:44px;height:44px;border-radius:11px;flex:none}
+.install .t{font-weight:600;font-size:14.5px}
+.install .d{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+.install .d svg{vertical-align:-3px}
+.install .x{margin-inline-start:auto;align-self:flex-start;color:var(--faint);padding:2px 4px;font-size:18px;line-height:1}
+.btn-strava{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:6px;background:#fc4c02;color:#fff;font:700 15px/1 -apple-system,system-ui,'Segoe UI',Roboto,sans-serif;letter-spacing:0}
+.powered{display:flex;align-items:center;justify-content:center;gap:5px;font:600 10px/1 -apple-system,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.powered b{color:#fc4c02;font-weight:800;letter-spacing:.06em;font-size:12px}
+.viewstrava{color:#fc4c02!important;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.acct{text-align:start}
+.acct h2{text-align:center}
+.acct .sec{display:grid;gap:10px;padding:14px 0;border-top:1px solid var(--line)}
+.acct .sec>.cap{display:block;text-align:start}
+.acct .who{display:flex;align-items:center;gap:12px}
+.acct .who img,.acct .who .av{width:44px;height:44px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-weight:700;object-fit:cover}
+.acct .row{display:flex;flex-wrap:wrap;gap:8px}
+.acct .links{display:flex;justify-content:center;gap:16px;font-size:12.5px;color:var(--faint)}
+.acct .links a{color:var(--muted)}
+.quicklink{display:block;margin:14px auto 0;padding:6px 10px;background:none;border:0;color:var(--muted);font:500 13.5px var(--font);text-decoration:underline;text-decoration-color:rgba(255,255,255,.25);text-underline-offset:4px}
+.quicklink:active{color:var(--text)}
+.goalchips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.goalchips button{padding:11px 0;border-radius:12px;background:var(--card2);color:var(--muted);font-weight:700;font-size:15px}
+.goalchips button.on{background:var(--accent);color:#fff}
+.onb{text-align:center;gap:16px}
+.onb .art{height:190px;border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,rgba(31,43,255,.55),#050507 70%);display:grid;place-items:center;overflow:hidden}
+.onb .art svg{width:100%;height:100%}
+.onb h2{font-size:30px}
+.onb p{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
+.onb .dots{display:flex;justify-content:center;gap:6px}
+.onb .dots i{width:7px;height:7px;border-radius:50%;background:#3a3a40}
+.onb .dots i.on{background:#fff;width:20px;border-radius:4px}
+.onb .skip{color:var(--muted);font-size:14px;padding:6px}
+.brandmark{position:absolute;top:calc(22px + var(--safe-t));left:20px;z-index:5;display:flex;align-items:center;gap:8px;font-weight:700;letter-spacing:.32em;font-size:13px}
+.head{position:relative;z-index:2;margin-top:-118px;padding:0 20px;text-align:center}
+.hero.short + .head{margin-top:-92px}
+.greet{font-size:14px;color:var(--muted);font-weight:500}
+.title{font-weight:300;font-size:52px;line-height:1.05;letter-spacing:-.02em;margin:2px 0 0}
+.big{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-top:4px}
+.big .n{font-weight:700;font-size:84px;line-height:.95;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.big .u{font-size:16px;color:var(--muted);font-weight:500}
+.cap{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.body{padding:0 16px;display:grid;gap:14px;margin-top:18px}
+.body>*{min-width:0}
+
+/* ---------- 3-stat row ---------- */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:6px;margin-top:14px}
+.trio .v{font-weight:700;font-size:24px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.trio .cap{margin-top:2px}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:var(--card);border-radius:var(--r-card);padding:16px}
+/* Home cards share the best-sessions glass look. */
+#view-setup .cards .card{background:linear-gradient(160deg,rgba(44,44,48,.74),rgba(20,20,22,.80));backdrop-filter:blur(28px) saturate(1.7);-webkit-backdrop-filter:blur(28px) saturate(1.7);box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.card .ct{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.card .ct .ic{color:var(--accent-hi);display:inline-grid}
+.card .ct .dot{margin-left:auto}
+.card .cv{margin-top:10px;font-weight:700;font-size:32px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
+.card .cv small{font-size:13px;font-weight:500;color:var(--muted);margin-left:4px;letter-spacing:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--faint);display:inline-block;flex:none}
+.dot.ok{background:var(--ok)} .dot.warn{background:#ffb020}
+.statusrow{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;color:var(--muted)}
+
+/* ---------- pills ---------- */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:17px 20px;border-radius:999px;font-weight:600;font-size:15.5px;background:var(--card2);color:var(--text);transition:transform .08s,filter .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);color:#fff;box-shadow:0 10px 36px rgba(var(--accent-rgb),.35)}
+.btn.outline{background:transparent;box-shadow:inset 0 0 0 1px #3a3a40}
+.btn.strava{background:var(--strava);color:#fff}
+.btn.sm{width:auto;padding:9px 16px;font-size:13.5px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px}
+.seg button{padding:11px 6px;border-radius:999px;background:var(--card2);color:var(--muted);font-weight:600;font-size:13.5px;line-height:1.2;hyphens:auto}
+.seg button.on{background:#fff;color:#000}
+#chKind button{font-size:12.5px;padding:10px 4px}
+.seg button small{display:block;font-size:10.5px;font-weight:500;opacity:.7;margin-top:1px}
+.label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.label-row .cap b{color:var(--text);font-weight:600}
+details.custom summary{cursor:pointer;color:var(--muted);font-weight:500;font-size:13px;list-style:none;text-align:center;padding:4px}
+details.custom summary::-webkit-details-marker{display:none}
+
+.check{width:30px;height:30px;border-radius:50%;background:#2fb84a;display:grid;place-items:center;margin:0 auto 10px;box-shadow:0 0 0 6px rgba(47,184,74,.18)}
+.pb{font-weight:700;font-size:15px;margin-bottom:8px}
+.kv{display:grid}
+.kv div{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;color:var(--muted)}
+.kv div b{color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
+.actions{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 0}
+.act{display:flex;align-items:center;gap:7px;padding:12px 4px;font-weight:600;font-size:13.5px;color:var(--accent-hi)}
+.act.strava{color:var(--strava)}
+.namebox{display:grid;gap:10px}
+.strava-next{display:flex;gap:8px;margin:10px 0 6px;flex-wrap:wrap}
+#stravaStatus .toggle{font-size:13px;margin-top:4px}
+.strava-next a.btn{text-decoration:none}
+.namechips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px}
+.namechips::-webkit-scrollbar{display:none}
+.namechips button{flex:none;font-size:13.5px;font-weight:600;padding:9px 14px;border-radius:999px;background:var(--card2);color:var(--muted);white-space:nowrap}
+.namechips button.on{background:#fff;color:#000}
+.throwpick{display:grid;gap:10px;margin-top:14px}
+.namechips.sub button{font-size:12.5px;padding:7px 12px;font-weight:500}
+.namechips.sub button.on{background:var(--accent);color:#fff}
+.tbar{display:grid;grid-template-columns:96px 1fr auto;gap:4px 12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.tbar:last-child{border-bottom:0}
+.tbar .n{font-weight:600;font-size:14.5px}
+.tbar .track{height:8px;border-radius:99px;background:var(--card2);overflow:hidden}
+.tbar .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-hi))}
+.tbar .v{font-weight:700;font-size:15px;text-align:right;min-width:44px}
+.tbar .d{grid-column:2 / 4;font-size:12px;color:var(--muted)}
+.tbar .up{color:var(--ok)} .tbar .down{color:var(--miss)}
+.focus{background:rgba(31,43,255,.14);border:1px solid rgba(91,102,255,.35);border-radius:16px;padding:14px;margin:6px 0 10px;display:grid;gap:10px}
+.focus b{color:#fff}
+.focus p{margin:0;font-size:14px;line-height:1.45;color:var(--text)}
+.stylerow{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
+.act[disabled]{opacity:.5;pointer-events:none}
+.sticky-cta{margin-top:20px}
+#view-setup .hero{height:min(44vh,380px)}
+/* ---------- target flow (full screen, no tab bar) ---------- */
+body.flow-mode{padding-bottom:0}
+body.flow-mode nav.tabs{display:none}
+.flow{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;gap:12px;padding:calc(12px + var(--safe-t)) 16px calc(16px + var(--safe-b))}
+.flow-top{display:flex;align-items:center;justify-content:space-between}
+.round{width:44px;height:44px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-size:22px;font-weight:500;flex:none}
+.title.fl{font-size:40px;text-align:center}
+.flow .note{margin:-4px 0 0}
+.draw-wrap{position:relative;flex:1;min-height:340px;border-radius:var(--r-card);overflow:hidden;background:#050507;touch-action:none}
+#drawCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.draw-pill{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);backdrop-filter:blur(8px);padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap;pointer-events:none}
+.flow-bar{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.dview{position:relative}
+.dthumb{width:100%;height:clamp(170px,30vh,260px);border-radius:var(--r-card);display:block}
+.dview .draw-pill{top:auto;bottom:10px}
+/* Step 2 fits one screen: the preview takes whatever height is left. */
+#view-distance{height:100vh;height:100dvh;min-height:0;gap:10px}
+#view-distance .title.fl{font-size:30px;line-height:1.1}
+#view-distance .dview{flex:1 1 0;min-height:96px;display:flex}
+#view-distance .dthumb{height:auto;flex:1;min-height:0}
+#view-distance .big{margin-top:0}
+#view-distance .big .n{font-size:56px}
+#view-distance .trio{margin-top:0}
+#view-distance .trio .v{font-size:20px}
+#view-distance .throwpick{margin-top:0;gap:8px}
+#view-distance .seg button{padding:9px 6px}
+@media (max-height:640px){#view-distance .note{display:none}#view-distance .big .n{font-size:44px}#view-distance{gap:8px}}
+.stepper{display:flex;align-items:center;gap:14px}
+.stepper input{flex:1;accent-color:var(--accent);height:28px}
+.tgt{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 10px}
+.tgt canvas{width:46px;height:70px;border-radius:12px;flex:none}
+.tgt>div{flex:1;min-width:0}
+.tgt .t{font-weight:600;font-size:15px}
+/* ---------- practice ---------- */
+.counter{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pform{display:flex;gap:8px}
+.item.tap{cursor:pointer}
+.chal{font-size:15px;color:var(--muted);margin:2px 0 10px}
+.chal b{font-size:30px;color:var(--text);letter-spacing:-.02em}
+#challengeCard .track{height:10px;border-radius:99px;background:var(--card2);overflow:hidden}
+#challengeCard .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-hi));border-radius:99px}
+.pform input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:10px 16px;color:var(--text);font:500 15px var(--font)}
+.outcome{border-radius:var(--r-card);padding:22px 10px 20px;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .08s;font-weight:600;font-size:14px}
+.outcome:active{transform:scale(.96)}
+.outcome .n{font-size:64px;font-weight:700;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.outcome .cap{color:inherit;opacity:.7;font-size:10px}
+.outcome.make{background:var(--accent);color:#fff;box-shadow:0 10px 36px rgba(var(--accent-rgb),.3)}
+.outcome.miss{background:var(--card);color:#fff}
+.flash-make{animation:fm .45s}.flash-miss{animation:fx .45s}
+@keyframes fm{0%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.8)}100%{box-shadow:0 0 0 22px rgba(var(--accent-rgb),0)}}
+@keyframes fx{0%{box-shadow:0 0 0 0 rgba(255,255,255,.3)}100%{box-shadow:0 0 0 22px rgba(255,255,255,0)}}
+.heard{font-size:12.5px;color:var(--muted);text-align:center;min-height:18px}
+.heard b{color:#fff}
+.streak{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;min-height:8px}
+.streak i{width:8px;height:8px;border-radius:50%;background:var(--accent-hi)}
+.streak i.x{background:#3a3a40}
+.minor{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.toggle input{accent-color:var(--accent)}
+/* Live practice fits one screen above the dock: Make/Miss take the space that's left. */
+#view-practice{height:calc(100vh - 84px - var(--safe-b));height:calc(100dvh - 84px - var(--safe-b));display:flex;flex-direction:column;overflow-y:auto}
+#view-practice .hero.short{height:clamp(96px,17vh,160px);min-height:0;flex:none}
+#view-practice .hero.short + .head{margin-top:-64px}
+#view-practice .title{font-size:30px}
+#view-practice .big{margin-top:0}
+#view-practice .big .n{font-size:52px}
+#view-practice .trio{margin-top:6px}
+#view-practice .trio .v{font-size:19px}
+#view-practice .body{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;margin-top:10px;padding-bottom:8px}
+#view-practice .card.tgt{padding:8px 12px}
+#view-practice .seg button{padding:8px 6px;font-size:12.5px}
+#view-practice .counter{flex:1;min-height:110px}
+#view-practice .outcome{padding:8px;justify-content:center}
+#view-practice .outcome .n{font-size:52px}
+#view-practice .heard{min-height:0;font-size:12px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#view-practice .body > *{flex:none}
+#view-practice .body > .counter{flex:1 1 0;min-height:96px}
+#view-practice .minor .cap{white-space:nowrap}
+@media (max-height:740px){#view-practice .hero.short{height:84px}#view-practice .hero.short + .head{margin-top:-40px}#view-practice .head .title{display:none}#view-practice .big .n{font-size:46px}#view-practice .outcome .n{font-size:44px}#view-practice .card.tgt{padding:6px 12px}#view-practice .tgt canvas{height:52px;width:36px}}
+#view-practice .minor .btn.sm{padding:7px 14px}
+#view-practice .toggle{font-size:12px}
+#view-practice #endSession{padding:14px 20px}
+
+/* ---------- lists ---------- */
+.list{display:grid}
+.item{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 2px;border-bottom:1px solid var(--line);align-items:center;text-align:left;width:100%}
+.item:last-child{border-bottom:0}
+.item:has(.when) .r{grid-row:2/4}
+.item .t{grid-column:1}.item .d{grid-column:1}
+a.tag{text-decoration:none}
+.item .when{grid-column:1/-1}
+.item .t{font-weight:600;font-size:15.5px}
+.item .d{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item .r{grid-row:1/3;grid-column:2;text-align:right;font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.item .r small{display:block;font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--muted)}
+.rank{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--card2);font-size:12px;font-weight:700;margin-right:8px;vertical-align:1px}
+.rank.top{background:var(--accent);color:#fff}
+.tag{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--card2);color:var(--muted);margin-left:6px}
+.tag.strava{background:rgba(252,76,2,.15);color:var(--strava)}
+.empty{color:var(--faint);text-align:center;padding:18px;font-size:14px}
+.chips-missing{display:flex;flex-wrap:wrap;gap:6px}
+.chips-missing span{font-size:12.5px;padding:6px 12px;border-radius:999px;background:var(--card2);color:var(--muted)}
+
+/* ---------- chart ---------- */
+.chart{position:relative;height:170px}
+.chart canvas{width:100%;height:100%;display:block}
+.tip{position:absolute;pointer-events:none;background:#fff;color:#000;border-radius:10px;padding:5px 9px;font-size:12px;font-weight:600;white-space:nowrap;transform:translate(-50%,-120%);opacity:0;transition:opacity .1s}
+
+/* ---------- forms ---------- */
+input[type=text]{background:var(--card2);border:0;border-radius:16px;padding:15px 16px;min-width:0;width:100%;font-size:15px}
+input[type=text]::placeholder{color:var(--faint)}
+label.f{display:grid;gap:6px}
+.code{font-weight:300;font-size:44px;letter-spacing:.06em;text-align:center}
+.note{font-size:12.5px;color:var(--muted);text-align:center}
+.status-line{font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;text-align:center}
+.status-line.ok{color:var(--ok)} .status-line.err{color:var(--miss)}
+.status-line a{color:#fff;font-weight:600}
+
+/* ---------- modal, toast, tab bar ---------- */
+.modal-bg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.40);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);display:grid;place-items:end center;padding:12px}
+.modal{width:min(520px,100%);max-height:92vh;overflow:auto;background:linear-gradient(160deg,rgba(32,32,36,.84),rgba(12,12,14,.90));backdrop-filter:blur(28px) saturate(1.7);-webkit-backdrop-filter:blur(28px) saturate(1.7);box-shadow:0 24px 60px rgba(0,0,0,.45);border-radius:28px;padding:22px 18px calc(18px + var(--safe-b));display:grid;gap:14px;text-align:center}
+.modal h2{font-weight:300;font-size:34px;margin:0;letter-spacing:-.02em}
+.card.best{cursor:pointer;transition:transform .08s}
+.card.best:active{transform:scale(.97)}
+.bestbig{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-top:-6px}
+.bestbig .n{font-weight:700;font-size:72px;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.bestbig .u{font-size:14px;color:var(--muted);font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.bestnudge{display:grid;gap:4px;font-size:14px;color:var(--muted)}
+.bestnudge b{color:#fff;font-size:16px}
+.brank{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line);text-align:start}
+.brank:last-child{border-bottom:0}
+.brank .pos{flex:none;width:32px;height:32px;border-radius:10px;background:var(--card2);display:grid;place-items:center;font-weight:700;font-size:13px}
+.brank.top .pos{background:none;width:34px;height:47px;border-radius:0;filter:drop-shadow(0 0 8px rgba(var(--accent-rgb),.75))}
+.brank.top .pos svg{display:block;width:100%;height:100%}
+.storyimg{display:block;width:min(62vw,300px);aspect-ratio:9/16;margin:0 auto;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.5);background:#000}
+#shareModal{place-items:center;padding:16px}
+/* The sticker is transparent: preview it over a photo-like backdrop. */
+.stickwrap{width:100%;max-height:44dvh;aspect-ratio:4/5;margin:0 auto;border-radius:18px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(160deg,#6b7a8f,#2f3b4a 45%,#1b2430 70%,#4a3a2a)}
+.stickwrap img{height:92%;width:auto;max-width:96%;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+.pbm{display:inline-block;width:.56em;height:.77em;margin-right:.22em;vertical-align:-.02em;filter:drop-shadow(0 0 4px rgba(var(--accent-rgb),.95))}
+small .pbm{width:.85em;height:1.17em;vertical-align:-.25em;margin-right:.35em}
+.brank .info{flex:1;min-width:0}
+.brank .t{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brank .cap{margin-top:2px}
+.brank .sc{font-weight:700;font-size:24px;font-variant-numeric:tabular-nums}
+.brank.ghost{opacity:.6}
+.brank.ghost .pos{background:none;border:1.5px dashed var(--muted)}
+/* Glass card: the home screen stays visible, softly blurred, behind a frosted panel. */
+#bestModal{place-items:center;padding:16px}
+#bestModal .modal{padding-bottom:18px}
+#bestModal .brank{border-bottom-color:rgba(255,255,255,.10)}
+#bestModal .brank .pos{background:rgba(255,255,255,.10)}
+#bestModal .brank.top .pos{background:none}
+#bestModal .brank.ghost .pos{background:none}
+#bestModal .cap{color:rgba(255,255,255,.62)}
+#bestModal .bestnudge span{color:rgba(255,255,255,.7)}
+.ad-box{aspect-ratio:16/9;max-width:100%;border-radius:18px;background:radial-gradient(120% 90% at 50% 0%,rgba(var(--accent-rgb),.5),#0a0a0c 70%);display:grid;place-items:center;color:var(--muted)}
+.ad-count{font-size:64px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+#toast{position:fixed;left:50%;bottom:calc(96px + var(--safe-b));transform:translateX(-50%);z-index:60;background:#fff;color:#000;font-weight:600;padding:10px 18px;border-radius:999px;font-size:13.5px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;z-index:20;background:none;border:0;display:flex;justify-content:space-around;padding:12px 8px calc(12px + var(--safe-b))}
+nav.tabs::before{content:"";position:absolute;left:0;right:0;bottom:0;top:-28px;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.66) 45%,rgba(0,0,0,.86));backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);-webkit-mask-image:linear-gradient(180deg,transparent,#000 45%);mask-image:linear-gradient(180deg,transparent,#000 45%)}
+nav.tabs button{width:64px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--faint)}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button::after{content:"";width:5px;height:5px;border-radius:50%;background:transparent}
+nav.tabs button.on{color:#fff}
+nav.tabs button.on::after{background:var(--accent-hi)}
+nav.tabs{touch-action:none;user-select:none;-webkit-user-select:none}
+nav.tabs .lens{position:absolute;left:0;top:6px;height:52px;width:76px;border-radius:26px;pointer-events:none;opacity:0;transform:translateX(0) scale(.9);transition:opacity .18s,transform .18s;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 20px rgba(31,43,255,.35);backdrop-filter:blur(6px) saturate(1.6);-webkit-backdrop-filter:blur(6px) saturate(1.6)}
+nav.tabs.dragging .lens{opacity:1;transition:opacity .18s}
+nav.tabs button.hover{color:#fff}
+nav.tabs button{position:relative;z-index:1}
+.haptic-sw{position:fixed;left:-100px;top:0;opacity:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ================= PRACTICE HOME ================= -->
+<section id="view-setup" class="screen">
+  <div class="hero"><div class="art" data-art="thrower"></div>
+    <div class="brandmark"><svg width="24" height="24" viewBox="0 0 1024 1024" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" transform="translate(512 512) rotate(40) scale(1.2) translate(-200 -408)" d="M200 30 L312 232 L215 398 V760 L200 786 L185 760 V398 L88 232 Z M200 94 L276 232 L200 362 L124 232 Z M200 122 L260 232 L200 334 L140 232 Z"/></svg><span id="brandWord">LANZA</span></div>
+    <button class="fab" id="profileFab" aria-label="Strava account"></button>
+  </div>
+  <div class="head">
+    <div class="greet" id="greet">Good morning,</div>
+    <h1 class="title" id="homeName">Athlete</h1>
+    <div class="cap" style="margin-top:12px">This week</div>
+    <div class="trio">
+      <div><div class="v" id="wkSessions">0</div><div class="cap">Sessions</div></div>
+      <div><div class="v" id="wkThrows">0</div><div class="cap">Throws</div></div>
+      <div><div class="v" id="wkScore">0</div><div class="cap">Avg score</div></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="card install hidden" id="installCard"><img src="icon-180.png" alt=""><div><div class="t">Install LANZA on your phone</div><div class="d" id="installHow"></div><button class="btn sm primary hidden" id="installBtn" style="margin-top:8px">Install</button></div><button class="x" id="installX" aria-label="Close">&times;</button></div>
+    <div class="cards">
+      <button class="card goal" id="goalCard"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle cx="29" cy="29" r="25" stroke="#26262a"/><circle id="goalArc" cx="29" cy="29" r="25" stroke="var(--accent)" stroke-linecap="round" transform="rotate(-90 29 29)" stroke-dasharray="0 158"/></svg>
+        <div><div class="ct">Weekly goal</div><div class="gv" id="goalVal">0/3</div><div class="cap" id="goalStreak" style="margin-top:4px"></div></div></button>
+      <div class="card best" id="bestCard" role="button" tabindex="0"><div class="ct"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18l6-6 4 4 6-8"/></svg></span>Best score<span class="dot ok" id="bestDot"></span></div><div class="cv" id="bestOut">0</div><div class="cap" style="margin-top:6px">Personal best</div></div>
+    </div>
+    <div class="statusrow" id="weekBox"></div>
+    <div class="sticky-cta"><button class="btn primary" id="startSession">Start practice</button><button class="quicklink hidden" id="quickStart">Same as last time</button></div>
+  </div>
+</section>
+
+<!-- ================= DRAW TARGET ================= -->
+<section id="view-target" class="screen hidden flow">
+  <div class="flow-top"><button class="round" id="targetBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span class="cap">Step 1 of 2</span><span style="width:44px"></span></div>
+  <h1 class="title fl">Draw your target</h1>
+  <p class="note">Trace it with your finger. The person, net, bike, hoop and tree are to scale.</p>
+  <div class="draw-wrap"><canvas id="drawCanvas" aria-label="Draw your target"></canvas><div class="draw-pill" id="drawPill"></div></div>
+  <div class="flow-bar"><button class="btn" id="clearDraw">Clear</button><button class="btn primary" id="toDistance">Next</button></div>
+</section>
+
+<!-- ================= DISTANCE ================= -->
+<section id="view-distance" class="screen hidden flow">
+  <div class="flow-top"><button class="round" id="distBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span class="cap">Step 2 of 2</span><span style="width:44px"></span></div>
+  <h1 class="title fl">How far is it?</h1>
+  <p class="note">From where you throw to your target.</p>
+  <div class="dview"><canvas id="distThumb" class="dthumb" aria-hidden="true"></canvas><div class="draw-pill" id="distPill">How it looks from 20 m</div></div>
+  <div class="big"><span class="n" id="distVal">20</span><span class="u">metres</span></div>
+  <div class="stepper"><button class="round" id="distMinus" aria-label="Closer">&minus;</button><input type="range" id="distRange" min="2" max="60" step="1" aria-label="Distance in metres"><button class="round" id="distPlus" aria-label="Farther">+</button></div>
+  <div class="throwpick" id="throwPick">
+    <span class="cap">What are you throwing?</span>
+    <div class="namechips" id="throwChips"></div>
+    <div class="namechips sub" id="styleChips"></div>
+  </div>
+  <button class="btn primary" id="confirmTarget">Start practice</button>
+</section>
+
+<!-- ================= LIVE ================= -->
+<section id="view-practice" class="screen hidden">
+  <div class="hero short"><div class="art" data-art="disc"></div>
+    <button class="fab" id="micToggle" aria-label="Hands-free voice mode"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+  </div>
+  <div class="head">
+    <h1 class="title">Live</h1>
+    <div class="big"><span class="n" id="accOut">0%</span></div>
+    <div class="cap">Current accuracy</div>
+    <div class="trio">
+      <div><div class="v" id="attOut">0</div><div class="cap">Throws</div></div>
+      <div><div class="v" id="scoreLive">0</div><div class="cap">Skill score</div></div>
+      <div><div class="v" id="timer">00:00</div><div class="cap">Elapsed</div></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="card tgt"><canvas id="practiceThumb" aria-hidden="true"></canvas><div><div class="t" id="practiceTarget"></div><div class="cap" id="practiceDiff"></div></div></div>
+    <div class="seg"><button id="changeTarget">Change target</button><button id="changeDist">Change distance</button></div>
+    <div class="counter">
+      <button class="outcome make" id="btnMake"><span class="n" id="makeN">0</span>Make<span class="cap">hit · make · made</span></button>
+      <button class="outcome miss" id="btnMiss"><span class="n" id="missN">0</span>Miss<span class="cap">miss · out · off</span></button>
+    </div>
+    <div class="streak" id="streakBar" aria-label="Throw history"></div>
+    <div class="heard" id="heard">Tap the mic for hands-free: say “make” or “miss” after each throw.</div>
+    <div class="minor">
+      <button class="btn sm" id="undoBtn">Undo</button>
+      <span class="cap">Streak <b id="streakOut" style="color:#fff">0</b> · best <span id="bestStreak">0</span></span>
+      <button class="btn sm" id="cancelSession">Discard</button>
+    </div>
+    <label class="toggle" style="justify-content:center"><input type="checkbox" id="voiceFeedback" checked> Spoken updates</label>
+    <button class="btn primary" id="endSession">Finish session</button>
+  </div>
+</section>
+
+<!-- ================= RESULT ================= -->
+<section id="view-result" class="screen hidden">
+  <div class="hero"><div class="art" data-art="thrower"></div></div>
+  <div class="head">
+    <div class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h1 class="title" style="font-size:42px">Session complete</h1>
+    <div class="trio">
+      <div><div class="v" id="rScore">0</div><div class="cap" id="rBand">Skill score</div></div>
+      <div><div class="v" id="rAcc">0%</div><div class="cap" id="rMk">Accuracy</div></div>
+      <div><div class="v" id="rTime">0:00</div><div class="cap">Duration</div></div>
+    </div>
+  </div>
+  <div class="body">
+    <div>
+      <div class="pb" id="rPB"></div>
+      <div class="kv" id="rList"></div>
+    </div>
+    <div>
+      <div class="label-row"><span class="cap">How windy was it?</span></div>
+      <div class="seg" id="windList"></div>
+    </div>
+    <div class="namebox">
+      <span class="cap">Name your session</span>
+      <input type="text" id="sessionName" maxlength="80" placeholder="Evening throwing session" enterkeyhint="done">
+      <div class="namechips" id="nameChips"></div>
+    </div>
+    <div class="actions">
+      <button id="stravaUpload" class="act strava"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.4 17.9l-2.1-4.1h-3.1l5.2 10.2 5.1-10.2h-3.1zM10.2 0L3.3 13.8h4.1l2.8-5.5 2.8 5.5h4.1z"/></svg><span id="stravaLabel">Strava</span></button>
+      <button id="saveCard" class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>Card</button>
+      <button id="copyResult" class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>Copy</button>
+      <button id="shareResult" class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Share</button>
+    </div>
+    <div class="status-line" id="stravaStatus"></div>
+    <div class="status-line" id="teamStatus"></div>
+    <p class="note" id="rHow"></p>
+    <button class="btn outline" id="againBtn">Done</button>
+  </div>
+</section>
+
+<!-- ================= STATS ================= -->
+<section id="view-stats" class="screen hidden">
+  <div class="hero short"><div class="art" data-art="disc"></div></div>
+  <div class="head">
+    <h1 class="title">Throws</h1>
+    <div class="trio">
+      <div><div class="v" id="stSessions">0</div><div class="cap">Sessions</div></div>
+      <div><div class="v" id="stThrows">0</div><div class="cap">Throws</div></div>
+      <div><div class="v" id="stBest">0</div><div class="cap">Best score</div></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="seg" id="statRange"><button data-r="7" class="on">Week</button><button data-r="30">Month</button><button data-r="0">All</button></div>
+    <div class="card">
+      <div class="label-row"><span class="cap">Skill score</span><span class="cap" id="chartRange"></span></div>
+      <div class="chart"><canvas id="chartScore"></canvas><div class="tip" id="tipScore"></div></div>
+    </div>
+    <div class="card" id="throwCard">
+      <div class="label-row"><span class="cap">Your throws</span><span class="cap" id="throwRange"></span></div>
+      <div id="throwBars"></div>
+    </div>
+    <div class="list" id="historyList"></div>
+  </div>
+</section>
+
+<!-- ================= TEAM ================= -->
+<section id="view-team" class="screen hidden">
+  <div class="hero short"><div class="art" data-art="field"></div></div>
+  <div class="head">
+    <h1 class="title" id="teamTitle">Team</h1>
+    <div id="teamHeadStats" class="trio hidden">
+      <div><div class="v" id="tActive">0</div><div class="cap">Active</div></div>
+      <div><div class="v" id="tAcc">0%</div><div class="cap">Accuracy</div></div>
+      <div><div class="v" id="tAvg">0</div><div class="cap">Avg score</div></div>
+    </div>
+  </div>
+  <div class="body">
+    <div id="teamJoin" style="display:grid;grid-template-columns:minmax(0,1fr);gap:12px">
+      <p class="note" style="font-size:14px">Join your team to compare Skill Scores. Your coach sees who practiced this week.</p>
+      <label class="f"><span class="cap">Your name</span><input type="text" id="nameInput" maxlength="40" placeholder="Jordan K." autocomplete="name"></label>
+      <label class="f"><span class="cap">Team code</span><input type="text" id="codeInput" maxlength="20" placeholder="BLAZE-24" autocapitalize="characters"></label>
+      <button class="btn primary" id="joinTeam">Join team</button>
+      <button class="btn outline" id="createTeam">Create a new team</button>
+      <p class="note">Share the code only with your team. Players connected to Strava are marked as verified.</p>
+    </div>
+    <div id="teamBoard" class="hidden" style="display:grid;grid-template-columns:minmax(0,1fr);gap:14px">
+      <div class="seg" id="teamRangeSeg"><button id="rangeWeek" class="on">This week</button><button id="range4">Last 4 weeks</button></div>
+      <div class="note hidden" id="teamNote"></div>
+      <div class="card hidden" id="teamNameCard" style="display:grid;gap:10px">
+        <label class="f"><span class="cap">Team name</span><input type="text" id="teamNameInput" maxlength="30" placeholder="Panama Blaze"></label>
+        <button class="btn primary" id="saveTeamName">Save</button>
+      </div>
+      <div class="card" id="challengeCard"></div>
+      <div class="card"><div class="label-row"><span class="cap">Leaderboard</span><span class="cap">Avg score</span></div><div class="list" id="boardList"></div><div class="powered" style="margin-top:12px">Verified with <b>STRAVA</b></div></div>
+      <div class="card"><div class="label-row"><span class="cap">Not practiced this week</span></div><div class="chips-missing" id="missingList"></div></div>
+      <div class="card"><div class="label-row"><span class="cap">Recent sessions</span></div><div class="list" id="teamRecent"></div></div>
+      <div class="card" style="text-align:center"><div class="cap">Team code</div><div class="code" id="teamCodeOut"></div>
+        <button class="btn primary" id="inviteTeam" style="margin-top:12px">Invite teammates</button>
+        <button class="btn" id="renameTeam" style="margin-top:10px">Rename team</button>
+        <div class="seg" style="margin-top:10px"><button id="copyCode">Copy code</button><button id="refreshTeam">Refresh</button><button id="leaveTeam">Leave</button></div></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" id="tabs"><span class="lens" id="tabLens"></span><label class="haptic-sw" aria-hidden="true"><input type="checkbox" switch id="hapticSw" tabindex="-1"></label>
+  <button data-view="setup" class="on" aria-label="Practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5V20H4z"/><path d="M10 20v-5h4v5"/></svg></button>
+  <button data-view="stats" aria-label="My stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/></svg></button>
+  <button data-view="team" aria-label="Team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="8.5" r="3.2"/><circle cx="17" cy="9.5" r="2.4"/><path d="M3.5 19.5c.8-3.2 3-5 5.5-5s4.7 1.8 5.5 5M15.5 14.4c2.6-.2 4.4 1.4 5 4.6"/></svg></button>
+</nav>
+
+<!-- Rewarded ad gate (only shown when ads are switched on) -->
+<div class="modal-bg hidden" id="adModal">
+  <div class="modal">
+    <h2>One more session</h2>
+    <p class="note" id="adText" style="font-size:14px;margin:0">Your free session this week is used. Watch a short ad to unlock another.</p>
+    <div id="adArea" class="hidden"><div class="ad-box"><div><div class="cap">Sponsor</div><div class="ad-count" id="adCount">15</div><div class="cap">Unlocks when the timer ends</div></div></div></div>
+    <div id="adChoices" style="display:grid;grid-template-columns:minmax(0,1fr);gap:10px">
+      <button class="btn primary" id="watchAd">Watch ad and unlock</button>
+      <button class="btn outline hidden" id="adPro">Go Pro · no ads</button>
+      <button class="btn" id="closeAd">Not now</button>
+    </div>
+  </div>
+</div>
+
+<!-- Language: shown once on first launch, and from the globe button -->
+<div class="modal-bg hidden" id="langModal">
+  <div class="modal">
+    <h2 id="langTitle">Choose your language</h2>
+    <p class="note" style="font-size:14px;margin:0">You can change it any time in your profile, top right.</p>
+    <div class="langgrid" id="langGrid"></div>
+    <button class="btn primary" id="langGo">Continue</button>
+  </div>
+</div>
+
+<!-- Account: Strava, weekly goal, backup, install, language, privacy -->
+<div class="modal-bg hidden" id="acctModal">
+  <div class="modal acct">
+    <h2>You</h2>
+    <div class="sec" id="acctStrava"></div>
+    <div class="sec hidden" id="acctPro"></div>
+    <div class="sec"><span class="cap">Weekly goal · sessions per week</span><div class="goalchips" id="goalChips"></div></div>
+    <div class="sec"><span class="cap">Backup</span><div class="status-line" style="justify-content:flex-start;text-align:start" id="backupLine"></div>
+      <div class="row"><button class="btn sm" id="exportData">Download my data</button><button class="btn sm" id="importData">Restore from file</button><button class="btn sm hidden" id="deleteBackup">Delete my backup</button></div>
+      <input type="file" id="importFile" accept="application/json,.json" class="hidden"></div>
+    <div class="sec"><div class="row"><button class="btn sm" id="acctLang">Language</button><button class="btn sm hidden" id="acctInstall">Install LANZA on your phone</button></div></div>
+    <div class="links"><a href="privacy.html" target="_blank" rel="noopener">Privacy</a><span id="acctVersion"></span></div>
+    <button class="btn" id="acctClose">Close</button>
+  </div>
+</div>
+
+<!-- First launch: three quick screens -->
+<div class="modal-bg hidden" id="onbModal">
+  <div class="modal onb">
+    <div class="art" id="onbArt"></div>
+    <h2 id="onbTitle"></h2>
+    <p id="onbText"></p>
+    <div class="dots" id="onbDots"></div>
+    <div id="onbActions" style="display:grid;grid-template-columns:minmax(0,1fr);gap:10px"></div>
+    <button class="skip" id="onbSkip">Skip</button>
+  </div>
+</div>
+
+<!-- Coach view: one player -->
+<div class="modal-bg hidden" id="playerModal">
+  <div class="modal" style="text-align:start">
+    <h2 id="playerName" style="text-align:center"></h2>
+    <div id="playerBody" style="display:grid;grid-template-columns:minmax(0,1fr);gap:14px"></div>
+    <button class="btn" id="playerClose">Close</button>
+  </div>
+</div>
+
+<!-- Best sessions ranking, opened from the Best score card -->
+<!-- Share: a 9:16 story image, ready for Instagram Stories -->
+<div class="modal-bg hidden" id="shareModal">
+  <div class="modal">
+    <div class="cap">Share your session</div>
+    <div class="seg" id="shareKind"><button data-k="sticker" class="on">Sticker</button><button data-k="story">Story</button></div>
+    <div class="stickwrap" id="stickWrap"><img id="stickImg" alt=""></div>
+    <img id="storyImg" class="storyimg hidden" alt="">
+    <p class="note" style="margin:0" id="shareHow"></p>
+    <button class="btn primary" id="storyShare">Share to Stories</button>
+    <button class="btn" id="shareClose">Close</button>
+  </div>
+</div>
+
+<div class="modal-bg hidden" id="bestModal">
+  <div class="modal">
+    <div class="cap">Your best sessions</div>
+    <div class="bestbig"><span class="n" id="bestTop">0</span><span class="u" id="bestBand"></span></div>
+    <div class="bestnudge" id="bestNudge"></div>
+    <div id="bestList"></div>
+    <button class="btn primary" id="bestGo">Go for a new best</button>
+    <button class="btn" id="bestClose">Close</button>
+  </div>
+</div>
+
+<!-- Team invite link (?team=CODE) -->
+<div class="modal-bg hidden" id="inviteModal">
+  <div class="modal">
+    <h2 id="inviteTitle"></h2>
+    <p class="note" style="font-size:14px;margin:0">Your sessions will show on the team board. You can leave any time.</p>
+    <label class="f" style="text-align:start"><span class="cap">Your name</span><input type="text" id="inviteName" maxlength="40" placeholder="Jordan K." autocomplete="name"></label>
+    <button class="btn primary" id="inviteJoin">Join team</button>
+    <button class="btn" id="inviteNo">Not now</button>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script src="i18n.js"></script>
+<script>
+/* =============================================================================
+   LANZA
+   Static page + three Netlify Functions:
+     /.netlify/functions/config  → public settings from Netlify env vars
+     /.netlify/functions/strava  → Strava sign-in and activity upload
+     /.netlify/functions/team    → team board (Netlify Blobs)
+   Secrets and switches live in Netlify environment variables, never in this
+   file, so redeploying a new version can't break Strava, ads or team data.
+   ============================================================================= */
+(() => {
+'use strict';
+const APP_VERSION = '2.20.0';
+
+/* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
+   heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
+   them here; until then the screens use the built-in LANZA artwork. */
+const BRAND = {
+  name: 'LANZA',
+  stravaSignature: 'Logged with LANZA',
+  activityEmoji: '🥏',
+  // Address printed at the end of Strava posts and on the session card.
+  // Empty means "wherever the app is hosted" (location.origin once deployed).
+  appUrl: '',
+  // One-tap session names on the result screen. The first one is prefixed with the time of day.
+  sessionNames: ['throwing session', 'Throwing practice', 'Forehands', 'Backhands', 'Hucks', 'Blades', 'Inside outs', 'Outside ins', 'Hammers', 'Scoobers', 'Lefties', 'Pulls'],
+  heroPhotos: { thrower: '', disc: '', field: '' }
+};
+
+const API = '/.netlify/functions';
+const $ = (id) => document.getElementById(id);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }));
+// PB: the LANZA spearhead diamond that marks a player's best session score.
+const PB = '<svg class="pbm" viewBox="0 0 32 44" aria-label="Personal best"><polygon points="16,1 31,23 16,43 1,23" fill="#3a46ff"/><polygon points="16,7 27,23 16,37 5,23" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.4"/></svg>';
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+/* ---------- languages ----------
+   English text in the code is the key; i18n.js holds the other languages
+   (LANZA_I18N.strings[code][english] = translation). {name} marks a value. */
+const I18N = window.LANZA_I18N || { languages: [{ code: 'en', name: 'English' }], strings: {} };
+const LANGS = I18N.languages;
+function pickLang() {
+  // window.name carries the choice through the reload when storage is blocked (private mode, previews)
+  const saved = LS0('lang') || (/^lanza-lang:/.test(window.name) ? window.name.slice(11) : null); if (saved && LANGS.some(l => l.code === saved)) return saved;
+  for (const want of (navigator.languages || [navigator.language || 'en'])) {
+    const w = String(want).toLowerCase();
+    const hit = LANGS.find(l => w === l.code.toLowerCase()) || LANGS.find(l => (l.match || []).some(p => w.startsWith(p.toLowerCase()))) || LANGS.find(l => w.split('-')[0] === l.code.split('-')[0]);
+    if (hit) return hit.code;
+  }
+  return 'en';
+}
+function LS0(k) { try { return JSON.parse(localStorage.getItem('kmos.' + k)); } catch { return null; } }
+let LANG = pickLang();
+const langInfo = () => LANGS.find(l => l.code === LANG) || LANGS[0];
+function tr(src, vars) {
+  let out = (I18N.strings[LANG] || {})[src]; if (out == null || out === '') out = src;
+  return vars ? out.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m)) : out;
+}
+// Static text in the HTML: translated in place, original kept so it can be re-run.
+function translateStatic(root = document.body) {
+  const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => n.parentElement && !/^(SCRIPT|STYLE)$/.test(n.parentElement.tagName) && n.nodeValue.trim() ? 1 : 2 });
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    if (n.__src == null) n.__src = n.nodeValue;
+    const src = n.__src.trim(); if (!/[A-Za-z]/.test(src)) continue;
+    n.nodeValue = n.__src.replace(src, tr(src));
+  }
+  root.querySelectorAll('[placeholder],[aria-label]').forEach(el => ['placeholder', 'aria-label'].forEach(a => {
+    if (!el.hasAttribute(a)) return; const k = 'i18n' + a.replace('-', ''); if (el.dataset[k] == null) el.dataset[k] = el.getAttribute(a);
+    el.setAttribute(a, tr(el.dataset[k]));
+  }));
+}
+function applyLang() {
+  const L = langInfo(); document.documentElement.lang = L.code; document.documentElement.dir = L.dir || 'ltr';
+}
+const fmtLocale = () => langInfo().locale || LANG;
+const lc = (x) => langInfo().keepCase ? x : x.toLowerCase();   // German nouns keep their capital
+let toastTimer;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600); }
+const dateStr = (iso) => new Date(iso).toLocaleDateString(fmtLocale(), { month: 'short', day: 'numeric' });
+const whenStr = (iso) => {
+  const d = new Date(iso), today = new Date(), y = new Date(Date.now() - 864e5);
+  const t = d.toLocaleTimeString(fmtLocale(), { hour: 'numeric', minute: '2-digit' });
+  const day = d.toDateString() === today.toDateString() ? tr('Today') : d.toDateString() === y.toDateString() ? tr('Yesterday') : dateStr(iso);
+  return `${day}, ${t}`;
+};
+async function api(path, opts) {
+  const r = await fetch(API + path, { ...opts, headers: { 'content-type': 'application/json', ...(opts && opts.headers) } });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(d.error || tr('Request failed ({status})', { status: r.status })), { data: d, status: r.status });
+  return d;
+}
+
+/* ---------- hero artwork (inline SVG, no image files needed) ---------- */
+function heroArt(kind) {
+  const A = css('--accent'), H = css('--accent-hi');
+  const sky = `<defs>
+    <radialGradient id="g1" cx="50%" cy="18%" r="75%"><stop offset="0" stop-color="${H}" stop-opacity=".95"/><stop offset=".35" stop-color="${A}" stop-opacity=".75"/><stop offset=".75" stop-color="#05062a" stop-opacity=".6"/><stop offset="1" stop-color="#000"/></radialGradient>
+    <linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a2080"/><stop offset="1" stop-color="#05061a"/></linearGradient>
+    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#cfd3ff" stop-opacity=".9"/></linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="1.4"/></filter>
+  </defs>
+  <rect width="400" height="430" fill="#000"/><rect width="400" height="430" fill="url(#g1)"/>
+  <path d="M0 270 L60 215 L110 245 L170 185 L230 240 L290 200 L340 236 L400 205 L400 430 L0 430Z" fill="url(#mt)" opacity=".9"/>
+  <path d="M0 300 L80 262 L150 290 L230 255 L320 285 L400 260 L400 430 L0 430Z" fill="#03040f"/>`;
+  // Thrower silhouette: limbs as tapered strokes, rim-lit in blue from the upper left.
+  const limbs = [
+    ['M196 292 L166 344 L142 398', 26, 18], ['M208 292 L240 340 L264 398', 26, 18],
+    ['M206 210 L176 240 L160 270', 15, 12], ['M222 208 L266 230 L308 220', 15, 12]
+  ];
+  const body = (dx, dy, color, extra = '') => `<g transform="translate(${dx} ${dy})" ${extra} stroke="${color}" fill="${color}" stroke-linecap="round" stroke-linejoin="round">
+    ${limbs.map(([d, w1]) => `<path d="${d}" fill="none" stroke-width="${w1}"/>`).join('')}
+    <path d="M188 296 C182 260 196 222 214 200 L232 206 C236 236 226 268 214 298 Z"/>
+    <circle cx="232" cy="184" r="13"/><path d="M226 196 L222 206" stroke-width="9"/>
+    <ellipse cx="148" cy="400" rx="16" ry="5"/><ellipse cx="270" cy="400" rx="16" ry="5"/></g>`;
+  const thrower = `${body(-3, -3, H, 'filter="url(#soft)" opacity=".95"')}${body(0, 0, '#05060b')}
+    <path d="M80 150 C170 110 250 150 326 214" fill="none" stroke="url(#trail)" stroke-width="3" opacity=".8"/>
+    <ellipse cx="332" cy="214" rx="24" ry="6.5" fill="${H}" filter="url(#glow)" opacity=".9"/>
+    <ellipse cx="332" cy="214" rx="22" ry="5.5" fill="#e9ebff" transform="rotate(-8 332 214)"/>`;
+  const disc = `<g transform="rotate(-14 210 200)">
+    <ellipse cx="210" cy="205" rx="150" ry="40" fill="${A}" filter="url(#glow)" opacity=".7"/>
+    <ellipse cx="210" cy="200" rx="140" ry="36" fill="#0b0c18"/>
+    <ellipse cx="210" cy="196" rx="140" ry="34" fill="none" stroke="${H}" stroke-width="3"/>
+    <ellipse cx="210" cy="194" rx="100" ry="22" fill="none" stroke="#2b33a8" stroke-width="1.5"/>
+    <ellipse cx="170" cy="186" rx="60" ry="8" fill="#fff" opacity=".08"/></g>
+    ${[0, 1, 2, 3].map(i => `<path d="M${-20 + i * 6} ${150 + i * 22} C 30 ${150 + i * 20} 60 ${170 + i * 14} ${80 + i * 4} ${185 + i * 10}" stroke="#cfd3ff" stroke-opacity="${.5 - i * .1}" stroke-width="${2 - i * .3}" fill="none"/>`).join('')}`;
+  const field = `<g stroke="${H}" stroke-opacity=".35" stroke-width="1.5" fill="none">
+    <path d="M-40 430 L150 260 L250 260 L440 430"/><path d="M70 330 L330 330"/><path d="M200 260 L200 430" stroke-dasharray="6 8"/></g>
+    ${[[120, 300, .8], [270, 292, .7], [205, 270, .55]].map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})" fill="#05060b" stroke="${H}" stroke-opacity=".7" stroke-width="2">
+      <circle cx="0" cy="-118" r="12"/><path d="M-12 -100 L12 -100 L10 -50 L-10 -50Z"/><path d="M-6 -50 L-14 0 M6 -50 L14 0 M-12 -98 L-28 -130 M12 -98 L26 -128" stroke-width="9" stroke-linecap="round" stroke="#05060b"/></g>`).join('')}
+    <path d="M60 140 C150 90 250 110 290 180" fill="none" stroke="url(#trail)" stroke-width="2.5"/>
+    <ellipse cx="294" cy="186" rx="15" ry="4.5" fill="#e9ebff" transform="rotate(10 294 186)"/>`;
+  return `<svg viewBox="0 0 400 430" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${sky}${kind === 'disc' ? disc : kind === 'field' ? field : thrower}</svg>`;
+}
+function paintHeroes() {
+  document.querySelectorAll('.art[data-art]').forEach((el, i) => {
+    const k = el.dataset.art, photo = BRAND.heroPhotos[k];
+    el.innerHTML = photo ? `<img src="${esc(photo)}" alt="">` : heroArt(k).replace(/\b(g1|mt|trail|glow|soft)\b(?=[")])/g, `$1-${i}`);
+  });
+}
+
+/* ---------- storage with versioned data ----------
+   Storage keys keep the internal "kmos." prefix on purpose: renaming the app must
+   never orphan athletes' saved sessions. To change the stored shape, bump
+   DATA_VERSION and add a step to migrate(). Old data is upgraded, never dropped. */
+const DATA_VERSION = 4;
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('kmos.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('kmos.' + k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem('kmos.' + k); } catch {} }
+};
+function migrate() {
+  const v = LS.get('dataVersion', 1);
+  if (v < 2) {
+    // v1 prototype → v2: keep the athlete's own sessions; drop demo rows and paywall leftovers.
+    const kept = LS.get('sessions', []).filter(s => !s._demo && s._mine !== false).map(s => ({
+      id: s.id, created_at: s.created_at, duration_s: s.duration_s || 0,
+      distance_m: +s.distance_m, target: 'Custom', target_ratio: +s.target_disc_ratio || 0,
+      difficulty: +s.difficulty, attempts: s.attempts, makes: s.makes, accuracy: +s.accuracy,
+      wind_rating: s.wind_rating || 1, best_streak: 0,
+      skill_score: Math.round(+s.wind_adj_wsi || 0), strava_activity_id: null, team_shared: null
+    }));
+    LS.set('sessions', kept);
+    LS.set('profile', { name: LS.get('profile', {}).name || '', team: '' });
+    ['plan', 'role'].forEach(LS.del);
+  }
+  if (v < 3) {
+    // v2 → v3: the accuracy-first Skill Score. Rescore saved sessions so old and new numbers compare.
+    LS.set('sessions', LS.get('sessions', []).map(s => ({ ...s, wet_rating: s.wet_rating || 1,
+      skill_score: scoreOf(s.makes, s.attempts, s.difficulty, WIND[(s.wind_rating || 1) - 1].f, 1) })));
+  }
+  if (v < 4) {
+    // v3 → v4: Skill Score becomes a 0–100 rating. Rescore so old and new sessions compare.
+    LS.set('sessions', LS.get('sessions', []).map(s => ({ ...s,
+      skill_score: scoreOf(s.makes, s.attempts, s.difficulty, WIND[(s.wind_rating || 1) - 1].f, WET[(s.wet_rating || 1) - 1].f) })));
+  }
+  LS.set('dataVersion', DATA_VERSION);
+}
+
+const state = {
+  profile: LS.get('profile', { name: '', team: '' }),
+  sessions: LS.get('sessions', []),
+  strava: LS.get('strava', null),
+  adCredits: LS.get('adCredits', {}),
+  config: { stravaClientId: null, adsEnabled: false, adUnitPath: null, freeSessionsPerWeek: 1, proUrl: null, proPortal: null, proPrice: null, online: false }
+};
+function saveSessions() { LS.set('sessions', state.sessions); backupSoon(); }
+function saveProfile() { LS.set('profile', state.profile); backupSoon(); }
+
+/* ---------- scoring ---------- */
+const DIST = { 10: 1.0, 20: 1.3, 30: 1.6, 40: 2.0 };
+const SIZE_TIERS = [
+  { max: 3, mult: 2.5, name: 'Pinpoint', short: 'Pin', range: '< 3× disc' },
+  { max: 8, mult: 1.8, name: 'Chest', short: 'Chest', range: '3–8× disc' },
+  { max: 18, mult: 1.2, name: 'Catch zone', short: 'Catch', range: '8–18× disc' },
+  { max: Infinity, mult: 0.8, name: 'Endzone', short: 'Endzone', range: '> 18× disc' }
+];
+const PRESETS = [{ id: 'pinpoint', ratio: 2 }, { id: 'chest', ratio: 5 }, { id: 'catch', ratio: 12 }, { id: 'endzone', ratio: 25 }];
+const sizeTier = (ratio) => SIZE_TIERS.find(t => ratio < t.max);
+const WIND = [{ r: 1, f: 1.0, name: 'Calm' }, { r: 2, f: 1.1, name: 'Breeze' }, { r: 3, f: 1.25, name: 'Cross' }, { r: 4, f: 1.4, name: 'Gusts' }, { r: 5, f: 1.6, name: 'Gale' }];
+const WET = [{ r: 1, f: 1.0, name: 'Dry' }, { r: 2, f: 1.1, name: 'Damp' }, { r: 3, f: 1.2, name: 'Wet' }];
+/* Skill Score: a 0–100 rating of how good a session was (same formula on the server in team-core.mjs).
+     A     = (makes + 5) / (attempts + 10)          accuracy, counted as if 5 of 10 extra throws were made:
+                                                   short sessions sit near 50%, so a high score needs many
+                                                   throws made, not a lucky few
+     D     = size × distance × wind × wet          everything that makes the throw harder
+     Level = 1–10, D on a log scale (D_MIN → 1, D_MAX → 10)
+     Score = round(100 × A × (0.5 + 0.05 × Level))
+   Accuracy is the score; difficulty only scales it between half (easiest drill) and full (hardest).
+   So 100 means every throw made, over a long session, on the hardest drill. */
+const D_MIN = 0.56, D_MAX = 9.6;   // endzone at 2 m calm and dry → pinpoint at 40 m+ in a gale, wet
+function diffLevel(D) { return clamp(1 + 9 * Math.log(Math.max(D, D_MIN) / D_MIN) / Math.log(D_MAX / D_MIN), 1, 10); }
+const levelLabel = (D) => diffLevel(D).toFixed(1);
+function scoreOf(makes, attempts, diff, windF = 1, wetF = 1) {
+  const A = (makes + 5) / (attempts + 10);
+  return Math.round(100 * A * (0.5 + 0.05 * diffLevel(diff * windF * wetF)));
+}
+// What a score means, so athletes can read anyone's number at a glance.
+const BANDS = [[90, 'World class'], [80, 'Elite'], [65, 'Sharp'], [50, 'Solid'], [30, 'Building'], [0, 'Warming up']];
+const scoreBand = (n) => tr(BANDS.find(([min]) => n >= min)[1]);
+
+/* ---------- throws: real game throws only (no trick shots) ---------- */
+const THROWS = [
+  { id: 'backhand', name: 'Backhand', many: 'backhands', core: true },
+  { id: 'forehand', name: 'Forehand', many: 'forehands', core: true },
+  { id: 'hammer', name: 'Hammer', many: 'hammers' },
+  { id: 'scoober', name: 'Scoober', many: 'scoobers' },
+  { id: 'thumber', name: 'Thumber', many: 'thumbers' },
+  { id: 'push', name: 'Push pass', many: 'push passes' },
+  { id: 'mixed', name: 'Mixed', many: 'throws' }
+];
+// Optional ways to throw it; any combination.
+const STYLES = [
+  { id: 'flat', name: 'Flat', many: 'flat throws' },
+  { id: 'io', name: 'Inside-out', many: 'inside-outs' }, { id: 'oi', name: 'Outside-in', many: 'outside-ins' },
+  { id: 'touch', name: 'Touch pass', many: 'touch passes' },
+  { id: 'huck', name: 'Huck', many: 'hucks' }, { id: 'blade', name: 'Blade', many: 'blades' },
+  { id: 'low', name: 'Low release', many: 'low releases' }, { id: 'high', name: 'High release', many: 'high releases' },
+  { id: 'off', name: 'Off-hand', many: 'off-hand throws' }, { id: 'pull', name: 'Pull', many: 'pulls' }
+];
+const throwOf = (s) => THROWS.find(t => t.id === s.throw) || THROWS[THROWS.length - 1];
+const stylesOf = (s) => (s.styles || []).map(id => STYLES.find(x => x.id === id)).filter(Boolean);
+function throwLabel(s) { const t = throwOf(s), st = stylesOf(s); return [t.id === 'mixed' && st.length ? '' : tr(t.name), ...st.map(x => lc(tr(x.name)))].filter(Boolean).join(' · ').replace(/^./, c => c.toUpperCase()); }
+const rescore = (s) => scoreOf(s.makes, s.attempts, s.difficulty, WIND[(s.wind_rating || 1) - 1].f, WET[(s.wet_rating || 1) - 1].f);
+migrate(); // after the scoring constants it uses
+state.sessions = LS.get('sessions', []); state.profile = LS.get('profile', state.profile);
+
+/* ---------- weeks (Monday start) ---------- */
+function weekKey(d = new Date()) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
+  const y = t.getUTCFullYear(); const w = Math.ceil(((t - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7);
+  return `${y}-W${String(w).padStart(2, '0')}`;
+}
+const thisWeek = () => state.sessions.filter(s => weekKey(new Date(s.created_at)) === weekKey());
+const sessionsThisWeek = () => thisWeek().length;
+const isPro = () => !!LS.get('pro', false);
+const needsAd = () => state.config.adsEnabled && !isPro() && sessionsThisWeek() >= allowedThisWeek();
+const allowedThisWeek = () => state.config.freeSessionsPerWeek + (state.adCredits[weekKey()] || 0);
+
+/* =============================================================================
+   Target: drawn by hand on a to-scale scene, then the distance to it.
+   Everything is in metres, so the drawn area gives the size multiplier the same
+   way for everyone and Skill Scores stay comparable.
+   ============================================================================= */
+const DISC_D = 0.274, DISC_AREA = Math.PI * (DISC_D / 2) ** 2;
+const SCENE = { w: 4.4, h: 6.4 };                  // world shown on the draw page, in metres
+const REF = { treeX: 0.85, personX: 1.4, netX: 2.5, netW: 2.0, netH: 2.0, netY: 0.3, hoopX: 3.2, bikeX: 3.88 };
+// Draw page opens zoomed on the person and net: this much world (metres) fills the screen at zoom 1.
+const DRAW_VIEW = { w: 3.43, h: 3.9, cx: 2.5, cy: 1.62 };   // cx = net centre (REF.netX)
+// Distance multiplier: exactly 1.0 / 1.3 / 1.6 / 2.0 at 10 / 20 / 30 / 40 m, straight lines between,
+// 0.85 at 5 m, 0.7 at the 2 m minimum, 2.0 cap.
+function distMult(m) {
+  const pts = [[2, 0.7], [5, 0.85], [10, 1.0], [20, 1.3], [30, 1.6], [40, 2.0]];
+  if (m >= 40) return 2.0; if (m <= 2) return 0.7;
+  for (let i = 1; i < pts.length; i++) if (m <= pts[i][0]) { const [a, fa] = pts[i - 1], [b, fb] = pts[i]; return +(fa + (fb - fa) * (m - a) / (b - a)).toFixed(3); }
+}
+const loadShape = () => { const v = LS.get('shape', null); return v && v.type === 'path' && v.pts && v.pts.length > 2 ? v : null; };
+const setup = { distance: clamp(Math.round(+LS.get('distance', 5)) || 5, 2, 60), shape: loadShape(), mode: 'new', throw: LS.get('throw', 'mixed'), styles: LS.get('styles', []) };
+function polyArea(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; a += x1 * y2 - x2 * y1; } return Math.abs(a) / 2; }
+function targetInfo(shape = setup.shape, dist = setup.distance) {
+  const ratio = shape ? polyArea(shape.pts) / DISC_AREA : 0, t = sizeTier(ratio), dm = distMult(dist);
+  return { name: t.name, ratio, mult: t.mult, distMult: dm, difficulty: +(dm * t.mult).toFixed(3), distance: dist, shape };
+}
+const distLabel = (m) => `${m}m`;
+
+function renderSetup() {
+  const t = setup.shape ? targetInfo() : null;
+  const wk = thisWeek(), att = wk.reduce((a, s) => a + s.attempts, 0);
+  $('wkSessions').textContent = wk.length; $('wkThrows').textContent = att;
+  $('wkScore').textContent = wk.length ? Math.round(wk.reduce((a, s) => a + s.skill_score, 0) / wk.length) : 0;
+  $('bestOut').textContent = state.sessions.length ? Math.max(...state.sessions.map(s => s.skill_score)) : 0;
+  const h = new Date().getHours();
+  $('greet').textContent = tr(h < 12 ? 'Good morning,' : h < 18 ? 'Good afternoon,' : 'Good evening,');
+  $('homeName').textContent = (state.strava?.athlete?.firstname) || state.profile.name.split(' ')[0] || tr('Athlete');
+  renderWeek(); renderGoal(); renderQuick(); renderInstall();
+}
+function renderWeek() {
+  const n = sessionsThisWeek(), s = state.strava;
+  let html = s ? `<span class="dot ok"></span>${tr('Strava connected')}` : `<span class="dot"></span>${tr('Strava not connected')}`;
+  if (isPro()) html += ' · LANZA Pro';
+  else if (state.config.adsEnabled) {
+    const left = Math.max(0, allowedThisWeek() - n);
+    html += left > 0 ? ' · ' + tr(left === 1 ? '{n} free session left this week' : '{n} free sessions left this week', { n: left }) : ' · ' + tr('next session unlocks with a short ad');
+  }
+  $('weekBox').innerHTML = html;
+}
+
+/* ---------- the to-scale scene: person, net, tree ---------- */
+function fitCanvas(c) {
+  const r = c.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  if (!r.width || !r.height) return null;
+  c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr);
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const s = Math.min(r.width / SCENE.w, r.height / SCENE.h);
+  return { g, s, W: r.width, H: r.height, ox: (r.width - SCENE.w * s) / 2, oy: r.height - (r.height - SCENE.h * s) / 2 - 0.15 * s };
+}
+function drawScene(v, shape, opts = {}) {
+  const { g, s, W, H, ox, oy } = v, X = (m) => ox + m * s, Y = (m) => oy - m * s, small = !!opts.small;
+  const hi = css('--accent-hi'), rgb = css('--accent-rgb'), muted = css('--muted'), ref = '#20233a', rim = `rgba(${rgb},.6)`;
+  g.clearRect(0, 0, W, H);
+  const bg = g.createRadialGradient(W / 2, 0, 4, W / 2, 0, H); bg.addColorStop(0, `rgba(${rgb},.5)`); bg.addColorStop(.6, 'rgba(8,10,40,.6)'); bg.addColorStop(1, '#050507');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,255,255,.035)'; g.fillRect(0, oy, W, H - oy);
+  g.strokeStyle = '#2c2c34'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, oy); g.lineTo(W, oy); g.stroke();
+  const font = (px, w = 600) => { g.font = `${w} ${px}px ${css('--font')}`; };
+  const lab = (t, x, y, align = 'center') => { if (small || s < 8) return; font(clamp(s * 0.13, 10, 14)); g.fillStyle = muted; g.textAlign = align; g.textBaseline = 'alphabetic'; const hw = g.measureText(t).width / 2 + 8; if (y < 14) return; g.fillText(t, align === 'center' ? clamp(x, hw, W - hw) : x, y); };
+  // Easter egg: zoom far out on the draw page and New York rises behind the field, at real size.
+  if (opts.city) drawCity(g, v, X, Y);
+  // Basketball hoop, regulation: rim 3.05 m high, 45 cm across; backboard 1.83 x 1.07 m. Drawn first so it sits behind.
+  { const hx = REF.hoopX; g.save(); g.globalAlpha = 0.8;
+    g.fillStyle = ref; g.fillRect(X(hx + 0.55), Y(3.3), 0.14 * s, 3.3 * s);                              // pole
+    g.fillRect(X(hx + 0.1), Y(3.3), 0.5 * s, 0.08 * s);                                                   // arm
+    g.strokeStyle = '#8f95c8'; g.lineWidth = Math.max(1, 0.03 * s); g.fillStyle = 'rgba(20,22,40,.9)';
+    g.fillRect(X(hx - 0.915), Y(3.97), 1.83 * s, 1.07 * s); g.strokeRect(X(hx - 0.915), Y(3.97), 1.83 * s, 1.07 * s);
+    g.strokeRect(X(hx - 0.295), Y(3.495), 0.59 * s, 0.45 * s);                                            // inner square
+    g.strokeStyle = '#ff7a3d'; g.lineWidth = Math.max(1.2, 0.035 * s);
+    g.beginPath(); g.ellipse(X(hx), Y(3.05), 0.2285 * s, 0.05 * s, 0, 0, Math.PI * 2); g.stroke();           // rim
+    g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 1; g.beginPath();
+    for (let k = -2; k <= 2; k++) { g.moveTo(X(hx + k * 0.1), Y(3.04)); g.lineTo(X(hx + k * 0.06), Y(2.65)); } g.stroke();  // net
+    g.restore(); lab(tr('HOOP 3.05 m'), X(hx), Y(3.97) - 6); }
+  // Tree, 5 m
+  const tx = REF.treeX; g.fillStyle = ref; g.strokeStyle = rim; g.lineWidth = small ? 1 : 1.5;
+  g.beginPath(); g.moveTo(X(tx - 0.13), Y(0)); g.lineTo(X(tx - 0.08), Y(2.6)); g.lineTo(X(tx + 0.08), Y(2.6)); g.lineTo(X(tx + 0.13), Y(0)); g.closePath(); g.fill();
+  const blobs = [[0, 3.55, 0.95], [-0.5, 3.0, 0.7], [0.5, 3.1, 0.7], [-0.25, 4.25, 0.6], [0.3, 4.3, 0.55], [0, 4.55, 0.45]];
+  g.beginPath(); blobs.forEach(([dx, y, r]) => { g.moveTo(X(tx + dx) + r * s, Y(y)); g.arc(X(tx + dx), Y(y), r * s, 0, Math.PI * 2); }); g.fill();
+  g.save(); g.globalCompositeOperation = 'source-atop'; g.restore();
+  lab(tr('TREE 5 m'), X(tx), Y(5.0) - 6);
+  // Net, 2 x 2 m on posts
+  const nx = X(REF.netX - REF.netW / 2), ny = Y(REF.netY + REF.netH), nw = REF.netW * s, nh = REF.netH * s;
+  g.save(); g.beginPath(); g.rect(nx, ny, nw, nh); g.clip(); g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 1;
+  const step = Math.max(4, 0.15 * s); for (let k = -nh; k < nw + nh; k += step) { g.beginPath(); g.moveTo(nx + k, ny); g.lineTo(nx + k + nh, ny + nh); g.moveTo(nx + k, ny + nh); g.lineTo(nx + k + nh, ny); g.stroke(); }
+  g.restore();
+  g.strokeStyle = '#d8dbff'; g.lineWidth = clamp(0.035 * s, 1.5, 4); g.strokeRect(nx, ny, nw, nh);
+  g.beginPath(); g.moveTo(nx, Y(REF.netY)); g.lineTo(nx, oy); g.moveTo(nx + nw, Y(REF.netY)); g.lineTo(nx + nw, oy); g.stroke();
+  lab(tr('NET 2 m'), X(REF.netX), ny - 6);
+  // Upside-down bike, a classic Ultimate practice target: resting on saddle and bars, 1.05 m tall, 1.75 m long.
+  { const bx = REF.bikeX, r = 0.34, P = (x, y) => [X(bx + x), Y(y)];
+    const rear = P(-0.52, 0.71), front = P(0.52, 0.71), bb = P(-0.1, 0.77), seat = P(-0.27, 0.22), headTop = P(0.33, 0.14), headBot = P(0.38, 0.36);
+    g.save(); g.strokeStyle = '#8f95c8'; g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = Math.max(1, 0.03 * s);
+    [rear, front].forEach(([cx, cy]) => { g.beginPath(); g.arc(cx, cy, r * s, 0, Math.PI * 2); g.stroke(); });
+    const ln = (p, q) => { g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); };
+    g.lineWidth = Math.max(1.2, 0.045 * s); g.beginPath();
+    ln(bb, rear); ln(seat, rear); ln(bb, seat); ln(seat, headTop); ln(bb, headBot); ln(headTop, headBot); ln(headBot, front);
+    ln(seat, P(-0.3, 0.06)); ln(P(-0.45, 0.035), P(-0.17, 0.035));            // seat post, saddle on the ground
+    ln(headTop, P(0.36, 0.04)); ln(P(0.24, 0.025), P(0.5, 0.025));             // stem, bars on the ground
+    g.stroke(); g.lineWidth = Math.max(1, 0.025 * s); g.beginPath(); g.arc(bb[0], bb[1], 0.1 * s, 0, Math.PI * 2); g.stroke();
+    g.restore(); lab(tr('BIKE 1.05 m'), X(bx), Y(1.05) - 6); }
+  // Person, 1.8 m, with a disc in hand
+  const px = REF.personX, u = 1, col = ref;
+  const limb = (x1, y1, x2, y2, w) => { g.lineWidth = w * s; g.lineCap = 'round'; g.strokeStyle = col; g.beginPath(); g.moveTo(X(x1), Y(y1)); g.lineTo(X(x2), Y(y2)); g.stroke(); };
+  limb(px, 1.48, px, 0.98, 0.3); limb(px - 0.07, 0.95, px - 0.13, 0.05, 0.13); limb(px + 0.07, 0.95, px + 0.2, 0.05, 0.13);
+  limb(px - 0.15, 1.44, px - 0.3, 1.0, 0.09); limb(px + 0.15, 1.44, px + 0.45, 1.2, 0.09);
+  g.fillStyle = col; g.beginPath(); g.arc(X(px), Y(1.69), 0.11 * s, 0, Math.PI * 2); g.fill();
+  g.lineCap = 'butt';
+  g.fillStyle = '#fff'; g.beginPath(); g.ellipse(X(px + 0.52), Y(1.2), DISC_D / 2 * s, DISC_D / 6 * s, 0, 0, Math.PI * 2); g.fill();
+  lab('1.8 m', X(px), Y(1.8) - 6);
+  // Target
+  if (shape && shape.pts.length > 1) {
+    g.save(); g.beginPath(); shape.pts.forEach(([x, y], k) => k ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y)));
+    if (!opts.live) { g.closePath(); g.fillStyle = `rgba(${rgb},.35)`; g.fill(); }
+    g.lineJoin = 'round'; g.lineCap = 'round'; g.strokeStyle = opts.live ? '#fff' : hi; g.lineWidth = small ? 1.5 : 3;
+    g.shadowColor = hi; g.shadowBlur = small ? 4 : 14; g.stroke(); g.restore();
+  }
+}
+
+/* ---------- Easter egg: New York skyline, real heights in metres ---------- */
+// Shapes are [height, width] steps from the ground up; x is the centre in metres from the field.
+const NYC = {
+  L: [ // shortest to tallest, moving away from the field
+    { name: 'Statue of Liberty', h: 93, x: 60, kind: 'liberty' },
+    { name: 'El Tornillo, Panama', h: 243, x: 170, kind: 'tornillo', pri: true },
+    { name: 'Chrysler', h: 319, x: 300, steps: [[180, 52], [240, 36], [282, 24], [300, 8], [319, 1.5]] },
+    { name: '432 Park Avenue', h: 426, x: 420, steps: [[426, 28]] },
+    { name: 'Empire State', h: 443, x: 550, steps: [[25, 130], [85, 100], [320, 62], [373, 40], [381, 18], [443, 3]] },
+    { name: 'Central Park Tower', h: 472, x: 680, steps: [[290, 44], [472, 34]] },
+    { name: 'One WTC', h: 541, x: 810, kind: 'wtc' }
+  ],
+  // Godzilla (Legendary, 2019): 119.8 m tall, standing on the flat roof of 432 Park Avenue.
+  godzilla: { name: 'Godzilla', h: 119.8, x: 422, base: 426 }
+};
+// Godzilla outline, facing left, in units of its height (y up), plus the dorsal plates.
+const GZ = [[-0.12, 0], [-0.02, 0], [0, 0.17], [0.06, 0.17], [0.1, 0], [0.2, 0], [0.18, 0.24], [0.32, 0.2], [0.5, 0.1], [0.62, 0.08], [0.6, 0.12], [0.42, 0.28], [0.24, 0.42],
+  [0.19, 0.6], [0.13, 0.75], [0.06, 0.86], [0.01, 0.95], [-0.08, 1], [-0.2, 0.97], [-0.23, 0.92], [-0.11, 0.88], [-0.1, 0.8], [-0.2, 0.73], [-0.22, 0.69],
+  [-0.12, 0.7], [-0.1, 0.56], [-0.14, 0.36], [-0.12, 0]];
+const GZ_PLATES = [[0.21, 0.5], [0.18, 0.62], [0.13, 0.74], [0.07, 0.85]];
+function drawCity(g, v, X, Y) {
+  const a = clamp(1.7 - Math.log10(v.s), 0, 1);   // appears from ~50 px/m, fully in by ~5 px/m
+  if (a <= 0) return;
+  const rgb = css('--accent-rgb');
+  g.save(); g.globalAlpha = a;
+  const box = (x, w, h0, h1) => g.rect(X(x - w / 2), Y(h1), w * v.s, (h1 - h0) * v.s);
+  g.lineWidth = 1;
+  g.fillStyle = '#171b45'; g.strokeStyle = `rgba(${rgb},.8)`;
+  const gz = NYC.godzilla, gzx = X(gz.x - 0.1 * gz.h), gzy = Y(gz.base + gz.h);
+  const labels = v.s < 2.5 ? [{ x0: gzx - 50, x1: gzx + 50, y0: gzy - 30, y1: gzy }, { x0: X(gz.x - 0.23 * gz.h), x1: X(gz.x + 0.62 * gz.h), y0: gzy, y1: Y(gz.base) }] : [];   // Godzilla's label first, then tallest first; skip overlaps
+  [...NYC.L].sort((p, q) => (q.pri ? 1e9 : q.h) - (p.pri ? 1e9 : p.h)).forEach(b => {
+    g.beginPath();
+    if (b.kind === 'wtc') { // tapered tower with a 124 m spire
+      g.moveTo(X(b.x - 31), Y(0)); g.lineTo(X(b.x - 31), Y(57)); g.lineTo(X(b.x - 20), Y(417)); g.lineTo(X(b.x + 20), Y(417)); g.lineTo(X(b.x + 31), Y(57)); g.lineTo(X(b.x + 31), Y(0)); g.closePath();
+      box(b.x, 1.5, 417, b.h);
+    } else if (b.kind === 'tornillo') { // the screw: a twisting 243 m tower
+      const n = 48, T = 243, half = (h) => 15 + 4 * Math.sin(h / T * Math.PI * 7);
+      for (let k = 0; k <= n; k++) { const h = T * k / n; g[k ? 'lineTo' : 'moveTo'](X(b.x - half(h)), Y(h)); }
+      for (let k = n; k >= 0; k--) { const h = T * k / n; g.lineTo(X(b.x + half(h + T / 14)), Y(h)); }
+      g.closePath();
+    } else if (b.kind === 'liberty') { // pedestal, then the statue with her torch raised
+      g.moveTo(X(b.x - 20), Y(0)); g.lineTo(X(b.x - 14), Y(47)); g.lineTo(X(b.x + 14), Y(47)); g.lineTo(X(b.x + 20), Y(0)); g.closePath();
+      g.moveTo(X(b.x - 6), Y(47)); g.lineTo(X(b.x - 4), Y(78)); g.lineTo(X(b.x - 1), Y(82)); g.lineTo(X(b.x + 2), Y(80)); g.lineTo(X(b.x + 6), Y(93)); g.lineTo(X(b.x + 7.5), Y(92)); g.lineTo(X(b.x + 5), Y(76)); g.lineTo(X(b.x + 6), Y(47)); g.closePath();
+    } else { let h0 = 0; b.steps.forEach(([h, w]) => { box(b.x, w, h0, h); h0 = h; }); }
+    g.fill(); g.stroke();
+    if (v.s < 2.5 && a > 0.6) {
+      g.font = `600 11px ${css('--font')}`; g.textAlign = 'center';
+      const w = g.measureText(b.name).width, lx = clamp(X(b.x), w / 2 + 6, v.W - w / 2 - 6), r = { x0: lx - w / 2 - 4, x1: lx + w / 2 + 4, y0: Y(b.h) - 29, y1: Y(b.h) - 4 };
+      if (!labels.some(o => r.x0 < o.x1 && r.x1 > o.x0 && r.y0 < o.y1 && r.y1 > o.y0)) {
+        labels.push(r);
+        g.fillStyle = 'rgba(255,255,255,.75)'; g.fillText(b.name, lx, Y(b.h) - 18); g.fillStyle = css('--muted'); g.fillText(`${b.h} m`, lx, Y(b.h) - 5);
+      }
+      g.fillStyle = '#171b45';
+    }
+  });
+  { // Godzilla on top of 432 Park Avenue
+    const z = NYC.godzilla, H = z.h;
+    g.fillStyle = '#1d4a35'; g.strokeStyle = 'rgba(80,255,170,.7)';
+    g.beginPath(); GZ.forEach(([x, y], k) => g[k ? 'lineTo' : 'moveTo'](X(z.x + x * H), Y(z.base + y * H))); g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); GZ_PLATES.forEach(([x, y]) => { g.moveTo(X(z.x + x * H), Y(z.base + y * H)); g.lineTo(X(z.x + (x + 0.09) * H), Y(z.base + (y + 0.05) * H)); g.lineTo(X(z.x + (x + 0.02) * H), Y(z.base + (y - 0.06) * H)); }); g.fill(); g.stroke();
+    if (v.s < 2.5 && a > 0.6) {
+      g.font = `600 11px ${css('--font')}`; g.textAlign = 'center';
+      g.fillStyle = 'rgba(120,255,190,.9)'; g.fillText('Godzilla 120 m', X(z.x - 0.1 * H), Y(z.base + H) - 18);
+      g.fillStyle = css('--muted'); g.fillText('on 432 Park Ave', X(z.x - 0.1 * H), Y(z.base + H) - 5);
+    }
+  }
+  if (v.s < 2.5) { // where the athlete is standing
+    g.fillStyle = css('--accent-hi'); g.beginPath(); g.arc(X(2.5), Y(0) - 4, 4, 0, Math.PI * 2); g.fill();
+    g.font = `600 11px ${css('--font')}`; g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText('You', X(2.5), Y(0) - 14);
+  }
+  g.restore();
+}
+
+/* ---------- step 1: finger drawing (one finger draws, two fingers zoom and pan) ---------- */
+const dc = $('drawCanvas'); let dv = null, livePts = null, drawRaf = false;
+const cam = { cx: DRAW_VIEW.cx, cy: DRAW_VIEW.cy, z: 1 };
+const resetCam = () => Object.assign(cam, { cx: DRAW_VIEW.cx, cy: DRAW_VIEW.cy, z: 1, fresh: true });
+// Zoom out far enough to fit about 1.1 km of skyline (the Easter egg); zoom in up to 5x.
+const zMin = () => Math.min(0.6, dv.W / 1100 / dv.s0);
+function applyCam() {
+  cam.z = clamp(cam.z, zMin(), 5); cam.cx = clamp(cam.cx, -200, 900);
+  const sc = dv.s0 * cam.z; cam.cy = clamp(cam.cy, (dv.H / 2 - 24) / sc, 650);   // never show much below the ground
+  dv.s = dv.s0 * cam.z; dv.ox = dv.W / 2 - cam.cx * dv.s; dv.oy = dv.H / 2 + cam.cy * dv.s;
+}
+function redrawDraw() { if (!dv) return; applyCam(); drawScene(dv, livePts ? { pts: livePts } : setup.shape, { live: !!livePts, city: true }); renderDrawPill(); }
+function layoutDraw() {
+  dv = fitCanvas(dc); if (!dv) return;
+  dv.s0 = Math.min(dv.W / DRAW_VIEW.w, dv.H / DRAW_VIEW.h);
+  // On open, sit the ground just above the bottom edge whatever the screen shape.
+  if (cam.fresh) { cam.cy = dv.H / (2 * dv.s0) - 0.2; cam.fresh = false; }
+  redrawDraw();
+}
+const requestDraw = () => { if (drawRaf) return; drawRaf = true; requestAnimationFrame(() => { drawRaf = false; redrawDraw(); }); };
+function renderDrawPill() {
+  const t = setup.shape && !livePts ? targetInfo() : null;
+  if (dv && dv.s < 2.5 && !livePts) { $('drawPill').textContent = tr('To real scale · pinch in to draw'); $('toDistance').disabled = !setup.shape; return; }
+  $('drawPill').textContent = t ? tr(t.name) : livePts ? tr('Close the shape and lift your finger') : tr('Draw with one finger · pinch to zoom');
+  $('toDistance').disabled = !setup.shape;
+}
+const local = (e) => { const r = dc.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+const toWorldPx = (p) => [(p.x - dv.ox) / dv.s, (dv.oy - p.y) / dv.s];
+const toWorld = (e) => toWorldPx(local(e));
+// Keep world point w under screen point p at the current zoom.
+function pinTo(w, p) { const sc = dv.s0 * clamp(cam.z, zMin(), 5); cam.cx = w[0] - (p.x - dv.W / 2) / sc; cam.cy = w[1] + (p.y - dv.H / 2) / sc; }
+const fingers = new Map(); let pinch = null;
+function pinchState() {
+  const [a, b] = [...fingers.values()];
+  return { d: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } };
+}
+dc.addEventListener('pointerdown', (e) => {
+  if (!dv) return; e.preventDefault(); try { dc.setPointerCapture(e.pointerId); } catch {}
+  fingers.set(e.pointerId, local(e));
+  if (fingers.size === 1) { applyCam(); livePts = dv.s < 8 ? null : [toWorld(e)]; }
+  else if (fingers.size === 2) { livePts = null; const st = pinchState(); applyCam(); pinch = { ...st, z: cam.z, w: toWorldPx(st.mid) }; }
+  requestDraw();
+});
+dc.addEventListener('pointermove', (e) => {
+  if (!fingers.has(e.pointerId)) return; e.preventDefault();
+  fingers.set(e.pointerId, local(e));
+  if (pinch && fingers.size >= 2) { const st = pinchState(); cam.z = clamp(pinch.z * st.d / pinch.d, zMin(), 5); pinTo(pinch.w, st.mid); requestDraw(); return; }
+  if (!livePts) return;
+  for (const ev of (e.getCoalescedEvents ? e.getCoalescedEvents() : [e])) {
+    const p = toWorld(ev), q = livePts[livePts.length - 1];
+    if (Math.hypot(p[0] - q[0], p[1] - q[1]) * dv.s > 3) livePts.push(p);
+  }
+  requestDraw();
+});
+function endFinger(e) {
+  fingers.delete(e.pointerId);
+  if (pinch) { if (fingers.size < 2) pinch = null; return; }
+  if (!livePts) return;
+  const pts = livePts; livePts = null;
+  if (pts.length >= 3 && polyArea(pts) > DISC_AREA * 0.5) {
+    const stride = Math.ceil(pts.length / 160);
+    setup.shape = { type: 'path', pts: pts.filter((_, k) => k % stride === 0).map(([x, y]) => [+x.toFixed(3), +y.toFixed(3)]) };
+    LS.set('shape', setup.shape);
+  } else if (pts.length > 1) toast(tr('Draw a closed shape around your target'));
+  requestDraw();
+}
+dc.addEventListener('pointerup', endFinger); dc.addEventListener('pointercancel', endFinger);
+dc.addEventListener('wheel', (e) => { if (!dv) return; e.preventDefault(); applyCam(); const p = local(e), w = toWorldPx(p); cam.z *= Math.exp(-e.deltaY * 0.0015); pinTo(w, p); requestDraw(); }, { passive: false });
+$('clearDraw').onclick = () => { setup.shape = null; LS.del('shape'); requestDraw(); };
+
+/* ---------- step 2: distance ---------- */
+function setDistance(m) { setup.distance = clamp(Math.round(m), 2, 60); LS.set('distance', setup.distance); renderDistance(); }
+function renderThrowPick() {
+  const show = setup.mode === 'new';
+  $('throwPick').classList.toggle('hidden', !show); if (!show) return;
+  // Optional: no chip picked means a mixed session, and tapping the picked one clears it.
+  $('throwChips').innerHTML = THROWS.filter(t => t.id !== 'mixed').map(t => `<button type="button" data-t="${t.id}" class="${t.id === setup.throw ? 'on' : ''}">${tr(t.name)}</button>`).join('');
+  $('styleChips').innerHTML = STYLES.map(x => `<button type="button" data-s="${x.id}" class="${setup.styles.includes(x.id) ? 'on' : ''}">${tr(x.name)}</button>`).join('');
+  $('throwChips').querySelectorAll('button').forEach(b => b.onclick = () => { setup.throw = setup.throw === b.dataset.t ? 'mixed' : b.dataset.t; LS.set('throw', setup.throw); renderThrowPick(); });
+  $('styleChips').querySelectorAll('button').forEach(b => b.onclick = () => {
+    const id = b.dataset.s; setup.styles = setup.styles.includes(id) ? setup.styles.filter(x => x !== id) : [...setup.styles, id];
+    LS.set('styles', setup.styles); b.classList.toggle('on');
+  });
+}
+function renderDistance() {
+  renderThrowPick();
+  $('distVal').textContent = setup.distance; $('distRange').value = setup.distance;
+  $('confirmTarget').textContent = tr(setup.mode === 'change' ? 'Back to practice' : 'Start practice');
+  $('distPill').textContent = tr('How it looks from {n} m', { n: setup.distance });
+  zoomTo(setup.distance);
+}
+// The preview shrinks the scene with distance (apparent size ∝ 1/distance), centred on the target,
+// easing between values so dragging the slider feels like zooming.
+const zoom = { cur: null, goal: 10, raf: 0 };
+function zoomTo(d) { zoom.goal = d; if (zoom.cur == null) zoom.cur = d; if (!zoom.raf) zoom.raf = requestAnimationFrame(zoomStep); }
+function zoomStep() {
+  zoom.raf = 0;
+  zoom.cur += (zoom.goal - zoom.cur) * 0.25; if (Math.abs(zoom.goal - zoom.cur) < 0.05) zoom.cur = zoom.goal;
+  const v = fitCanvas($('distThumb'));
+  if (v && setup.shape) {
+    const pts = setup.shape.pts, cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+    v.s = v.s * Math.pow(10 / zoom.cur, 0.85);
+    v.ox = v.W / 2 - cx * v.s; v.oy = v.H / 2 + cy * v.s;
+    drawScene(v, setup.shape, { small: true });
+  }
+  if (zoom.cur !== zoom.goal) zoom.raf = requestAnimationFrame(zoomStep);
+}
+$('distRange').oninput = (e) => setDistance(+e.target.value);
+$('distMinus').onclick = () => setDistance(setup.distance - 1);
+$('distPlus').onclick = () => setDistance(setup.distance + 1);
+
+/* ---------- flow ---------- */
+function openTarget(mode) { setup.mode = mode; setup.distOnly = false; resetCam(); showView('target'); requestAnimationFrame(layoutDraw); }
+$('toDistance').onclick = () => { if (!setup.shape) { toast(tr('Draw your target first')); return; } if (setup.mode === 'new') setup.distance = 5; zoom.cur = null; showView('distance'); requestAnimationFrame(renderDistance); };
+$('targetBack').onclick = () => showView(setup.mode === 'change' && session ? 'practice' : 'setup');
+$('distBack').onclick = () => setup.distOnly && session ? showView('practice') : openTarget(setup.mode);
+$('confirmTarget').onclick = () => {
+  if (setup.mode === 'change' && session) { applyTarget(); showView('practice'); toast(tr('Target updated')); say(tr('Target updated.')); }
+  else startSession();
+};
+
+/* =============================================================================
+   Audio: Web Audio chimes + speech
+   ============================================================================= */
+let actx = null;
+function audio() { if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) actx = new AC(); } if (actx && actx.state === 'suspended') actx.resume(); return actx; }
+function tone(freq, t0, dur, type = 'sine', gain = 0.25, slideTo) {
+  const a = audio(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain(), t = a.currentTime + t0;
+  o.type = type; o.frequency.setValueAtTime(freq, t); if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + 0.05);
+}
+const chimeMake = () => { tone(1046.5, 0, 0.14, 'sine', 0.28); tone(1568, 0.09, 0.22, 'sine', 0.24); };
+const chimeMiss = () => tone(220, 0, 0.32, 'triangle', 0.32, 140);
+const chimeFanfare = () => [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.08, 0.18, 'sine', 0.2));
+let speaking = false;
+function say(text) {
+  if (!$('voiceFeedback').checked || !('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(text); u.rate = 1.05; u.lang = langInfo().speech || fmtLocale();
+  u.onstart = () => { speaking = true; }; u.onend = u.onerror = () => setTimeout(() => speaking = false, 250);
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+/* =============================================================================
+   Practice session
+   ============================================================================= */
+let session = null, timerId = null, wakeLock = null;
+// Each throw remembers the difficulty it was thrown at, so changing target mid-session scores fairly.
+const stats = (s) => {
+  const makes = s.log.filter(Boolean).length, attempts = s.log.length, acc = attempts ? makes / attempts : 0;
+  const diff = s.diffs.length ? s.diffs.reduce((a, d) => a + d, 0) / s.diffs.length : s.cur.difficulty;
+  return { makes, misses: attempts - makes, attempts, acc, diff, score: scoreOf(makes, attempts, diff) };
+};
+function tryStart() { setup.quick = false; if (needsAd()) { openAdGate(); return; } openTarget('new'); }
+function startSession() {
+  audio();
+  session = { id: uuid(), startedAt: Date.now(), log: [], diffs: [], streak: 0, best: 0, targets: 0, cur: null, throw: setup.throw, styles: [...setup.styles] };
+  applyTarget(); timerId = setInterval(tickTimer, 1000); tickTimer(); requestWakeLock();
+  showView('practice'); say(tr('Session started.')); persistLive();
+}
+/* The live session is kept on the phone after every throw, so closing the app
+   (or never tapping Finish) never loses it. On the next open it resumes if it was
+   recent, otherwise it is saved as a finished session. */
+const LIVE_RESUME_MS = 30 * 60e3;
+function persistLive() { if (session) LS.set('live', { ...session, lastAt: session.lastAt || Date.now() }); else LS.del('live'); }
+window.addEventListener('pagehide', persistLive);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persistLive(); });
+function applyTarget() {
+  if (!session || !setup.shape) return;
+  session.cur = targetInfo(); session.targets++; persistLive();
+  $('practiceTarget').textContent = `${session.cur.distance}m · ${tr(session.cur.name)}`;
+  $('practiceDiff').textContent = `${throwLabel(session)} · ${tr('difficulty {n}/10', { n: levelLabel(session.cur.difficulty) })}`;
+  renderSession();
+  requestAnimationFrame(() => { const v = fitCanvas($('practiceThumb')); if (v) drawScene(v, session.cur.shape, { small: true }); });
+}
+$('changeTarget').onclick = () => openTarget('change');
+$('changeDist').onclick = () => { setup.mode = 'change'; setup.distOnly = true; setup.shape = session.cur.shape; setup.distance = session.cur.distance; zoom.cur = null; showView('distance'); requestAnimationFrame(renderDistance); };
+function tickTimer() { if (!session) return; const s = Math.floor((Date.now() - session.startedAt) / 1000); $('timer').textContent = `${String(s / 60 | 0).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }
+async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch {} }
+document.addEventListener('visibilitychange', () => { if (session && document.visibilityState === 'visible') requestWakeLock(); });
+function record(made) {
+  if (!session) return;
+  session.log.push(made); session.diffs.push(session.cur.difficulty); session.lastAt = Date.now(); persistLive();
+  if (made) { session.streak++; session.best = Math.max(session.best, session.streak); chimeMake(); } else { session.streak = 0; chimeMiss(); }
+  const btn = made ? $('btnMake') : $('btnMiss');
+  btn.classList.remove('flash-make', 'flash-miss'); void btn.offsetWidth; btn.classList.add(made ? 'flash-make' : 'flash-miss');
+  if (navigator.vibrate) navigator.vibrate(made ? 30 : [20, 40, 20]);
+  renderSession();
+  const st = stats(session);
+  // Spoken phrases avoid the trigger words so the mic can't hear itself.
+  if (made && [5, 10, 15, 20].includes(session.streak)) { chimeFanfare(); say(tr('{n} in a row!', { n: session.streak })); }
+  else if (st.attempts % 10 === 0) say(tr('{n} throws. {p} percent.', { n: st.attempts, p: Math.round(st.acc * 100) }));
+}
+function undo() {
+  if (!session) return;
+  if (!session.log.length) return;
+  session.log.pop(); session.diffs.pop();
+  let st = 0, best = 0; for (const m of session.log) { st = m ? st + 1 : 0; best = Math.max(best, st); }
+  session.streak = st; session.best = best; persistLive(); renderSession(); tone(600, 0, 0.08, 'square', 0.08); toast(tr('Last throw removed'));
+}
+function renderSession() {
+  const st = stats(session);
+  $('accOut').textContent = Math.round(st.acc * 100) + '%'; $('attOut').textContent = st.attempts;
+  $('scoreLive').textContent = st.score; $('streakOut').textContent = session.streak; $('bestStreak').textContent = session.best;
+  $('makeN').textContent = st.makes; $('missN').textContent = st.misses;
+  $('streakBar').innerHTML = session.log.slice(-60).map(m => `<i class="${m ? '' : 'x'}"></i>`).join('');
+}
+
+/* ---------- voice (Web Speech API) ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+// English words always work; the language file adds its own (voice.make / voice.miss / voice.undo).
+const VOICE = langInfo().voice || {};
+const MAKE_WORDS = new Set(['hit', 'make', 'made', 'hits', 'maid', ...(VOICE.make || [])].map(w => w.toLowerCase()));
+const MISS_WORDS = new Set(['miss', 'out', 'off', 'missed', 'mist', ...(VOICE.miss || [])].map(w => w.toLowerCase()));
+const UNDO_WORDS = new Set(['undo', ...(VOICE.undo || [])].map(w => w.toLowerCase()));
+let rec = null, micOn = false, handled = new Map(), lastCmdAt = 0;
+// Languages written without spaces (Japanese, Chinese) are scanned for the words in order.
+function parseOutcomes(text) {
+  text = text.toLowerCase();
+  const kind = (w) => MAKE_WORDS.has(w) ? 'make' : MISS_WORDS.has(w) ? 'miss' : UNDO_WORDS.has(w) ? 'undo' : null;
+  if (!VOICE.scan) return text.replace(/[^\p{L}\p{M}\s]/gu, ' ').split(/\s+/).map(kind).filter(Boolean);
+  const words = [...MAKE_WORDS, ...MISS_WORDS, ...UNDO_WORDS].sort((a, b) => b.length - a.length), out = [];
+  for (let i = 0; i < text.length;) { const w = words.find(w => text.startsWith(w, i)); if (w) { out.push(kind(w)); i += w.length; } else i++; }
+  return out;
+}
+function setMicUI(live, sub) { $('micToggle').classList.toggle('live', live); if (sub != null) $('heard').innerHTML = sub; }
+function startMic() {
+  if (!SR) { setMicUI(false, tr('Voice isn’t available in this browser. Use Chrome on Android or Safari on iPhone, or tap the buttons.')); return; }
+  audio();
+  rec = new SR();
+  rec.lang = langInfo().speech || fmtLocale();
+  rec.continuous = true; rec.interimResults = true;
+  handled = new Map();
+  rec.onresult = (e) => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const text = e.results[i][0].transcript, outs = parseOutcomes(text), done = handled.get(i) || 0;
+      // Interim results react instantly; `handled` stops the final result counting the same words twice.
+      if (outs.length > done && !speaking) for (const o of outs.slice(done)) {
+        const now = Date.now(); if (now - lastCmdAt < 350) continue; lastCmdAt = now;
+        o === 'undo' ? undo() : record(o === 'make');
+      }
+      handled.set(i, Math.max(done, outs.length));
+      $('heard').innerHTML = tr('Heard {x}', { x: `<b>“${esc(text.trim())}”</b>` });
+    }
+  };
+  rec.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { micOn = false; setMicUI(false, tr('Microphone blocked. Allow it for this site in your browser settings.')); } };
+  rec.onend = () => { if (micOn) { handled = new Map(); try { rec.start(); } catch { setTimeout(() => micOn && rec && rec.start(), 300); } } };
+  try { rec.start(); micOn = true; setMicUI(true, tr('Listening. Say <b>make</b> or <b>miss</b> after each throw.')); }
+  catch (err) { setMicUI(false, esc(err.message)); }
+}
+function stopMic() { micOn = false; if (rec) { rec.onend = null; try { rec.stop(); } catch {} rec = null; } setMicUI(false, tr('Tap the mic for hands-free: say “make” or “miss” after each throw.')); }
+$('micToggle').onclick = () => micOn ? stopMic() : startMic();
+$('btnMake').onclick = () => record(true);
+$('btnMiss').onclick = () => record(false);
+$('undoBtn').onclick = undo;
+$('startSession').onclick = tryStart;
+// "Same as last time": the saved target, distance and throw, straight into logging.
+$('quickStart').onclick = () => {
+  if (!setup.shape) return tryStart();
+  if (needsAd()) { setup.quick = true; openAdGate(); return; }
+  setup.mode = 'new'; startSession();
+};
+function renderQuick() {
+  const b = $('quickStart'); b.classList.toggle('hidden', !setup.shape || !state.sessions.length);
+  if (setup.shape) b.textContent = `${tr('Same as last time')} · ${setup.distance} m · ${throwOf(setup).id === 'mixed' ? tr(BRAND.sessionNames[1]) : tr(throwOf(setup).name)} ›`;
+}
+let discardArmed = null;
+$('cancelSession').onclick = () => {
+  if (session && session.log.length && !discardArmed) {
+    $('cancelSession').textContent = tr('Tap again');
+    discardArmed = setTimeout(() => { discardArmed = null; $('cancelSession').textContent = tr('Discard'); }, 3000); return;
+  }
+  clearTimeout(discardArmed); discardArmed = null; $('cancelSession').textContent = tr('Discard');
+  endPractice(); showView('setup');
+};
+function endPractice() { session = null; LS.del('live'); clearInterval(timerId); stopMic(); try { wakeLock && wakeLock.release(); } catch {} wakeLock = null; $('timer').textContent = '00:00'; }
+
+/* =============================================================================
+   Finish → result (saved at once; the wind rating can be changed after)
+   ============================================================================= */
+let current = null;
+function sessionRecord(ss, endAt) {
+  const session = ss, st = stats(ss);
+  const rec = {
+    id: session.id, created_at: new Date(session.startedAt).toISOString(), duration_s: Math.max(1, Math.round((endAt - session.startedAt) / 1000)),
+    distance_m: session.cur.distance, target: session.cur.name, target_ratio: +session.cur.ratio.toFixed(2), difficulty: +st.diff.toFixed(3),
+    attempts: st.attempts, makes: st.makes, accuracy: +st.acc.toFixed(4), best_streak: session.best,
+    wind_rating: 1, wet_rating: 1, skill_score: st.score, strava_activity_id: null, team_shared: null,
+    shape: session.cur.shape || null, throw: session.throw, styles: session.styles
+  };
+  rec.title = defaultTitle(rec);
+  return rec;
+}
+$('endSession').onclick = () => {
+  if (!session) return;
+  if (!session.log.length) { toast(tr('Log at least one throw first')); return; }
+  current = sessionRecord(session, Date.now());
+  state.sessions.unshift(current); saveSessions();
+  endPractice(); renderResult(); showView('result');
+  shareToTeam(current); autoPostStrava(); track('session');
+  if (thisWeek().length === goalN()) setTimeout(() => { chimeFanfare(); toast(tr('Weekly goal reached!')); }, 2600);
+  say(tr('Saved. Skill score {n}.', { n: current.skill_score }));
+};
+function setCond(key, r) {
+  if (!current) return;
+  current[key] = r; current.skill_score = rescore(current);
+  saveSessions(); renderResult(); scheduleStravaSync();
+  clearTimeout(setCond.t); setCond.t = setTimeout(() => shareToTeam(current), 800);
+}
+function renderResult() {
+  const s = current, w = WIND[s.wind_rating - 1];
+  $('windList').innerHTML = WIND.map(x => `<button data-r="${x.r}" class="${x.r === s.wind_rating ? 'on' : ''}">${x.r}<small>${tr(x.name)}</small></button>`).join('');
+  $('windList').querySelectorAll('button').forEach(b => b.onclick = () => setCond('wind_rating', +b.dataset.r));
+  // Wet/dry no longer asked (target practice); older sessions keep their saved factor.
+  const wt = WET[(s.wet_rating || 1) - 1];
+  $('rScore').textContent = s.skill_score; $('rBand').textContent = `${tr('Score')} · ${scoreBand(s.skill_score)}`;
+  $('rAcc').textContent = Math.round(s.accuracy * 100) + '%'; $('rMk').textContent = tr('Accuracy');
+  $('rTime').textContent = `${s.duration_s / 60 | 0}:${String(s.duration_s % 60).padStart(2, '0')}`;
+  const others = state.sessions.filter(x => x.id !== s.id && new Date(x.created_at) < new Date(s.created_at));
+  const prevBest = others.length ? Math.max(...others.map(x => x.skill_score)) : null;
+  const prevStreak = others.length ? Math.max(...others.map(x => x.best_streak || 0)) : null;
+  $('rPB').textContent = prevBest == null ? tr('First session logged') : s.skill_score > prevBest ? tr('Personal best: Skill Score {n}', { n: s.skill_score })
+    : prevStreak != null && s.best_streak > prevStreak ? tr('Personal best: {n} makes in a row', { n: s.best_streak }) : tr('{d} points off your best of {b}', { d: prevBest - s.skill_score, b: prevBest });
+  $('rList').innerHTML = [['Throw', throwLabel(s)], ['Makes', tr('{m} of {n}', { m: s.makes, n: s.attempts })], ['Distance', distLabel(s.distance_m)], ['Target', tr(s.target)],
+    ['Difficulty', `${levelLabel(s.difficulty * w.f * wt.f)} / 10`], ['Best streak', s.best_streak], ['Conditions', tr('{w} wind', { w: tr(w.name) })]].map(([k, v]) => `<div>${tr(k)}<b>${esc(v)}</b></div>`).join('');
+  $('rHow').textContent = tr('{m}/{n} counts as {a}% (more throws, more weight) × difficulty {d}/10 = {s} ({band})', { m: s.makes, n: s.attempts, a: Math.round((s.makes + 5) / (s.attempts + 10) * 100), d: levelLabel(s.difficulty * w.f * wt.f), s: s.skill_score, band: scoreBand(s.skill_score) });
+  renderName(); renderStravaBox(); renderTeamStatus();
+}
+function resultText(s) { return `${BRAND.activityEmoji} ${BRAND.name} · ${tr('Skill Score {n}/100', { n: s.skill_score })} (${scoreBand(s.skill_score)}) · ${s.makes}/${s.attempts} (${Math.round(s.accuracy * 100)}%) · ${distLabel(s.distance_m)} · ${throwLabel(s)}`; }
+function partOfDay(d) { const h = d.getHours(); return h < 5 ? 'Night' : h < 12 ? 'Morning' : h < 17 ? 'Afternoon' : h < 21 ? 'Evening' : 'Night'; }
+// "Evening forehands", "Morning backhand hucks", "Evening throwing session" for mixed.
+// Word order comes from the language file: "{part}" templates and "{throw} {style}".
+function defaultTitle(s) {
+  const d = new Date(s.created_at || Date.now()), t = throwOf(s), st = stylesOf(s).filter(x => x.id !== 'off'), off = (s.styles || []).includes('off');
+  let what;
+  if (t.id === 'mixed') what = st.length === 1 ? tr(st[0].many) : tr(BRAND.sessionNames[0]);
+  else what = st.length === 1 ? tr('{throw} {style}', { throw: lc(tr(t.name)), style: tr(st[0].many) }) : tr(t.many);
+  if (off) what = tr('off-hand {x}', { x: what });
+  const h = d.getHours(), part = h < 5 ? 'Night {x}' : h < 12 ? 'Morning {x}' : h < 17 ? 'Afternoon {x}' : h < 21 ? 'Evening {x}' : 'Night {x}';
+  const out = tr(part, { x: what }); return out.charAt(0).toUpperCase() + out.slice(1);
+}
+function appUrl() { return BRAND.appUrl || (/^https?:/.test(location.protocol) && !/localhost|127\.0\.0\.1/.test(location.host) ? location.origin : ''); }
+function sessionTitle(s) { return (s.title || '').trim() || defaultTitle(s); }
+function renderName() {
+  const s = current; if (!s) return;
+  const recent = LS.get('recentNames', []);
+  const names = [defaultTitle(s), ...BRAND.sessionNames.slice(1).map(x => tr(x))];
+  const all = [...recent.filter(n => !names.some(x => x.toLowerCase() === n.toLowerCase())), ...names];
+  $('sessionName').value = s.title || '';
+  $('sessionName').placeholder = defaultTitle(s);
+  $('nameChips').innerHTML = all.map(n => `<button type="button" class="${n === sessionTitle(s) ? 'on' : ''}">${esc(n)}</button>`).join('');
+  $('nameChips').querySelectorAll('button').forEach(b => b.onclick = () => setTitle(b.textContent, true));
+}
+function setTitle(t, fromChip) {
+  if (!current) return;
+  current.title = t.trim().slice(0, 80); saveSessions(); scheduleStravaSync();
+  if (fromChip) $('sessionName').value = current.title;
+  // Picking "Forehands", "Hammers"... on an untagged session tags its throw too.
+  const th = fromChip && current.throw !== undefined && throwOf(current).id === 'mixed' && THROWS.find(x => x.id !== 'mixed' && lc(tr(x.many)) === current.title.toLowerCase());
+  if (th) { current.throw = th.id; saveSessions(); renderResult(); return; }
+  $('nameChips').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.textContent === sessionTitle(current)));
+}
+$('sessionName').oninput = (e) => setTitle(e.target.value, false);
+$('sessionName').onchange = (e) => {
+  const t = e.target.value.trim(); if (!t) return;
+  const known = [defaultTitle(current), ...BRAND.sessionNames.map(x => tr(x))].map(x => x.toLowerCase());
+  if (known.includes(t.toLowerCase())) return;
+  LS.set('recentNames', [t, ...LS.get('recentNames', []).filter(x => x.toLowerCase() !== t.toLowerCase())].slice(0, 4));
+};
+$('sessionName').onkeydown = (e) => { if (e.key === 'Enter') e.target.blur(); };
+function isPB(s) {
+  const others = state.sessions.filter(x => x.id !== s.id && new Date(x.created_at) < new Date(s.created_at));
+  return others.length > 0 && s.skill_score > Math.max(...others.map(x => x.skill_score));
+}
+// This month's rank on the team board (same ordering as the board: average Skill Score).
+async function teamRankLine(s) {
+  if (!state.profile.team) return '';
+  try {
+    const d = await api(`/team?code=${encodeURIComponent(state.profile.team)}&weeks=6`);
+    const mk = (t) => { const x = new Date(t); return x.getFullYear() * 12 + x.getMonth(); }, month = mk(s.created_at), by = new Map();
+    d.sessions.filter(x => mk(x.created_at) === month).forEach(x => { if (!by.has(x.athlete_key)) by.set(x.athlete_key, []); by.get(x.athlete_key).push(x); });
+    const board = [...by.entries()].map(([k, rs]) => ({ k, rs, avg: rs.reduce((a, x) => a + x.skill_score, 0) / rs.length })).sort((a, b) => b.avg - a.avg);
+    const i = board.findIndex(r => r.rs.some(x => x.id === s.id));
+    return i < 0 || board.length < 2 ? '' : '📈 ' + tr('#{r} of {n} on {team} this month', { r: i + 1, n: board.length, team: teamLabel() });
+  } catch { return ''; }
+}
+async function stravaDescription(s) {
+  const w = WIND[s.wind_rating - 1], url = appUrl();
+  return [
+    `${tr('Skill Score {n}/100', { n: s.skill_score })} · ${scoreBand(s.skill_score)}${isPB(s) ? ' · 🏆 ' + tr('New personal best') : ''}`,
+    `🥏 ${throwLabel(s)}`,
+    '🎯 ' + tr('{m}/{n} makes ({p}%) · best streak {b}', { m: s.makes, n: s.attempts, p: Math.round(s.accuracy * 100), b: s.best_streak }),
+    '📏 ' + tr('{d} · {target} target', { d: distLabel(s.distance_m), target: lc(tr(s.target)) }),
+    '💨 ' + tr('{w} wind', { w: tr(w.name) }),
+    await teamRankLine(s),
+    '',
+    url ? tr('Train your throws with {app} ➜ {url}', { app: BRAND.name, url: url.replace(/^https?:\/\//, '') + (BRAND.appUrl ? '' : '/s') }) : tr('Logged with {app}', { app: BRAND.name })
+  ].filter(l => l != null).filter((l, i, a) => l !== '' || (i > 0 && a[i - 1] !== '')).join('\n');
+}
+
+/* Session card: a 1080×1350 image (Strava and Instagram portrait size) with the
+   drawn target and the score. Strava's API can't attach photos, so the athlete
+   saves it and adds it to the post. */
+function drawCard(s) {
+  const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), font = (wt, px) => `${wt} ${px}px Manrope, -apple-system, system-ui, sans-serif`;
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  let gr = g.createRadialGradient(W * .5, 0, 0, W * .5, 0, H * .85);
+  gr.addColorStop(0, '#4651ff'); gr.addColorStop(.45, 'rgba(31,43,255,.45)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  // logo + wordmark
+  g.save(); g.translate(96, 112); g.rotate(40 * Math.PI / 180); g.scale(.085, .085); g.translate(-200, -408);
+  g.fillStyle = '#fff'; g.fill(new Path2D('M200 30 L312 232 L215 398 V760 L200 786 L185 760 V398 L88 232 Z M200 94 L276 232 L200 362 L124 232 Z M200 122 L260 232 L200 334 L140 232 Z'), 'evenodd'); g.restore();
+  g.fillStyle = '#fff'; g.font = font(700, 34); g.letterSpacing = '12px'; g.fillText(BRAND.name, 150, 124); g.letterSpacing = '0px';
+  // target
+  const pts = s.shape && s.shape.pts;
+  if (pts && pts.length > 2) {
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), bw = Math.max(...xs) - Math.min(...xs) || 1, bh = Math.max(...ys) - Math.min(...ys) || 1;
+    const k = Math.min(620 / bw, 440 / bh), ox = W / 2 - (Math.min(...xs) + bw / 2) * k, oy = 470 + (Math.min(...ys) + bh / 2) * k;
+    g.beginPath(); pts.forEach(([x, y], i) => g[i ? 'lineTo' : 'moveTo'](ox + x * k, oy - y * k)); g.closePath();
+    g.fillStyle = 'rgba(255,255,255,.12)'; g.fill(); g.setLineDash([22, 16]); g.lineWidth = 7; g.strokeStyle = '#fff'; g.lineJoin = 'round'; g.stroke(); g.setLineDash([]);
+    g.fillStyle = 'rgba(255,255,255,.7)'; g.font = font(600, 28); g.textAlign = 'center';
+    g.fillText(`${throwLabel(s).toUpperCase()} · ${tr(s.target).toUpperCase()} · ${distLabel(s.distance_m).toUpperCase()}`, W / 2, 760); g.textAlign = 'left';
+  }
+  // title + numbers
+  g.fillStyle = '#fff'; g.font = font(300, 64); g.fillText(sessionTitle(s), 96, 900, W - 192);
+  g.font = font(200, 230); g.fillText(String(s.skill_score), 88, 1150);
+  const sw = g.measureText(String(s.skill_score)).width;
+  g.fillStyle = '#c9ccff'; g.font = font(700, 28); g.letterSpacing = '6px'; g.fillText(`${scoreBand(s.skill_score).toUpperCase()}${isPB(s) ? ' · ' + tr('NEW PB') : ''}`, 120 + sw, 1080); g.letterSpacing = '0px';
+  g.fillStyle = '#fff'; g.font = font(500, 44); g.fillText(`${s.makes}/${s.attempts} · ${Math.round(s.accuracy * 100)}% · ${tr('streak {n}', { n: s.best_streak })}`, 120 + sw, 1142);
+  g.fillStyle = 'rgba(255,255,255,.55)'; g.font = font(500, 28);
+  const url = appUrl().replace(/^https?:\/\//, '');
+  g.fillText(new Date(s.created_at).toLocaleDateString(fmtLocale(), { day: 'numeric', month: 'short', year: 'numeric' }), 96, 1262);
+  if (url) { g.textAlign = 'right'; g.fillText(url, W - 96, 1262); g.textAlign = 'left'; }
+  return c;
+}
+async function saveCard() {
+  if (!current) return;
+  try { await document.fonts.ready; } catch {}
+  const blob = await new Promise(r => drawCard(current).toBlob(r, 'image/png'));
+  if (await saveBlob(blob, `lanza-${current.created_at.slice(0, 10)}.png`)) toast(tr('Card saved. Add it to your Strava post.'));
+}
+// Phones get the share sheet (Save Image / Save to Files); elsewhere a normal download.
+async function saveBlob(blob, name) {
+  const file = new File([blob], name, { type: blob.type });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); } catch {} return false; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  return true;
+}
+$('saveCard').onclick = saveCard;
+function copyText(t) { try { navigator.clipboard.writeText(t).then(() => toast(tr('Copied')), () => toast(t)); } catch { toast(t); } }
+$('copyResult').onclick = () => current && copyText(resultText(current));
+/* Story: a 1080×1920 image laid out like a music-share sticker, so it drops
+   straight into Instagram Stories from the phone's share sheet. */
+function drawStory(s) {
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), font = (wt, px) => `${wt} ${px}px Manrope, -apple-system, system-ui, sans-serif`;
+  const rr = (x, y, w, h, r) => { g.beginPath(); g.roundRect ? g.roundRect(x, y, w, h, r) : g.rect(x, y, w, h); };
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  let gr = g.createRadialGradient(W * .5, 120, 0, W * .5, 120, 1300);
+  gr.addColorStop(0, '#4f5bff'); gr.addColorStop(.4, 'rgba(31,43,255,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  gr = g.createRadialGradient(W * .5, H + 200, 0, W * .5, H + 200, 900);
+  gr.addColorStop(0, 'rgba(31,43,255,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  // the sticker card
+  const cx = 110, cy = 330, cw = W - 220, ch = 1240;
+  g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 80; g.shadowOffsetY = 30;
+  const cg = g.createLinearGradient(cx, cy, cx + cw, cy + ch); cg.addColorStop(0, '#2a2a2f'); cg.addColorStop(1, '#111114');
+  g.fillStyle = cg; rr(cx, cy, cw, ch, 64); g.fill(); g.restore();
+  // art: the drawn target glowing on navy, like album art
+  const ax = cx + 56, ay = cy + 56, aw = cw - 112, ah = 560;
+  g.save(); rr(ax, ay, aw, ah, 40); g.clip();
+  const ag = g.createLinearGradient(0, ay, 0, ay + ah); ag.addColorStop(0, '#1a22a8'); ag.addColorStop(1, '#05061a'); g.fillStyle = ag; g.fillRect(ax, ay, aw, ah);
+  const pts = s.shape && s.shape.pts;
+  if (pts && pts.length > 2) {
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), bw = Math.max(...xs) - Math.min(...xs) || 1, bh = Math.max(...ys) - Math.min(...ys) || 1;
+    const k = Math.min((aw - 200) / bw, (ah - 200) / bh), ox = ax + aw / 2 - (Math.min(...xs) + bw / 2) * k, oy = ay + ah / 2 + (Math.min(...ys) + bh / 2) * k;
+    g.beginPath(); pts.forEach(([x, y], i) => g[i ? 'lineTo' : 'moveTo'](ox + x * k, oy - y * k)); g.closePath();
+    g.fillStyle = 'rgba(79,91,255,.28)'; g.fill(); g.shadowColor = '#4f5bff'; g.shadowBlur = 40; g.lineWidth = 10; g.lineJoin = 'round'; g.strokeStyle = '#6d77ff'; g.stroke(); g.shadowBlur = 0;
+  }
+  // logo in the art corner
+  g.save(); g.translate(ax + 64, ay + 70); g.rotate(40 * Math.PI / 180); g.scale(.075, .075); g.translate(-200, -408);
+  g.fillStyle = '#fff'; g.fill(new Path2D('M200 30 L312 232 L215 398 V760 L200 786 L185 760 V398 L88 232 Z M200 94 L276 232 L200 362 L124 232 Z M200 122 L260 232 L200 334 L140 232 Z'), 'evenodd'); g.restore();
+  g.fillStyle = '#fff'; g.font = font(700, 30); g.letterSpacing = '10px'; g.fillText(BRAND.name, ax + 108, ay + 82); g.letterSpacing = '0px';
+  g.restore();
+  // title + what it was
+  const tx = ax; let y = ay + ah + 100;
+  g.fillStyle = '#fff'; g.font = font(700, 58); g.fillText(sessionTitle(s), tx, y, aw);
+  y += 58; g.fillStyle = 'rgba(255,255,255,.6)'; g.font = font(500, 36);
+  g.fillText(`${throwLabel(s)} · ${distLabel(s.distance_m)} · ${tr(s.target)}`, tx, y, aw);
+  // score, with the badge on a personal best
+  y += 230; g.fillStyle = '#fff'; g.font = font(700, 220); g.fillText(String(s.skill_score), tx, y);
+  let sx = tx + g.measureText(String(s.skill_score)).width + 34;
+  if (isPB(s)) {
+    g.save(); g.translate(sx, y - 150); g.scale(1.6, 1.6); g.shadowColor = '#4f5bff'; g.shadowBlur = 24;
+    g.fillStyle = '#3a46ff'; g.beginPath(); [[16, 1], [31, 23], [16, 43], [1, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.fill(); g.shadowBlur = 0;
+    g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 2; g.beginPath(); [[16, 7], [27, 23], [16, 37], [5, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.stroke(); g.restore();
+    sx += 70;
+  }
+  // Labels to the right of the score; each line shrinks its type rather than squeezing letters.
+  const fitLine = (t, x, yy, max, px) => { g.font = font(700, px); while (px > 18 && g.measureText(t).width > max) g.font = font(700, --px); g.fillText(t, x, yy); };
+  const room = cx + cw - 56 - sx;
+  g.fillStyle = '#c9ccff'; g.letterSpacing = '5px';
+  fitLine(tr('Skill score').toUpperCase(), sx, y - 112, room, 30);
+  fitLine(scoreBand(s.skill_score).toUpperCase(), sx, y - 66, room, 30);
+  if (isPB(s)) { g.fillStyle = '#fff'; fitLine(tr('NEW PB').toUpperCase(), sx, y - 20, room, 30); }
+  g.letterSpacing = '0px';
+  // progress-style bar like a music sticker: accuracy
+  y += 70; rr(tx, y, aw, 14, 7); g.fillStyle = 'rgba(255,255,255,.18)'; g.fill();
+  rr(tx, y, Math.max(14, aw * s.accuracy), 14, 7); g.fillStyle = '#fff'; g.fill();
+  y += 64; g.fillStyle = 'rgba(255,255,255,.7)'; g.font = font(600, 34);
+  g.fillText(`${s.makes}/${s.attempts}`, tx, y); g.textAlign = 'center'; g.fillText(`${Math.round(s.accuracy * 100)}%`, tx + aw / 2, y);
+  g.textAlign = 'right'; g.fillText(tr('streak {n}', { n: s.best_streak }), tx + aw, y); g.textAlign = 'left';
+  // footer
+  const url = appUrl().replace(/^https?:\/\//, '');
+  g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.8)'; g.font = font(600, 36);
+  g.fillText(url ? `${url}${BRAND.appUrl ? '' : '/s'}` : BRAND.name, W / 2, H - 170); g.textAlign = 'left';
+  return c;
+}
+/* Sticker: transparent, white, Strava-style overlay (target, score, stats, logo)
+   that athletes paste on top of their own photo or video in an Instagram story. */
+function drawSticker(s) {
+  const W = 900, H = 900, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), font = (wt, px) => `${wt} ${px}px Manrope, -apple-system, system-ui, sans-serif`;
+  g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 10; g.shadowOffsetY = 2; g.fillStyle = '#fff'; g.strokeStyle = '#fff';
+  // logo + wordmark
+  g.save(); g.translate(W / 2 - 140, 60); g.rotate(40 * Math.PI / 180); g.scale(.09, .09); g.translate(-200, -408);
+  g.fill(new Path2D('M200 30 L312 232 L215 398 V760 L200 786 L185 760 V398 L88 232 Z M200 94 L276 232 L200 362 L124 232 Z M200 122 L260 232 L200 334 L140 232 Z'), 'evenodd'); g.restore();
+  g.font = font(700, 34); g.letterSpacing = '12px'; g.textAlign = 'center'; g.fillText(BRAND.name, W / 2 + 20, 78); g.letterSpacing = '0px';
+  // the drawn target, like a route line
+  const pts = s.shape && s.shape.pts;
+  if (pts && pts.length > 2) {
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), bw = Math.max(...xs) - Math.min(...xs) || 1, bh = Math.max(...ys) - Math.min(...ys) || 1;
+    const k = Math.min(560 / bw, 300 / bh), ox = W / 2 - (Math.min(...xs) + bw / 2) * k, oy = 280 + (Math.min(...ys) + bh / 2) * k;
+    g.beginPath(); pts.forEach(([x, y], i) => g[i ? 'lineTo' : 'moveTo'](ox + x * k, oy - y * k)); g.closePath();
+    g.lineWidth = 9; g.lineJoin = 'round'; g.stroke();
+    // one LANZA spear stuck inside the target per make, scattered but fixed per session
+    const poly = pts.map(([x, y]) => [ox + x * k, oy - y * k]), inside = (x, y) => {
+      let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c;
+    };
+    let seed = [...String(s.id)].reduce((h, ch) => Math.imul(h ^ ch.charCodeAt(0), 16777619), 2166136261) >>> 0;
+    const rnd = () => { seed = (seed + 0x6D2B79F5) >>> 0; let t = seed; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const x0 = Math.min(...poly.map(q => q[0])), x1 = Math.max(...poly.map(q => q[0])), y0 = Math.min(...poly.map(q => q[1])), y1 = Math.max(...poly.map(q => q[1]));
+    // one LANZA disc per make, seen from the side in flight: a flat rhombus, slightly tilted
+    const n = s.makes, w = Math.max(18, Math.min(52, Math.min(x1 - x0, y1 - y0) * .26, 60 - n * .7)), h = Math.max(4, w * .2);
+    const gap = Math.max(w * .75, Math.sqrt((x1 - x0) * (y1 - y0) / Math.max(1, n)) * .75), tips = [];
+    for (let t = 0; tips.length < n && t < n * 400; t++) {
+      const x = x0 + rnd() * (x1 - x0), y = y0 + rnd() * (y1 - y0), r = (rnd() - .5) * .4, dx = Math.cos(r) * w / 2 + 4, dy = Math.sin(r) * w / 2;
+      if (inside(x, y) && inside(x - dx, y - dy) && inside(x + dx, y + dy) && inside(x, y - h) && inside(x, y + h) && tips.every(([u, v]) => Math.hypot((u - x) * .8, (v - y) * 1.6) > gap * Math.max(.3, 1 - t / (n * 300)))) tips.push([x, y, r]);
+    }
+    tips.sort((p1, p2) => p1[1] - p2[1]).forEach(([x, y, r]) => {
+      g.save(); g.translate(x, y); g.rotate(r);
+      g.beginPath(); g.moveTo(-w / 2, 0); g.lineTo(0, -h / 2); g.lineTo(w / 2, 0); g.lineTo(0, h / 2); g.closePath(); g.fill();
+      g.restore();
+    });
+  }
+  // stats: three columns like a run sticker
+  const col = (label, val, x) => { g.font = font(600, 26); g.letterSpacing = '5px'; g.fillText(label.toUpperCase(), x, 520); g.letterSpacing = '0px'; g.font = font(700, 64); g.fillText(val, x, 594); };
+  col(tr('Makes'), `${s.makes}/${s.attempts}`, W / 6); col(tr('Accuracy'), `${Math.round(s.accuracy * 100)}%`, W / 2); col(tr('Distance'), distLabel(s.distance_m), W * 5 / 6);
+  // score
+  g.font = font(600, 26); g.letterSpacing = '5px'; g.fillText(tr('Skill score').toUpperCase(), W / 2, 680); g.letterSpacing = '0px';
+  g.font = font(800, 150); const sc = String(s.skill_score), sw = g.measureText(sc).width; g.fillText(sc, W / 2, 820);
+  if (isPB(s)) {
+    g.save(); g.translate(W / 2 + sw / 2 + 24, 712); g.scale(1.9, 1.9); g.shadowColor = '#4f5bff'; g.shadowBlur = 16;
+    g.fillStyle = '#3a46ff'; g.beginPath(); [[16, 1], [31, 23], [16, 43], [1, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.fill(); g.shadowBlur = 0;
+    g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 2; g.beginPath(); [[16, 7], [27, 23], [16, 37], [5, 23]].forEach(([a, b], i) => g[i ? 'lineTo' : 'moveTo'](a, b)); g.closePath(); g.stroke(); g.restore();
+  }
+  g.font = font(600, 28); g.globalAlpha = .9; g.fillText(`${throwLabel(s)} · ${scoreBand(s.skill_score)}`, W / 2, 872); g.globalAlpha = 1;
+  return c;
+}
+let shareKind = 'sticker', storyBlob = null, stickBlob = null;
+function renderShareKind() {
+  document.querySelectorAll('#shareKind button').forEach(b => b.classList.toggle('on', b.dataset.k === shareKind));
+  const st = shareKind === 'sticker';
+  $('stickWrap').classList.toggle('hidden', !st); $('storyImg').classList.toggle('hidden', st);
+  $('shareHow').textContent = tr(st ? 'Copy it, open your Instagram story with your photo or video, then paste. Move and resize it wherever you like.' : 'Pick Instagram, then Stories. Add a link sticker so teammates can join.');
+  $('storyShare').textContent = tr(st ? 'Copy sticker' : 'Share to Stories');
+}
+document.querySelectorAll('#shareKind button').forEach(b => b.onclick = () => { shareKind = b.dataset.k; renderShareKind(); });
+$('shareResult').onclick = async () => {
+  if (!current) return;
+  try { await document.fonts.ready; } catch {}
+  const a = drawStory(current), b = drawSticker(current);
+  $('storyImg').src = a.toDataURL('image/png'); $('stickImg').src = b.toDataURL('image/png');
+  [storyBlob, stickBlob] = await Promise.all([a, b].map(c => new Promise(r => c.toBlob(r, 'image/png'))));
+  renderShareKind(); $('shareModal').classList.remove('hidden');
+};
+$('storyShare').onclick = async () => {
+  if (!current) return;
+  const day = current.created_at.slice(0, 10);
+  if (shareKind === 'sticker') {
+    // Copied image → Instagram offers "Add sticker" when the story editor opens.
+    try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': stickBlob })]); toast(tr('Sticker copied. Paste it in your story.')); track('story'); return; } catch {}
+    return saveBlob(stickBlob, `lanza-sticker-${day}.png`);
+  }
+  const file = new File([storyBlob], `lanza-story-${day}.png`, { type: 'image/png' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); track('story'); } catch {} return; }
+  saveBlob(storyBlob, file.name);
+};
+$('shareClose').onclick = () => $('shareModal').classList.add('hidden');
+$('shareModal').onclick = (e) => { if (e.target === $('shareModal')) $('shareModal').classList.add('hidden'); };
+$('againBtn').onclick = () => { current = null; showView('setup'); };
+
+/* =============================================================================
+   Strava
+   ============================================================================= */
+const stravaReady = () => !!state.config.stravaClientId;
+const STRAVA_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.4 17.9l-2.1-4.1h-3.1l5.2 10.2 5.1-10.2h-3.1zM10.2 0L3.3 13.8h4.1l2.8-5.5 2.8 5.5h4.1z"/></svg>';
+// Strava brand rules: its own orange button, "Powered by Strava" next to Strava data, "View on Strava" links.
+const POWERED = '<div class="powered">Powered by <b>STRAVA</b></div>';
+function renderStravaPill() {
+  const a = state.strava && state.strava.athlete, f = $('profileFab');
+  f.innerHTML = a ? (a.profile ? `<img src="${esc(a.profile)}" alt="">` : `<span style="font-weight:700">${esc((a.firstname || '?')[0])}</span>`) + '<span class="badge"></span>'
+    : `<span style="color:var(--strava);display:grid">${STRAVA_ICON}</span>`;
+  f.setAttribute('aria-label', a ? `Strava: ${a.firstname}` : tr('Connect Strava'));
+}
+$('profileFab').onclick = () => openAcct();
+function connectStrava() { if (!stravaReady()) { toast(tr('Strava goes live once the app is deployed')); return; } stravaAuthorize(); }
+async function disconnectStrava() {
+  const token = await stravaToken();
+  if (token) api('/strava', { method: 'POST', body: JSON.stringify({ action: 'deauthorize', access_token: token }) }).catch(() => {});
+  state.strava = null; LS.del('strava'); renderStravaPill(); renderSetup(); renderAcct(); toast(tr('Strava disconnected'));
+}
+
+/* ---------- the "You" sheet: Strava, weekly goal, backup, install, language, privacy ---------- */
+function openAcct() { renderAcct(); $('acctModal').classList.remove('hidden'); }
+$('acctClose').onclick = () => $('acctModal').classList.add('hidden');
+$('acctModal').onclick = (e) => { if (e.target.id === 'acctModal') $('acctModal').classList.add('hidden'); };
+function renderAcct() {
+  const a = state.strava && state.strava.athlete, el = $('acctStrava');
+  if (state.strava) {
+    el.innerHTML = `<span class="cap">Strava</span><div class="who">${a && a.profile ? `<img src="${esc(a.profile)}" alt="">` : `<span class="av">${esc(((a && a.firstname) || '?')[0])}</span>`}<div><b>${esc([a && a.firstname, a && a.lastname].filter(Boolean).join(' ') || tr('Strava athlete'))}</b><div class="cap">${tr('Strava connected')}</div></div></div>
+      <label class="toggle"><input type="checkbox" id="acctAuto" ${autoStrava() ? 'checked' : ''}> ${tr('Post to Strava automatically when I finish')}</label>
+      <div class="row">${a && a.id ? `<a class="btn sm viewstrava" href="https://www.strava.com/athletes/${esc(a.id)}" target="_blank" rel="noopener">${tr('View on Strava')}</a>` : ''}<button class="btn sm" id="stravaOff">${tr('Disconnect')}</button></div>${POWERED}`;
+    $('acctAuto').onchange = (e) => LS.set('autoStrava', e.target.checked);
+    $('stravaOff').onclick = disconnectStrava;
+  } else {
+    el.innerHTML = `<span class="cap">Strava</span><p class="note" style="text-align:start;margin:0">${tr(stravaReady() ? 'Connect once. After that every session posts itself.' : 'Strava goes live once the app is deployed.')}</p>
+      <button class="btn-strava" id="acctConnect">${STRAVA_ICON} Connect with Strava</button>${POWERED}`;
+    $('acctConnect').onclick = connectStrava;
+  }
+  const pro = $('acctPro'); pro.classList.toggle('hidden', !state.config.proUrl);
+  if (state.config.proUrl) {
+    pro.innerHTML = isPro()
+      ? `<span class="cap">LANZA Pro</span><div class="status-line ok" style="justify-content:flex-start"><span class="dot ok"></span>${tr('Active. Thanks for backing LANZA!')}</div>${state.config.proPortal ? `<div class="row"><a class="btn sm" href="${esc(state.config.proPortal)}" target="_blank" rel="noopener">${tr('Manage subscription')}</a></div>` : ''}`
+      : `<span class="cap">LANZA Pro</span><p class="note" style="text-align:start;margin:0">${tr('No ads, unlimited sessions, and coach view with every player\'s throws.')}</p><button class="btn primary" id="acctGoPro">${tr('Go Pro')}${state.config.proPrice ? ' · ' + esc(state.config.proPrice) : ''}</button>`;
+    if ($('acctGoPro')) $('acctGoPro').onclick = goPro;
+  }
+  $('goalChips').innerHTML = [1, 2, 3, 4, 5, 6, 7].map(n => `<button type="button" data-g="${n}" class="${n === goalN() ? 'on' : ''}">${n}</button>`).join('');
+  renderBackupLine();
+  $('deleteBackup').classList.toggle('hidden', !state.strava || LS.get('backupOff', false));
+  $('acctInstall').classList.toggle('hidden', !canInstall());
+  $('acctVersion').textContent = `${BRAND.name} ${APP_VERSION}`;
+  $('acctLang').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>${esc(langInfo().name)}`;
+}
+$('goalChips').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; LS.set('goal', +b.dataset.g); hapticTick(); renderAcct(); renderGoal(); backupSoon(); };
+$('acctLang').onclick = () => { $('acctModal').classList.add('hidden'); openLang(false); };
+$('acctInstall').onclick = () => { $('acctModal').classList.add('hidden'); doInstall(); };
+
+/* ---------- usage counts: daily totals only, no ids (see netlify/functions/usage-core.mjs) ---------- */
+// Where this phone first came from: ?src=strava (Strava post link), ?src=invite, or another site.
+(() => { if (LS.get('src', null)) return; const q = new URLSearchParams(location.search).get('src'); let r = ''; try { r = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : ''; } catch {} LS.set('src', q || (r && r !== location.hostname ? r : 'direct')); })();
+function track(e) { if (!/^https?:/.test(location.protocol)) return; try { fetch(`${API}/usage`, { method: 'POST', body: JSON.stringify({ e, src: LS.get('src', 'direct') }), keepalive: true }).catch(() => {}); } catch {} }
+
+/* ---------- LANZA Pro (Stripe Payment Link, unlocked per Strava athlete) ---------- */
+async function refreshPro(announce) {
+  if (!state.config.proUrl || !state.strava) return false;
+  const token = await stravaToken(); if (!token) return false;
+  try {
+    const d = await api('/pro', { method: 'POST', body: JSON.stringify({ access_token: token }) }), was = isPro();
+    LS.set('pro', !!d.pro); renderWeek();
+    if (d.pro && !was && announce) { track('pro'); chimeFanfare(); toast(tr('Welcome to LANZA Pro')); }
+    return !!d.pro;
+  } catch { return false; }
+}
+function goPro() {
+  if (!state.config.proUrl) return;
+  if (!state.strava) { toast(tr('Connect Strava first, so Pro follows you to any phone.')); setTimeout(connectStrava, 1200); return; }
+  const u = new URL(state.config.proUrl); u.searchParams.set('client_reference_id', String(state.strava.athlete && state.strava.athlete.id || ''));
+  location.href = u.toString();
+}
+// Back from Stripe checkout (?pro=1): Stripe's webhook can take a few seconds.
+async function handleProReturn() {
+  const q = new URLSearchParams(location.search); if (!q.has('pro')) return;
+  q.delete('pro'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
+  for (let i = 0; i < 6; i++) { if (await refreshPro(true)) return; await new Promise(r => setTimeout(r, 2500)); }
+  toast(tr('Payment received. Pro turns on in a moment.'));
+}
+
+/* ---------- weekly goal and streak ---------- */
+const goalN = () => clamp(Math.round(+LS.get('goal', 3)) || 3, 1, 7);
+// Weeks in a row with the goal met, counting this week once it's met.
+function weekStreak() {
+  const g = goalN(), count = new Map();
+  state.sessions.forEach(s => { const k = weekKey(new Date(s.created_at)); count.set(k, (count.get(k) || 0) + 1); });
+  let n = (count.get(weekKey()) || 0) >= g ? 1 : 0;
+  for (let i = 1; i < 520; i++) { if ((count.get(weekKey(new Date(Date.now() - i * 7 * 864e5))) || 0) >= g) n++; else break; }
+  return n;
+}
+function renderGoal() {
+  const g = goalN(), n = thisWeek().length, C = 2 * Math.PI * 25, st = weekStreak();
+  $('goalArc').setAttribute('stroke-dasharray', `${(Math.min(1, n / g) * C).toFixed(1)} ${C.toFixed(1)}`);
+  $('goalVal').innerHTML = `${n}/${g}<small>${tr(g === 1 ? 'session' : 'sessions')}</small>`;
+  const streak = st ? tr(st === 1 ? 'Streak: 1 week' : 'Streak: {n} weeks', { n: st }) : '';
+  $('goalStreak').textContent = n >= g ? [tr('Goal reached'), streak].filter(Boolean).join(' · ')
+    : streak ? `${streak} · ${tr('{n} more to keep it', { n: g - n })}` : tr('{n} more this week', { n: g - n });
+}
+$('goalCard').onclick = () => openAcct();
+
+/* Best score card → top 5 ranking, with the score to beat and a one-tap start. */
+// #1 badge: the LANZA spearhead diamond with its inner rim line. 
+const BADGE = '<svg viewBox="0 0 32 44" aria-label="1"><defs><linearGradient id="bdg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b66ff"/><stop offset="1" stop-color="#1f2bff"/></linearGradient></defs><polygon points="16,1 31,23 16,43 1,23" fill="url(#bdg)"/><polygon points="16,5 28,23 16,39 4,23" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/><text x="16" y="23.5" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="13" font-weight="800" font-family="Manrope,system-ui,sans-serif">1</text></svg>';
+function openBest() {
+  const top = [...state.sessions].sort((a, b) => b.skill_score - a.skill_score || new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+  const best = top[0]?.skill_score || 0, fifth = top.length === 5 ? top[4].skill_score : null;
+  $('bestTop').textContent = best; $('bestBand').textContent = top.length ? scoreBand(best) : '';
+  $('bestNudge').innerHTML = !top.length ? esc(tr('Log a session to set your first record.'))
+    : `<b>${esc(tr('Beat {n} to set a new record.', { n: best }))}</b>` + (fifth != null && fifth < best ? `<span>${esc(tr('{n} gets you into your top 5.', { n: fifth + 1 }))}</span>` : '');
+  const row = (s, i) => `<div class="brank${i === 0 ? ' top' : ''}"><span class="pos">${i === 0 ? BADGE : i + 1}</span><div class="info"><div class="t">${esc(throwLabel(s))} · ${esc(distLabel(s.distance_m))}</div><div class="cap">${esc(dateStr(s.created_at))} · ${Math.round(s.accuracy * 100)}%</div></div><span class="sc">${s.skill_score}</span></div>`;
+  $('bestList').innerHTML = top.map(row).join('') + (top.length < 5 ? `<div class="brank ghost"><span class="pos">${top.length + 1}</span><div class="info"><div class="t">${esc(tr('Your next session?'))}</div></div><span class="sc">?</span></div>` : '');
+  $('bestModal').classList.remove('hidden');
+}
+$('bestCard').onclick = openBest;
+$('bestCard').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBest(); } };
+$('bestClose').onclick = () => $('bestModal').classList.add('hidden');
+$('bestModal').onclick = (e) => { if (e.target === $('bestModal')) $('bestModal').classList.add('hidden'); };
+$('bestGo').onclick = () => { $('bestModal').classList.add('hidden'); tryStart(); };
+
+/* ---------- history backup: a copy on the server, tied to the Strava account ---------- */
+let backupT = null;
+function backupSoon(ms = 4000) {
+  if (!state.strava || !stravaReady() || LS.get('backupOff', false)) return;
+  clearTimeout(backupT); backupT = setTimeout(backupNow, ms);
+}
+async function backupNow() {
+  const token = await stravaToken(); if (!token) return;
+  try {
+    const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'save', access_token: token, sessions: state.sessions, profile: { ...state.profile, goal: goalN() } }) });
+    LS.set('backupAt', d.updated_at); renderBackupLine();
+  } catch { /* tries again after the next change */ }
+}
+// Adds sessions this phone doesn't have yet; the phone's own copy of a session wins.
+function mergeSessions(list) {
+  const by = new Map(state.sessions.map(s => [s.id, s])); let added = 0;
+  for (const s of Array.isArray(list) ? list : []) if (s && s.id && s.created_at && Number.isFinite(+s.attempts) && !by.has(s.id)) { by.set(s.id, s); added++; }
+  state.sessions = [...by.values()].sort((a, b) => b.created_at.localeCompare(a.created_at));
+  if (added) { state.sessions.forEach(x => { x.skill_score = rescore(x); }); saveSessions(); }
+  return added;
+}
+async function restoreBackup() {
+  const token = await stravaToken(); if (!token) return;
+  try {
+    const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'load', access_token: token }) });
+    const added = mergeSessions(d.sessions), p = d.profile;
+    if (p) {
+      if (!state.profile.team && p.team) state.profile.team = p.team;
+      if (!state.profile.name && p.name) state.profile.name = p.name;
+      saveProfile(); if (LS.get('goal', null) == null && p.goal) LS.set('goal', p.goal);
+    }
+    if (added) toast(tr('Restored {n} sessions from your backup', { n: added }));
+    renderSetup(); backupSoon(500);
+  } catch { /* backup not available yet */ }
+}
+function renderBackupLine() {
+  const el = $('backupLine'), at = LS.get('backupAt', null);
+  if (!stravaReady()) el.textContent = tr('Your history is saved on this phone. Download a copy to keep it safe.');
+  else if (!state.strava) el.textContent = tr('Connect Strava to back up your history automatically.');
+  else if (LS.get('backupOff', false)) { el.innerHTML = `${tr('Backup is off.')} <a href="#" id="backupOn">${tr('Turn on')}</a>`; $('backupOn').onclick = (e) => { e.preventDefault(); LS.del('backupOff'); backupSoon(0); renderAcct(); }; }
+  else el.innerHTML = `<span class="dot ok"></span>${at ? tr('Backed up automatically · {d}', { d: esc(whenStr(at)) }) : tr('Backs up automatically after each session.')}`;
+}
+$('exportData').onclick = async () => {
+  const data = { app: BRAND.name, version: APP_VERSION, exported_at: new Date().toISOString(), profile: state.profile, goal: goalN(), sessions: state.sessions };
+  if (await saveBlob(new Blob([JSON.stringify(data)], { type: 'application/json' }), `lanza-data-${new Date().toISOString().slice(0, 10)}.json`)) toast(tr('Data downloaded'));
+};
+$('importData').onclick = () => $('importFile').click();
+$('importFile').onchange = async (e) => {
+  const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text()); if (!Array.isArray(d.sessions)) throw 0;
+    const added = mergeSessions(d.sessions);
+    toast(added ? tr('Restored {n} sessions from your backup', { n: added }) : tr('Nothing new in that file'));
+    renderSetup();
+  } catch { toast(tr('That file isn’t a LANZA backup')); }
+};
+$('deleteBackup').onclick = async () => {
+  const token = await stravaToken(); if (!token) return;
+  try { await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'delete', access_token: token }) }); LS.set('backupOff', true); LS.del('backupAt'); toast(tr('Backup deleted')); }
+  catch (err) { toast(err.message); }
+  renderAcct();
+};
+
+/* ---------- install to the home screen ---------- */
+const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const UA = navigator.userAgent, isIOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isMobile = isIOS || /Android/i.test(UA), inApp = /Instagram|FBAN|FBAV|WhatsApp|Line\//i.test(UA);
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; renderInstall(); });
+window.addEventListener('appinstalled', () => { installEvt = null; renderInstall(); });
+const canInstall = () => !standalone() && (isIOS || !!installEvt);
+const SHARE_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+function renderInstall() {
+  const show = canInstall() && isMobile && !LS.get('installHidden', false);
+  $('installCard').classList.toggle('hidden', !show);
+  $('installBtn').classList.toggle('hidden', !installEvt);
+  $('installHow').innerHTML = installEvt ? tr('Full screen, works offline, one tap from your home screen.')
+    : inApp ? tr('Open this page in Safari, then tap Share and “Add to Home Screen”.')
+    : tr('Tap {icon} Share, then “Add to Home Screen”.', { icon: SHARE_ICON });
+}
+async function doInstall() {
+  if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch {} installEvt = null; renderInstall(); return; }
+  LS.del('installHidden'); showView('setup'); renderInstall(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+$('installBtn').onclick = doInstall;
+$('installX').onclick = () => { LS.set('installHidden', true); renderInstall(); };
+function renderStravaBox(msg, cls) {
+  if (!current) return;
+  const btn = $('stravaUpload'), st = $('stravaStatus');
+  if (current.strava_activity_id) {
+    btn.classList.add('hidden');
+    st.className = 'status-line ok';
+    st.innerHTML = `<span class="dot ok"></span>${msg ? esc(msg) : tr('Posted to Strava. Name and conditions changes update it.')}
+      <span class="strava-next"><button class="btn sm" id="cardThenStrava">${tr('Add the photo card')}</button><a class="btn sm" href="https://www.strava.com/activities/${esc(current.strava_activity_id)}" target="_blank" rel="noopener" class="viewstrava">${tr('View on Strava')}</a></span>
+      <label class="toggle"><input type="checkbox" id="autoStrava" ${autoStrava() ? 'checked' : ''}> ${tr('Post to Strava automatically when I finish')}</label>${POWERED}`;
+    $('cardThenStrava').onclick = saveCard;
+    $('autoStrava').onchange = (e) => { LS.set('autoStrava', e.target.checked); };
+    return;
+  }
+  btn.classList.remove('hidden'); btn.disabled = false;
+  $('stravaLabel').textContent = state.strava ? tr('Upload to Strava') : 'Strava';
+  st.className = 'status-line ' + (cls || '');
+  st.textContent = msg || (stravaReady() ? (state.strava ? tr('Signed in as {name}', { name: state.strava.athlete?.firstname || tr('Strava athlete') }) : tr('Connect once. After that every session posts itself.')) : tr('Strava goes live once the app is deployed.'));
+}
+function stravaAuthorize() {
+  const st = uuid(); try { sessionStorage.setItem('kmos.oauthState', st); } catch {}
+  if (current) LS.set('pendingUpload', current.id);
+  const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const p = new URLSearchParams({ client_id: state.config.stravaClientId, redirect_uri: location.origin + location.pathname, response_type: 'code', approval_prompt: 'auto', scope: 'read,activity:write', state: st });
+  // The mobile endpoint hands off to the Strava app when it's installed: the fastest sign-in.
+  location.href = `https://www.strava.com/oauth/${mobile ? 'mobile/' : ''}authorize?${p}`;
+}
+async function handleOAuthReturn() {
+  const q = new URLSearchParams(location.search);
+  if (!q.has('code') && !q.has('error')) return;
+  history.replaceState(null, '', location.pathname);
+  let expected = null; try { expected = sessionStorage.getItem('kmos.oauthState'); sessionStorage.removeItem('kmos.oauthState'); } catch {}
+  if (q.get('error')) { toast(tr('Strava sign-in was cancelled')); return; }
+  if (expected && q.get('state') !== expected) { toast(tr('Strava sign-in failed, please try again')); return; }
+  if (!(q.get('scope') || '').includes('activity:write')) toast(tr('Signed in, but uploads need the "Upload your activities" permission'));
+  try {
+    const t = await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'exchange', code: q.get('code') }) });
+    state.strava = t; LS.set('strava', t); renderStravaPill();
+    if (t.athlete && !state.profile.name) { state.profile.name = `${t.athlete.firstname} ${(t.athlete.lastname || '').slice(0, 1)}.`.trim(); saveProfile(); }
+    toast(tr('Connected to Strava as {name}', { name: t.athlete?.firstname || tr('you') }));
+    renderSetup(); await restoreBackup();
+    const pending = LS.get('pendingUpload', null); LS.del('pendingUpload');
+    const row = pending && state.sessions.find(s => s.id === pending);
+    if (row) { current = row; renderResult(); showView('result'); uploadToStrava(); }
+  } catch (e) { toast(e.message); }
+}
+async function stravaToken() {
+  if (!state.strava) return null;
+  if (state.strava.expires_at * 1000 > Date.now() + 60e3) return state.strava.access_token;
+  try {
+    const t = await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'refresh', refresh_token: state.strava.refresh_token }) });
+    state.strava = { ...state.strava, ...t, athlete: t.athlete || state.strava.athlete }; LS.set('strava', state.strava);
+    return state.strava.access_token;
+  } catch (e) { if (e.status && e.status < 500) { state.strava = null; LS.del('strava'); renderStravaPill(); } return null; }
+}
+function localIso(d) { const z = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`; }
+const autoStrava = () => LS.get('autoStrava', true);
+// Fire-and-forget post right after Finish, for athletes who connected Strava once.
+function autoPostStrava() { if (current && !current.strava_activity_id && state.strava && stravaReady() && autoStrava()) uploadToStrava(); }
+// After posting, renaming the session or changing wind/ground updates the Strava activity.
+function scheduleStravaSync() {
+  if (!current || !current.strava_activity_id) return;
+  const s = current; clearTimeout(scheduleStravaSync.t);
+  scheduleStravaSync.t = setTimeout(async () => {
+    const token = await stravaToken(); if (!token) return;
+    try {
+      await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'update', access_token: token, id: s.strava_activity_id, activity: { name: sessionTitle(s), description: await stravaDescription(s) } }) });
+      if (s === current) renderStravaBox(tr('Strava post updated'));
+    } catch (e) { if (s === current) renderStravaBox(); }
+  }, 1500);
+}
+async function uploadToStrava() {
+  if (!current) return;
+  if (!stravaReady()) { renderStravaBox(tr('Strava goes live once the app is deployed.'), 'err'); return; }
+  const token = await stravaToken();
+  if (!token) { stravaAuthorize(); return; }
+  const s = current;
+  $('stravaUpload').disabled = true; renderStravaBox(tr('Uploading…'));
+  try {
+    const d = await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'upload', access_token: token, activity: {
+      name: sessionTitle(s),
+      start_date_local: localIso(new Date(s.created_at)), elapsed_time: s.duration_s,
+      description: await stravaDescription(s)
+    } }) });
+    s.strava_activity_id = String(d.id); saveSessions(); if (s === current) renderStravaBox(); toast(tr('Posted to Strava')); track('strava_post');
+    shareToTeam(s);
+  } catch (e) {
+    if (e.data && e.data.needsScope) { state.strava = null; LS.del('strava'); renderStravaPill(); }
+    renderStravaBox(e.message, 'err');
+  }
+}
+$('stravaUpload').onclick = uploadToStrava;
+
+/* =============================================================================
+   Team board
+   ============================================================================= */
+let teamRange = 'week', teamData = null;
+async function shareToTeam(s) {
+  if (!state.profile.team || !s) return;
+  try {
+    const token = state.strava ? await stravaToken() : null;
+    await api('/team', { method: 'POST', body: JSON.stringify({ code: state.profile.team, name: state.profile.name, access_token: token, session: s }) });
+    s.team_shared = state.profile.team;
+  } catch { s.team_shared = null; }
+  saveSessions();
+  if (s === current) renderTeamStatus();
+}
+async function retryPendingShares() { if (!state.profile.team || !state.config.online) return; for (const s of state.sessions.filter(x => x.team_shared !== state.profile.team).slice(0, 10)) await shareToTeam(s); }
+function renderTeamStatus() {
+  const el = $('teamStatus');
+  if (!current) return;
+  if (!state.profile.team) { el.className = 'status-line'; el.innerHTML = tr('{link} to compare with teammates', { link: `<a href="#" id="goTeam">${tr('Join your team')}</a>` }); $('goTeam').onclick = (e) => { e.preventDefault(); showView('team'); }; return; }
+  el.className = 'status-line ' + (current.team_shared ? 'ok' : '');
+  el.innerHTML = current.team_shared ? `<span class="dot ok"></span>${tr('Shared with team {team}', { team: esc(teamLabel()) })}` : tr('Will share with team {team} when you\'re online', { team: esc(teamLabel()) });
+}
+function renderTeamView() {
+  const has = !!state.profile.team;
+  $('teamJoin').classList.toggle('hidden', has); $('teamBoard').classList.toggle('hidden', !has); $('teamHeadStats').classList.toggle('hidden', !has);
+  $('nameInput').value = state.profile.name || '';
+  if (has) { $('teamCodeOut').textContent = state.profile.team; loadTeam(); }
+  renderTeamName();
+}
+// Teams have an optional name (shared on the server); the code still identifies the team.
+const teamLabel = () => state.profile.teamName || state.profile.team;
+function renderTeamName(edit) {
+  const has = !!state.profile.team, nm = state.profile.teamName || '';
+  const tt = $('teamTitle'); tt.textContent = has && nm ? nm : tr('Team'); tt.style.fontSize = '';
+  // long names shrink to stay on one line
+  const L = tt.textContent.length; if (L > 8) tt.style.fontSize = `${parseFloat(getComputedStyle(tt).fontSize) * Math.max(.42, 8.5 / L)}px`;
+  const show = has && (edit || !nm);
+  $('teamNameCard').classList.toggle('hidden', !show); $('renameTeam').classList.toggle('hidden', !nm);
+  if (show) { $('teamNameInput').value = nm; if (edit) $('teamNameInput').focus(); }
+}
+$('renameTeam').onclick = () => { renderTeamName(true); $('teamNameCard').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+$('saveTeamName').onclick = async () => {
+  const nm = $('teamNameInput').value.trim().slice(0, 30);
+  if (!nm) { $('teamNameInput').focus(); return; }
+  state.profile.teamName = nm; saveProfile(); renderTeamName(); toast(tr('Team name saved'));
+  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'name', code: state.profile.team, team_name: nm, name: state.profile.name }) }); } catch {}
+};
+$('teamNameInput').onkeydown = (e) => { if (e.key === 'Enter') $('saveTeamName').click(); };
+function joinTeam(code, teamName = '') {
+  const name = $('nameInput').value.trim();
+  code = code.trim().toUpperCase().replace(/\s+/g, '-');
+  if (!/^[A-Z0-9-]{4,20}$/.test(code)) { toast(tr('Team codes are 4 to 20 letters, numbers or dashes')); return; }
+  if (!name && !state.strava) { toast(tr('Add your name so teammates know who you are')); $('nameInput').focus(); return; }
+  state.profile = { ...state.profile, name: name || state.profile.name, team: code, teamName: String(teamName).trim().slice(0, 30) }; saveProfile();
+  renderTeamView(); toast(tr('Joined team {code}', { code: teamLabel() })); track('team_join'); retryPendingShares();
+}
+$('joinTeam').onclick = () => joinTeam($('codeInput').value);
+$('createTeam').onclick = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); renderTeamName(true); };
+$('inviteTeam').onclick = () => {
+  const url = `${location.origin}${location.pathname}?team=${encodeURIComponent(state.profile.team)}${state.profile.teamName ? '&tn=' + encodeURIComponent(state.profile.teamName) : ''}&src=invite`;
+  const text = tr('Join my team {code} on {app} and log your throwing practice.', { code: state.profile.teamName ? `${state.profile.teamName} (${state.profile.team})` : state.profile.team, app: BRAND.name });
+  if (navigator.share) navigator.share({ title: BRAND.name, text, url }).catch(() => {}); else copyText(`${text} ${url}`);
+};
+$('leaveTeam').onclick = () => { state.profile.team = ''; state.profile.teamName = ''; saveProfile(); renderTeamView(); };
+$('copyCode').onclick = () => { try { navigator.clipboard.writeText(state.profile.team).then(() => toast(tr('Code copied')), () => toast(state.profile.team)); } catch { toast(state.profile.team); } };
+$('rangeWeek').onclick = () => { teamRange = 'week'; $('rangeWeek').classList.add('on'); $('range4').classList.remove('on'); renderBoard(); };
+$('range4').onclick = () => { teamRange = '4w'; $('range4').classList.add('on'); $('rangeWeek').classList.remove('on'); renderBoard(); };
+$('refreshTeam').onclick = () => loadTeam();
+async function loadTeam() {
+  $('teamNote').classList.add('hidden');
+  try {
+    teamData = await api(`/team?code=${encodeURIComponent(state.profile.team)}&weeks=6`);
+    if (teamData.name && teamData.name !== state.profile.teamName) { state.profile.teamName = teamData.name; saveProfile(); renderTeamName(); }
+  }
+  catch {
+    teamData = { sessions: exampleTeam() };
+    $('teamNote').textContent = tr('Example data. The live team board turns on once the app is deployed.');
+    $('teamNote').classList.remove('hidden');
+  }
+  renderBoard();
+}
+function renderBoard() {
+  if (!teamData) return;
+  const all = teamData.sessions, wk = weekKey();
+  const rows = teamRange === 'week' ? all.filter(s => weekKey(new Date(s.created_at)) === wk) : all.filter(s => Date.now() - new Date(s.created_at) < 28 * 864e5);
+  const by = new Map();
+  rows.forEach(s => { if (!by.has(s.athlete_key)) by.set(s.athlete_key, []); by.get(s.athlete_key).push(s); });
+  const board = [...by.values()].map(rs => {
+    const att = rs.reduce((a, s) => a + s.attempts, 0), mk = rs.reduce((a, s) => a + s.makes, 0);
+    return { key: rs[0].athlete_key, name: rs[0].name, verified: rs.some(s => s.verified), n: rs.length, att, acc: att ? mk / att : 0, avg: rs.reduce((a, s) => a + s.skill_score, 0) / rs.length, best: Math.max(...rs.map(s => s.skill_score)) };
+  }).sort((a, b) => b.avg - a.avg);
+  const att = rows.reduce((a, s) => a + s.attempts, 0), mk = rows.reduce((a, s) => a + s.makes, 0);
+  $('tActive').textContent = board.length; $('tAcc').textContent = (att ? Math.round(mk / att * 100) : 0) + '%';
+  $('tAvg').textContent = rows.length ? Math.round(rows.reduce((a, s) => a + s.skill_score, 0) / rows.length) : 0;
+  $('boardList').innerHTML = board.length ? board.map((r, i) => `<div class="item tap" data-k="${esc(r.key)}"><div class="t"><span class="rank ${i === 0 ? 'top' : ''}">${i + 1}</span>${esc(r.name)}${r.verified ? '<span class="tag strava">Strava ✓</span>' : ''}</div><div class="r">${Math.round(r.avg)}<small>${PB}${tr('BEST {n}', { n: r.best })}</small></div><div class="d">${Math.round(r.acc * 100)}% · ${tr(r.n === 1 ? '{n} session' : '{n} sessions', { n: r.n })} · ${tr('{n} throws', { n: r.att })}</div></div>`).join('')
+    : `<div class="empty">${tr(teamRange === 'week' ? 'No sessions this week yet.' : 'No sessions in the last 4 weeks yet.')}</div>`;
+  // Accountability: anyone seen in the last 4 weeks with no session this week.
+  const seen = new Map(); all.forEach(s => { if (!seen.has(s.athlete_key)) seen.set(s.athlete_key, s); });
+  const active = new Set(all.filter(s => weekKey(new Date(s.created_at)) === wk).map(s => s.athlete_key));
+  const missing = [...seen.values()].filter(s => !active.has(s.athlete_key));
+  $('missingList').innerHTML = missing.length ? missing.map(s => `<span>${esc(s.name)} · ${tr('last {d}', { d: dateStr(s.created_at) })}</span>`).join('') : `<span style="color:var(--ok)">${tr('Everyone has practiced this week')}</span>`;
+  $('boardList').querySelectorAll('[data-k]').forEach(el => el.onclick = () => openPlayer(el.dataset.k));
+  renderChallenge();
+  $('teamRecent').innerHTML = rows.length ? rows.slice(0, 12).map(s => sessionItem(s, teamBest().has(s))).join('') : `<div class="empty">${tr('Nothing yet.')}</div>`;
+}
+// Each athlete's best session in the loaded team data.
+function teamBest() {
+  const top = new Map(); (teamData?.sessions || []).forEach(s => { const b = top.get(s.athlete_key); if (!b || s.skill_score > b.skill_score) top.set(s.athlete_key, s); });
+  return new Set(top.values());
+}
+function sessionItem(s, best) {
+  return `<div class="item"><div class="cap when">${esc(whenStr(s.created_at))}</div><div class="t">${s.name ? esc(s.name) : `${distLabel(s.distance_m)} · ${esc(tr(s.target))}`}${s.strava_activity_id ? `<a class="tag strava" href="https://www.strava.com/activities/${esc(s.strava_activity_id)}" target="_blank" rel="noopener">${tr('View on Strava')}</a>` : ''}</div><div class="r">${best ? PB : ''}${s.skill_score}<small>${tr('SCORE')}</small></div><div class="d">${s.throw && s.throw !== 'mixed' ? esc(throwLabel(s)) + ' · ' : ''}${Math.round(s.accuracy * 100)}% · ${s.makes}/${s.attempts}${s.name ? ` · ${distLabel(s.distance_m)}` : ''} · ${tr(WIND[(s.wind_rating || 1) - 1].name)}</div></div>`;
+}
+/* ---------- monthly team challenge ---------- */
+const CH_KINDS = { throws: 'Team throws', makes: 'Team makes', sessions: 'Team sessions' };
+function renderChallenge() {
+  const el = $('challengeCard'), c = teamData && teamData.challenge, m = new Date().toISOString().slice(0, 7);
+  const month = teamData.sessions.filter(s => s.created_at.slice(0, 7) === m);
+  const end = new Date(); end.setMonth(end.getMonth() + 1, 1); end.setHours(0, 0, 0, 0); const daysLeft = Math.ceil((end - Date.now()) / 864e5);
+  if (c && c.month === m && !renderChallenge.editing) {
+    const done = c.kind === 'sessions' ? month.length : month.reduce((a, s) => a + (c.kind === 'makes' ? s.makes : s.attempts), 0), f = Math.min(1, done / c.target);
+    el.innerHTML = `<div class="label-row"><span class="cap">${tr('Monthly challenge')}</span><a href="#" class="cap" id="chEdit">${tr('Change')}</a></div>
+      <div class="chal"><b>${done.toLocaleString(fmtLocale())}</b> / ${c.target.toLocaleString(fmtLocale())} <span>${lc(tr(CH_KINDS[c.kind]))}</span></div>
+      <div class="track"><div class="fill" style="width:${(f * 100).toFixed(1)}%"></div></div>
+      <div class="cap" style="margin-top:8px">${f >= 1 ? tr('Challenge complete. Great work, team!') : tr(daysLeft === 1 ? '1 day left' : '{n} days left', { n: daysLeft })}${c.by ? ' · ' + tr('set by {name}', { name: esc(c.by) }) : ''}</div>`;
+    $('chEdit').onclick = (e) => { e.preventDefault(); renderChallenge.editing = true; renderChallenge(); };
+    return;
+  }
+  const kind = (c && c.kind) || 'throws';
+  el.innerHTML = `<div class="label-row"><span class="cap">${tr('Monthly challenge')}</span></div>
+    <p class="note" style="text-align:start;margin:0 0 10px">${tr('Set one goal for the whole team this month.')}</p>
+    <div class="seg" id="chKind">${Object.entries(CH_KINDS).map(([k, v]) => `<button data-k="${k}" class="${k === kind ? 'on' : ''}">${tr(v)}</button>`).join('')}</div>
+    <div class="pform" style="margin-top:10px"><input type="number" inputmode="numeric" id="chTarget" min="1" value="${c ? c.target : 2000}"><button class="btn sm primary" id="chSet">${tr('Set challenge')}</button></div>`;
+  $('chKind').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; $('chKind').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); };
+  $('chSet').onclick = async () => {
+    const k = $('chKind').querySelector('.on').dataset.k, target = Math.round(+$('chTarget').value);
+    if (!(target > 0)) return;
+    try { const d = await api('/team', { method: 'POST', body: JSON.stringify({ action: 'challenge', code: state.profile.team, kind: k, target, name: state.profile.name }) }); teamData.challenge = d.challenge; }
+    catch { teamData.challenge = { kind: k, target, by: state.profile.name, month: new Date().toISOString().slice(0, 7) }; }
+    renderChallenge.editing = false; renderChallenge(); toast(tr('Challenge set'));
+  };
+}
+
+/* ---------- coach view: one player's throws, from the team board ---------- */
+function openPlayer(key) {
+  const rs = teamData.sessions.filter(s => s.athlete_key === key); if (!rs.length) return;
+  const locked = !!state.config.proUrl && !isPro();
+  const by = throwStats(rs).sort((a, b) => b.att - a.att), all = pool(rs);
+  const wk = [3, 2, 1, 0].map(i => { const k = weekKey(new Date(Date.now() - i * 7 * 864e5)), w = rs.filter(s => weekKey(new Date(s.created_at)) === k); return w.length ? Math.round(w.reduce((a, s) => a + s.skill_score, 0) / w.length) : null; });
+  $('playerName').textContent = rs[0].name;
+  $('playerBody').innerHTML = `<div class="trio"><div><div class="v">${all.n}</div><div class="cap">${tr('Sessions')}</div></div><div><div class="v">${Math.round(all.acc * 100)}%</div><div class="cap">${tr('Accuracy')}</div></div><div><div class="v">${Math.round(all.avg)}</div><div class="cap">${tr('Avg score')}</div></div></div>`
+    + (locked ? `<div class="focus"><p>${tr('Coach view shows each player\'s throws, trends and what to work on. It comes with LANZA Pro.')}</p><button class="btn sm primary" id="playerPro">${tr('Go Pro')}</button></div>`
+    : `<div class="label-row"><span class="cap">${tr('Last 4 weeks')}</span><span class="cap">${wk.map(v => v == null ? '–' : v).join(' · ')}</span></div>
+      <div>${by.map(x => `<div class="tbar"><span class="n">${tr(x.t.name)}</span><div class="track"><div class="fill" style="width:${Math.round(x.acc * 100)}%"></div></div><span class="v">${Math.round(x.acc * 100)}%</span><span class="d">${tr('{n} throws', { n: x.att })} · ${tr(x.n === 1 ? '{n} session' : '{n} sessions', { n: x.n })}</span></div>`).join('') || `<div class="empty">${tr('Nothing yet.')}</div>`}</div>
+      <div class="list">${rs.slice(0, 6).map(s => sessionItem(s, teamBest().has(s))).join('')}</div>`);
+  if (locked) $('playerPro').onclick = () => { $('playerModal').classList.add('hidden'); goPro(); };
+  $('playerModal').classList.remove('hidden');
+}
+$('playerClose').onclick = () => $('playerModal').classList.add('hidden');
+
+function exampleTeam() {
+  const names = ['Avery R.', 'Jordan K.', 'Sam T.', 'Riley M.', 'Casey L.'], out = [];
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  names.forEach((n, i) => {
+    for (let d = 1 + i; d < 28; d += 3 + (i % 3)) {
+      if (i === 4 && d < 8) continue; // one athlete hasn't practiced this week
+      const dist = [10, 20, 20, 30, 40][rnd() * 5 | 0], p = PRESETS[rnd() * 4 | 0], diff = DIST[dist] * sizeTier(p.ratio).mult;
+      const att = 20 + (rnd() * 30 | 0), acc = clamp(0.45 + i * 0.06 - (diff - 2) * 0.06 + (rnd() - 0.5) * 0.15, 0.1, 0.95), mk = Math.round(att * acc), wind = 1 + (rnd() * 3 | 0);
+      out.push({ throw: ['backhand', 'forehand', 'forehand', 'backhand', 'hammer'][rnd() * 5 | 0], name: n, athlete_key: n, verified: i % 2 === 0, created_at: new Date(Date.now() - d * 864e5).toISOString(), distance_m: dist, target: sizeTier(p.ratio).name, difficulty: diff, attempts: att, makes: mk, accuracy: mk / att, wind_rating: wind, skill_score: scoreOf(mk, att, diff, WIND[wind - 1].f) });
+    }
+  });
+  return out.sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+/* =============================================================================
+   My stats
+   ============================================================================= */
+let statDays = 7;
+document.querySelectorAll('#statRange button').forEach(b => b.onclick = () => { statDays = +b.dataset.r; document.querySelectorAll('#statRange button').forEach(x => x.classList.toggle('on', x === b)); renderStats(); });
+function renderStats() {
+  const all = state.sessions, rows = statDays ? all.filter(s => Date.now() - new Date(s.created_at) < statDays * 864e5) : all;
+  $('stSessions').textContent = all.length; $('stThrows').textContent = all.reduce((a, s) => a + s.attempts, 0);
+  const myBest = all.reduce((b, s) => !b || s.skill_score > b.skill_score ? s : b, null);
+  $('stBest').innerHTML = myBest ? PB + myBest.skill_score : 0;
+  $('chartRange').textContent = tr(statDays === 7 ? 'Last 7 days' : statDays === 30 ? 'Last 30 days' : 'All time');
+  $('historyList').innerHTML = rows.length ? rows.map(s => sessionItem({ ...s, name: '' }, s === myBest).replace('<div class="item">', `<button class="item" data-open="${esc(s.id)}">`).replace(/<\/div>$/, '</button>')).join('')
+    : `<div class="empty">${tr(statDays ? 'No sessions in this period. Your first practice is one tap away.' : 'No sessions yet. Your first practice is one tap away.')}</div>`;
+  $('historyList').querySelectorAll('[data-open]').forEach(b => b.onclick = (e) => { if (e.target.closest('a')) return; current = state.sessions.find(s => s.id === b.dataset.open); renderResult(); showView('result'); });
+  requestAnimationFrame(() => drawBars(rows.slice().reverse()));
+  renderThrows(rows);
+}
+/* Patterns by throw: accuracy per throw in the chosen period, the trend over the last
+   30 days against the 30 before. */
+const MIN_THROWS = 20;   // below this a throw's accuracy isn't trusted for comparisons
+function pool(list) { const att = list.reduce((a, s) => a + s.attempts, 0), mk = list.reduce((a, s) => a + s.makes, 0); return { n: list.length, att, acc: att ? mk / att : 0, avg: list.length ? list.reduce((a, s) => a + s.skill_score, 0) / list.length : 0 }; }
+function throwStats(list) { return THROWS.map(t => ({ t, ...pool(list.filter(s => throwOf(s).id === t.id)) })).filter(x => x.n); }
+function renderThrows(rows) {
+  $('throwRange').textContent = tr(statDays === 7 ? 'Last 7 days' : statDays === 30 ? 'Last 30 days' : 'All time');
+  const now = Date.now(), last30 = state.sessions.filter(s => now - new Date(s.created_at) < 30 * 864e5), prev30 = state.sessions.filter(s => { const a = now - new Date(s.created_at); return a >= 30 * 864e5 && a < 60 * 864e5; });
+  const list = throwStats(rows).sort((a, b) => b.att - a.att);
+  if (!list.length) { $('throwBars').innerHTML = `<div class="empty">${tr('Pick a throw before you start, and your strengths show up here.')}</div>`; return; }
+  $('throwBars').innerHTML = list.map(x => {
+    const a = pool(last30.filter(s => throwOf(s).id === x.t.id)), b = pool(prev30.filter(s => throwOf(s).id === x.t.id));
+    const dv = a.att >= MIN_THROWS && b.att >= MIN_THROWS ? Math.round((a.acc - b.acc) * 100) : null;
+    const trend = dv == null ? '' : dv > 0 ? ` · <span class="up">▲ ${tr('{n} pts this month', { n: dv })}</span>` : dv < 0 ? ` · <span class="down">▼ ${tr('{n} pts this month', { n: -dv })}</span>` : ' · ' + tr('steady this month');
+    return `<div class="tbar"><span class="n">${tr(x.t.name)}</span><div class="track"><div class="fill" style="width:${Math.round(x.acc * 100)}%"></div></div><span class="v">${Math.round(x.acc * 100)}%</span>
+      <span class="d">${tr('{n} throws', { n: x.att })} · ${tr(x.n === 1 ? '{n} session' : '{n} sessions', { n: x.n })} · ${tr('avg score {n}', { n: Math.round(x.avg) })}${x.att < MIN_THROWS ? ' · ' + tr('needs more throws') : ''}${trend}</span></div>`;
+  }).join('') + (() => {
+    const st = STYLES.map(x => ({ x, ...pool(rows.filter(s => (s.styles || []).includes(x.id))) })).filter(v => v.att >= 10);
+    return st.length ? `<div class="stylerow">${st.map(v => `${tr(v.x.name)} ${Math.round(v.acc * 100)}%`).join(' · ')}</div>` : '';
+  })();
+}
+let chart = null;
+function drawBars(rows) {
+  const c = $('chartScore'), r = c.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  if (!r.width) return;
+  c.width = r.width * dpr; c.height = r.height * dpr;
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, r.width, r.height);
+  const vals = rows.map(s => s.skill_score), avg = vals.length ? vals.reduce((a, v) => a + v, 0) / vals.length : 0;
+  const pad = { l: 4, r: 34, t: 18, b: 22 }, w = r.width - pad.l - pad.r, h = r.height - pad.t - pad.b;
+  g.font = `500 11px ${css('--font')}`; g.fillStyle = css('--faint');
+  if (!rows.length) { g.textAlign = 'center'; g.fillText(tr('Your sessions will appear here'), r.width / 2, r.height / 2); chart = null; return; }
+  // Zoom the axis onto the athlete's own range, so a 44 next to a 52 looks clearly different.
+  let lo = Math.max(0, Math.floor((Math.min(...vals) - 6) / 5) * 5), hi = Math.min(100, Math.ceil((Math.max(...vals) + 4) / 5) * 5);
+  if (hi - lo < 20) { const mid = (hi + lo) / 2; lo = Math.max(0, Math.floor((mid - 10) / 5) * 5); hi = Math.min(100, lo + 20); lo = Math.max(0, hi - 20); }
+  const step = hi - lo <= 20 ? 5 : hi - lo <= 50 ? 10 : 20;
+  const y = (v) => pad.t + h - (v - lo) / (hi - lo) * h, slot = w / rows.length, bw = Math.max(3, Math.min(16, slot * 0.55));
+  const x = (i) => pad.l + slot * i + slot / 2;
+  g.strokeStyle = css('--line'); g.lineWidth = 1; g.textAlign = 'left'; g.textBaseline = 'middle';
+  for (let v = lo; v <= hi + 1e-9; v += step) { g.beginPath(); g.moveTo(pad.l, y(v)); g.lineTo(pad.l + w, y(v)); g.stroke(); g.fillText(Math.round(v), pad.l + w + 6, y(v)); }
+  // Above your average: bright. Below: dim.
+  const up = g.createLinearGradient(0, pad.t, 0, pad.t + h); up.addColorStop(0, css('--accent-hi')); up.addColorStop(1, css('--accent'));
+  vals.forEach((v, i) => {
+    const top = y(v), bh = Math.max(3, pad.t + h - top);
+    g.fillStyle = v >= avg ? up : 'rgba(120,128,190,.32)';
+    g.beginPath(); g.roundRect ? g.roundRect(x(i) - bw / 2, top, bw, bh, [bw / 2, bw / 2, 0, 0]) : g.rect(x(i) - bw / 2, top, bw, bh); g.fill();
+  });
+  // Each bar's number on top while there's room.
+  if (slot >= 22) { g.font = `500 11px ${css('--font')}`; g.textAlign = 'center'; g.textBaseline = 'bottom'; vals.forEach((v, i) => { g.fillStyle = v >= avg ? '#fff' : css('--faint'); g.fillText(v, x(i), y(v) - 3); }); }
+  g.fillStyle = css('--faint'); g.font = `500 11px ${css('--font')}`; g.textBaseline = 'top';
+  // Same-day sessions are labeled by time instead of repeating the date.
+  const days = new Set(rows.map(row => new Date(row.created_at).toDateString())), label = (row) => days.size < rows.length / 2 ? new Date(row.created_at).toLocaleTimeString(fmtLocale(), { hour: 'numeric', minute: '2-digit' }) : dateStr(row.created_at);
+  const every = Math.max(Math.ceil(rows.length / 4), Math.ceil(90 / slot));
+  rows.forEach((row, i) => { if (i % every && i !== rows.length - 1) return; if (i !== rows.length - 1 && rows.length - 1 - i < every) return; g.textAlign = i === 0 ? 'left' : i === rows.length - 1 ? 'right' : 'center'; g.fillText(label(row), clamp(x(i), pad.l, pad.l + w), pad.t + h + 6); });
+  chart = { rows, vals, x, y };
+}
+(() => {
+  const c = $('chartScore'), tip = $('tipScore');
+  const move = (e) => {
+    if (!chart) return;
+    const rx = e.clientX - c.getBoundingClientRect().left;
+    let best = 0, bd = Infinity; chart.rows.forEach((_, i) => { const d = Math.abs(chart.x(i) - rx); if (d < bd) { bd = d; best = i; } });
+    const s = chart.rows[best];
+    tip.textContent = `${s.skill_score} · ${Math.round(s.accuracy * 100)}% · ${dateStr(s.created_at)}`;
+    tip.style.left = chart.x(best) + 'px'; tip.style.top = chart.y(chart.vals[best]) + 'px'; tip.style.opacity = 1;
+  };
+  c.addEventListener('pointermove', move); c.addEventListener('pointerdown', move);
+  c.addEventListener('pointerleave', () => tip.style.opacity = 0);
+})();
+
+/* =============================================================================
+   Rewarded ad gate: OFF unless ADS_ENABLED=true in Netlify.
+   With AD_UNIT_PATH set, it shows a Google Ad Manager rewarded ad. Without one,
+   or when no ad is available, a 15-second sponsor slot unlocks the session so
+   athletes are never stuck.
+   ============================================================================= */
+function grantAdCredit() {
+  const k = weekKey(); state.adCredits = { [k]: (state.adCredits[k] || 0) + 1 }; LS.set('adCredits', state.adCredits);
+  $('adModal').classList.add('hidden'); renderWeek(); chimeFanfare(); toast(tr('Session unlocked')); if (setup.quick) { setup.quick = false; setup.mode = 'new'; startSession(); } else openTarget('new');
+}
+function openAdGate() { $('adPro').classList.toggle('hidden', !state.config.proUrl); $('adArea').classList.add('hidden'); $('adChoices').classList.remove('hidden'); $('adModal').classList.remove('hidden'); }
+$('adPro').onclick = () => { $('adModal').classList.add('hidden'); goPro(); };
+$('closeAd').onclick = () => $('adModal').classList.add('hidden');
+$('watchAd').onclick = () => { $('adChoices').classList.add('hidden'); state.config.adUnitPath ? showGptRewarded() : showPlaceholderAd(); };
+function showPlaceholderAd() {
+  $('adModal').classList.remove('hidden'); $('adArea').classList.remove('hidden');
+  let n = 15; $('adCount').textContent = n;
+  const t = setInterval(() => { n--; $('adCount').textContent = n; if (n <= 0) { clearInterval(t); grantAdCredit(); } }, 1000);
+}
+let gptLoaded = false;
+function showGptRewarded() {
+  $('adArea').classList.remove('hidden'); $('adCount').textContent = '…';
+  window.googletag = window.googletag || { cmd: [] };
+  let slot = null, granted = false, done = false;
+  const fallback = setTimeout(() => finish(true), 8000);
+  function finish(usePlaceholder) { if (done) return; done = true; clearTimeout(fallback); if (slot) { try { googletag.destroySlots([slot]); } catch {} } if (usePlaceholder) showPlaceholderAd(); }
+  if (!gptLoaded) { const s = document.createElement('script'); s.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js'; s.async = true; s.onerror = () => finish(true); document.head.appendChild(s); gptLoaded = true; }
+  googletag.cmd.push(() => {
+    slot = googletag.defineOutOfPageSlot(state.config.adUnitPath, googletag.enums.OutOfPageFormat.REWARDED);
+    if (!slot) { finish(true); return; }
+    slot.addService(googletag.pubads());
+    const pa = googletag.pubads();
+    pa.addEventListener('rewardedSlotReady', (e) => { if (e.slot !== slot) return; clearTimeout(fallback); $('adModal').classList.add('hidden'); e.makeRewardedVisible(); });
+    pa.addEventListener('rewardedSlotGranted', (e) => { if (e.slot === slot) granted = true; });
+    pa.addEventListener('rewardedSlotClosed', (e) => { if (e.slot !== slot) return; finish(false); if (granted) grantAdCredit(); else toast(tr('Watch the whole ad to unlock the session')); });
+    pa.addEventListener('slotRenderEnded', (e) => { if (e.slot === slot && e.isEmpty) finish(true); });
+    googletag.enableServices(); googletag.display(slot);
+  });
+}
+
+/* =============================================================================
+   Navigation, config, updates, boot
+   ============================================================================= */
+let currentView = 'setup';
+function showView(v) {
+  currentView = v;
+  ['setup', 'target', 'distance', 'practice', 'result', 'stats', 'team'].forEach(k => $('view-' + k).classList.toggle('hidden', k !== v));
+  document.body.classList.toggle('flow-mode', v === 'target' || v === 'distance');
+  const tab = ['practice', 'result', 'target', 'distance'].includes(v) ? 'setup' : v;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.view === tab));
+  if (v === 'setup') renderSetup();
+  if (v === 'stats') renderStats();
+  if (v === 'team') renderTeamView();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => !tabDrag.suppress && showView(session && b.dataset.view === 'setup' ? 'practice' : b.dataset.view));
+// Slidable dock: press anywhere on the tab bar and slide; a glass lens follows the
+// finger, each tab crossed gives a haptic tick, and releasing opens that tab.
+// iOS Safari has no navigator.vibrate, so toggling a hidden switch input gives the tick there.
+function hapticTick() {
+  if (navigator.vibrate) { navigator.vibrate(8); return; }
+  try { document.getElementById('hapticSw').parentElement.click(); } catch (_) {}
+}
+const tabDrag = { id: null, cur: null, moved: false, x0: 0, suppress: false };
+(() => {
+  const nav = $('tabs'), lens = $('tabLens'), btns = [...nav.querySelectorAll('button')];
+  const at = (x) => btns.reduce((best, b) => { const r = b.getBoundingClientRect(), d = Math.abs(x - (r.left + r.width / 2)); return !best || d < best.d ? { b, d } : best; }, null).b;
+  const place = (x) => { const nr = nav.getBoundingClientRect(), w = lens.offsetWidth; lens.style.transform = `translateX(${Math.max(4, Math.min(nr.width - w - 4, x - nr.left - w / 2))}px) scale(1)`; };
+  const mark = (b) => { if (b === tabDrag.cur) return; btns.forEach(x => x.classList.toggle('hover', x === b)); if (tabDrag.cur) hapticTick(); tabDrag.cur = b; };
+  nav.addEventListener('pointerdown', (e) => {
+    tabDrag.id = e.pointerId; tabDrag.x0 = e.clientX; tabDrag.moved = false; tabDrag.cur = null;
+    try { nav.setPointerCapture(e.pointerId); } catch (_) {}
+    mark(at(e.clientX)); place(e.clientX);
+  });
+  nav.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== tabDrag.id) return;
+    if (!tabDrag.moved && Math.abs(e.clientX - tabDrag.x0) > 8) { tabDrag.moved = true; nav.classList.add('dragging'); }
+    if (tabDrag.moved) { place(e.clientX); mark(at(e.clientX)); }
+  });
+  const end = (e, cancel) => {
+    if (e.pointerId !== tabDrag.id) return;
+    tabDrag.id = null; nav.classList.remove('dragging'); btns.forEach(x => x.classList.remove('hover'));
+    if (!cancel && tabDrag.cur) {
+      const v = tabDrag.cur.dataset.view;
+      tabDrag.suppress = true; setTimeout(() => { tabDrag.suppress = false; }, 350);
+      showView(session && v === 'setup' ? 'practice' : v);
+    }
+  };
+  nav.addEventListener('pointerup', (e) => end(e, false));
+  nav.addEventListener('pointercancel', (e) => end(e, true));
+})();
+async function loadConfig() {
+  try { state.config = { ...state.config, ...(await api('/config')), online: true }; LS.set('config', state.config); }
+  catch { state.config = { ...state.config, ...LS.get('config', {}), online: false }; }
+}
+// Updates: the service worker fetches new versions in the background; the page switches
+// to the new version only when no practice is running, so nothing in progress is lost.
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  let reloading = false;
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading || !hadController) return;
+    const apply = () => { if (session) return setTimeout(apply, 5000); reloading = true; location.reload(); };
+    apply();
+  });
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => setInterval(() => r.update(), 30 * 60e3)).catch(() => {}));
+}
+window.addEventListener('online', () => { loadConfig().then(retryPendingShares); });
+window.addEventListener('resize', () => { if (currentView === 'target') layoutDraw(); if (currentView === 'distance') renderDistance(); if (currentView === 'stats') renderStats(); });
+
+document.title = BRAND.name; $('brandWord').textContent = BRAND.name;
+applyLang(); translateStatic();
+paintHeroes(); renderStravaPill(); showView('setup');
+// Language picker: first launch (nothing saved yet) and the Language button in the You sheet. Changing reloads
+// the app, so every screen, chart and voice setting starts in the new language.
+function openLang(first) {
+  let pick = LANG;
+  const paint = () => { $('langGrid').innerHTML = LANGS.map(l => `<button type="button" data-l="${l.code}" class="${l.code === pick ? 'on' : ''}" dir="${l.dir || 'ltr'}">${esc(l.name)}</button>`).join(''); };
+  paint(); $('langModal').classList.remove('hidden');
+  $('langGrid').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; pick = b.dataset.l; paint(); hapticTick(); };
+  $('langGo').onclick = () => { LS.set('lang', pick); window.name = 'lanza-lang:' + pick; $('langModal').classList.add('hidden'); if (pick !== LANG) location.reload(); else if (first) nextIntro(); };
+}
+
+/* ---------- first launch: language → three intro screens → team invite ---------- */
+const ART = {
+  draw: '<svg viewBox="0 0 320 190"><path d="M0 150H320" stroke="#2c2c34" stroke-width="2"/><g fill="#20233a"><circle cx="70" cy="70" r="11"/><path d="M60 84h20l4 40h-6l-2 26h-14l-2-26h-6z"/></g><path d="M150 60q40-28 88-6q34 18 18 56q-16 40-66 34q-52-6-40-84z" fill="rgba(108,117,255,.18)" stroke="#fff" stroke-width="3" stroke-dasharray="9 7"/><circle cx="262" cy="104" r="9" fill="#fff"/><path d="M262 104l14 22" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>',
+  log: '<svg viewBox="0 0 320 190"><rect x="40" y="48" width="112" height="96" rx="24" fill="#1f2bff"/><path d="M76 98l14 14 28-30" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="168" y="48" width="112" height="96" rx="24" fill="#1c1c20"/><path d="M206 78l36 36M242 78l-36 36" stroke="#8e8e93" stroke-width="7" stroke-linecap="round"/><g fill="#fff" opacity=".85"><rect x="148" y="160" width="24" height="6" rx="3"/></g></svg>',
+  post: '<svg viewBox="0 0 320 190"><rect x="56" y="22" width="208" height="146" rx="18" fill="#fff"/><circle cx="84" cy="50" r="12" fill="#c8c8ce"/><rect x="104" y="42" width="80" height="7" rx="3" fill="#1d1d1f"/><rect x="104" y="54" width="54" height="6" rx="3" fill="#a0a0a6"/><text x="76" y="98" font-family="system-ui" font-weight="800" font-size="17" fill="#1d1d1f">Evening hucks</text><text x="76" y="122" font-family="system-ui" font-size="12" fill="#3a3a3c">Skill Score 66/100 · Sharp</text><text x="76" y="140" font-family="system-ui" font-size="12" fill="#3a3a3c">#2 of 9 this month</text><path d="M238 48l-5-10h-7l12 24 12-24h-7z" fill="#fc4c02"/><path d="M233 38l-6-12-6 12h-5l11-22 11 22z" fill="#fc4c02" opacity=".55"/></svg>'
+};
+const ONB = [
+  { art: 'draw', title: 'Draw any target', text: 'Trace a teammate, a cone or a gap in the trees. The field is drawn to real scale.' },
+  { art: 'log', title: 'Make or miss', text: 'Tap after every throw, or go hands-free and just say “make” or “miss”.' },
+  { art: 'post', title: 'It posts itself', text: 'Every session lands on Strava with your Skill Score, and your team sees who put in the work.' }
+];
+let onbI = 0;
+function openOnb() { onbI = 0; paintOnb(); $('onbModal').classList.remove('hidden'); }
+function closeOnb(then) { LS.set('onboarded', true); $('onbModal').classList.add('hidden'); then ? then() : nextIntro(); }
+function paintOnb() {
+  const o = ONB[onbI], last = onbI === ONB.length - 1;
+  $('onbArt').innerHTML = ART[o.art]; $('onbTitle').textContent = tr(o.title); $('onbText').textContent = tr(o.text);
+  $('onbDots').innerHTML = ONB.map((_, i) => `<i class="${i === onbI ? 'on' : ''}"></i>`).join('');
+  $('onbSkip').classList.toggle('hidden', last);
+  $('onbActions').innerHTML = !last ? `<button class="btn primary" id="onbNext">${tr('Next')}</button>`
+    : `${stravaReady() && !state.strava ? '<button class="btn-strava" id="onbStrava">' + STRAVA_ICON + ' Connect with Strava</button>' : ''}
+       ${state.profile.team || inviteCode ? '' : `<button class="btn" id="onbTeam">${tr('Join your team')}</button>`}
+       ${canInstall() && isMobile ? `<button class="btn" id="onbInstall">${tr('Add to Home Screen')}</button>` : ''}
+       <button class="btn primary" id="onbGo">${tr('Start throwing')}</button>`;
+  if (!last) $('onbNext').onclick = () => { onbI++; paintOnb(); hapticTick(); };
+  else {
+    if ($('onbStrava')) $('onbStrava').onclick = () => closeOnb(connectStrava);
+    if ($('onbTeam')) $('onbTeam').onclick = () => closeOnb(() => showView('team'));
+    if ($('onbInstall')) $('onbInstall').onclick = () => closeOnb(doInstall);
+    $('onbGo').onclick = () => closeOnb();
+  }
+}
+$('onbSkip').onclick = () => closeOnb();
+// Swipe between the intro screens.
+{ let x0 = null; const m = $('onbModal');
+  m.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+  m.addEventListener('pointerup', (e) => { if (x0 == null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) < 50) return;
+    const dir = (dx < 0) !== (document.documentElement.dir === 'rtl') ? 1 : -1; const n = clamp(onbI + dir, 0, ONB.length - 1); if (n !== onbI) { onbI = n; paintOnb(); hapticTick(); } }); }
+
+// Team invite links look like https://app/?team=BLAZE-24
+const inviteTeamName = (new URLSearchParams(location.search).get('tn') || '').trim().slice(0, 30);
+const inviteCode = (() => { const c = (new URLSearchParams(location.search).get('team') || '').trim().toUpperCase(); return /^[A-Z0-9-]{4,20}$/.test(c) ? c : ''; })();
+function openInvite(code) {
+  const q = new URLSearchParams(location.search); q.delete('team'); q.delete('tn'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
+  if (state.profile.team === code) { toast(tr('You’re already on team {code}', { code })); return nextIntro(); }
+  $('inviteTitle').textContent = tr('Join team {code}?', { code: inviteTeamName || code });
+  $('inviteName').value = state.profile.name || ''; $('inviteModal').classList.remove('hidden');
+  $('inviteJoin').onclick = () => {
+    const name = $('inviteName').value.trim();
+    if (!name && !state.strava) { toast(tr('Add your name so teammates know who you are')); $('inviteName').focus(); return; }
+    $('nameInput').value = name; joinTeam(code, inviteTeamName); $('inviteModal').classList.add('hidden'); showView('team'); nextIntro();
+  };
+  $('inviteNo').onclick = () => { $('inviteModal').classList.add('hidden'); nextIntro(); };
+}
+
+const intro = [];
+function nextIntro() { const f = intro.shift(); if (f) f(); }
+if (LS0('lang') == null && !/^lanza-lang:/.test(window.name) && LANGS.length > 1) intro.push(() => openLang(true));
+if (!LS.get('onboarded', false)) { if (state.sessions.length) LS.set('onboarded', true); else intro.push(openOnb); }
+if (inviteCode) intro.push(() => openInvite(inviteCode));
+if (state.strava) backupSoon(8000);
+{ const today = new Date().toISOString().slice(0, 10); if (LS.get('seenDay', '') !== today) { LS.set('seenDay', today); track('open'); } }
+if (standalone() && !LS.get('installSeen', false)) { LS.set('installSeen', true); track('install'); }
+if (inviteCode) track('invite_open');
+let recovered = null;
+{ const L = LS.get('live', null);
+  if (L && L.log?.length && L.cur && !state.sessions.some(x => x.id === L.id)) {
+    if (Date.now() - (L.lastAt || L.startedAt) < LIVE_RESUME_MS) {
+      session = L; timerId = setInterval(tickTimer, 1000); tickTimer(); requestWakeLock();
+      setup.throw = L.throw; setup.styles = L.styles || [];
+      $('practiceTarget').textContent = `${session.cur.distance}m · ${tr(session.cur.name)}`;
+      $('practiceDiff').textContent = `${throwLabel(session)} · ${tr('difficulty {n}/10', { n: levelLabel(session.cur.difficulty) })}`;
+      renderSession(); showView('practice'); toast(tr('Picking up where you left off'));
+      requestAnimationFrame(() => { const v = fitCanvas($('practiceThumb')); if (v) drawScene(v, session.cur.shape, { small: true }); });
+    } else {
+      recovered = sessionRecord(L, L.lastAt || Date.now());
+      state.sessions.unshift(recovered); saveSessions(); LS.del('live'); track('session');
+      toast(tr('Your last session was saved: Skill Score {n}', { n: recovered.skill_score }));
+    }
+  } else LS.del('live');
+}
+if (!session) nextIntro();
+loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); retryPendingShares(); handleProReturn(); refreshPro(false); });
+// phrases(): the data words the language files translate (used when adding a language).
+window.LANZA = { version: APP_VERSION, state, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
+})();
+</script>
+</body>
+</html>

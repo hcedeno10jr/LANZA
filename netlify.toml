@@ -1,0 +1,18 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Never cache the service worker itself, so app updates reach phones quickly.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Short link printed at the end of Strava posts, so usage counts know the visit came from Strava.
+[[redirects]]
+  from = "/s"
+  to = "/?src=strava"
+  status = 302
