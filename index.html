@@ -326,7 +326,7 @@ label.f{display:grid;gap:6px}
 .brank.top .pos{background:none;width:34px;height:47px;border-radius:0;filter:drop-shadow(0 0 8px rgba(var(--accent-rgb),.75))}
 .brank.top .pos svg{display:block;width:100%;height:100%}
 .storyimg{display:block;width:min(62vw,300px);aspect-ratio:9/16;margin:0 auto;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.5);background:#000}
-#shareModal{place-items:center;padding:16px}
+#shareModal,#postModal{place-items:center;padding:16px}
 /* The sticker is transparent: preview it over a photo-like backdrop. */
 .stickwrap{width:100%;max-height:44dvh;aspect-ratio:4/5;margin:0 auto;border-radius:18px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(160deg,#6b7a8f,#2f3b4a 45%,#1b2430 70%,#4a3a2a)}
 .stickwrap img{height:92%;width:auto;max-width:96%;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
@@ -633,6 +633,7 @@ nav.tabs button{position:relative;z-index:1}
     <div class="cap">Share your session</div>
     <div class="seg" id="shareKind"><button data-k="sticker" class="on">Sticker</button><button data-k="story">Story</button></div>
     <div class="stickwrap" id="stickWrap"><img id="stickImg" alt=""></div>
+    <label class="toggle hidden" id="stickTeamRow" style="justify-content:center"><input type="checkbox" id="stickTeam"> <span id="stickTeamLbl"></span></label>
     <img id="storyImg" class="storyimg hidden" alt="">
     <p class="note" style="margin:0" id="shareHow"></p>
     <button class="btn primary" id="storyShare">Share to Stories</button>
@@ -653,6 +654,18 @@ nav.tabs button{position:relative;z-index:1}
 
 <!-- Team invite link (?team=CODE) -->
 <!-- Strava sign-in that finished in Safari while the app runs from the home screen -->
+<!-- One-tap Strava post, offered when the athlete taps Done -->
+<div class="modal-bg hidden" id="postModal">
+  <div class="modal">
+    <div class="cap">Post to Strava?</div>
+    <h2 id="postTitle" style="margin:0"></h2>
+    <p class="note" id="postSub" style="margin:0;font-size:14px"></p>
+    <button class="btn-strava" id="postGo"></button>
+    <button class="btn" id="postNo">Not now</button>
+    <div class="powered">Powered by <b>STRAVA</b></div>
+  </div>
+</div>
+
 <div class="modal-bg hidden" id="handoffModal">
   <div class="modal">
     <h2>Connected to Strava</h2>
@@ -685,7 +698,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.20.2';
+const APP_VERSION = '2.21.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1655,14 +1668,18 @@ function drawStory(s) {
 }
 /* Sticker: transparent, white, Strava-style overlay (target, score, stats, logo)
    that athletes paste on top of their own photo or video in an Instagram story. */
-function drawSticker(s) {
+function drawSticker(s, team = '') {
   const W = 900, H = 900, c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d'), font = (wt, px) => `${wt} ${px}px Manrope, -apple-system, system-ui, sans-serif`;
   g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 10; g.shadowOffsetY = 2; g.fillStyle = '#fff'; g.strokeStyle = '#fff';
-  // logo + wordmark
-  g.save(); g.translate(W / 2 - 140, 60); g.rotate(40 * Math.PI / 180); g.scale(.09, .09); g.translate(-200, -408);
+  // logo + wordmark, or "TEAM TRAINS ON LANZA" when the athlete shows their team
+  const head = team ? `${team} trains on ${BRAND.name}`.toUpperCase() : BRAND.name, sp = team ? 6 : 12;
+  let px = 34; g.letterSpacing = `${sp}px`; g.font = font(700, px);
+  while (px > 18 && g.measureText(head).width + 64 > W - 60) g.font = font(700, --px);
+  const tw = g.measureText(head).width, x0 = W / 2 - (tw + 64) / 2;
+  g.textAlign = 'left'; g.fillText(head, x0 + 64, 78); g.letterSpacing = '0px'; g.textAlign = 'center';
+  g.save(); g.translate(x0 + 20, 60); g.rotate(40 * Math.PI / 180); g.scale(.09, .09); g.translate(-200, -408);
   g.fill(new Path2D('M200 30 L312 232 L215 398 V760 L200 786 L185 760 V398 L88 232 Z M200 94 L276 232 L200 362 L124 232 Z M200 122 L260 232 L200 334 L140 232 Z'), 'evenodd'); g.restore();
-  g.font = font(700, 34); g.letterSpacing = '12px'; g.textAlign = 'center'; g.fillText(BRAND.name, W / 2 + 20, 78); g.letterSpacing = '0px';
   // the drawn target, like a route line
   const pts = s.shape && s.shape.pts;
   if (pts && pts.length > 2) {
@@ -1709,14 +1726,22 @@ function renderShareKind() {
   document.querySelectorAll('#shareKind button').forEach(b => b.classList.toggle('on', b.dataset.k === shareKind));
   const st = shareKind === 'sticker';
   $('stickWrap').classList.toggle('hidden', !st); $('storyImg').classList.toggle('hidden', st);
+  $('stickTeamRow').classList.toggle('hidden', !st || !state.profile.team);
   $('shareHow').textContent = tr(st ? 'Copy it, open your Instagram story with your photo or video, then paste. Move and resize it wherever you like.' : 'Pick Instagram, then Stories. Add a link sticker so teammates can join.');
   $('storyShare').textContent = tr(st ? 'Copy sticker' : 'Share to Stories');
 }
+$('stickTeam').onchange = async (e) => {
+  LS.set('stickerTeam', e.target.checked);
+  const b = drawSticker(current, e.target.checked ? teamLabel() : ''); $('stickImg').src = b.toDataURL('image/png');
+  stickBlob = await new Promise(r => b.toBlob(r, 'image/png'));
+};
 document.querySelectorAll('#shareKind button').forEach(b => b.onclick = () => { shareKind = b.dataset.k; renderShareKind(); });
 $('shareResult').onclick = async () => {
   if (!current) return;
   try { await document.fonts.ready; } catch {}
-  const a = drawStory(current), b = drawSticker(current);
+  const team = state.profile.team && LS.get('stickerTeam', true) ? teamLabel() : '';
+  $('stickTeam').checked = !!team; $('stickTeamLbl').textContent = tr('Show "{team} trains on {app}"', { team: teamLabel(), app: BRAND.name });
+  const a = drawStory(current), b = drawSticker(current, team);
   $('storyImg').src = a.toDataURL('image/png'); $('stickImg').src = b.toDataURL('image/png');
   [storyBlob, stickBlob] = await Promise.all([a, b].map(c => new Promise(r => c.toBlob(r, 'image/png'))));
   renderShareKind(); $('shareModal').classList.remove('hidden');
@@ -1735,7 +1760,19 @@ $('storyShare').onclick = async () => {
 };
 $('shareClose').onclick = () => $('shareModal').classList.add('hidden');
 $('shareModal').onclick = (e) => { if (e.target === $('shareModal')) $('shareModal').classList.add('hidden'); };
-$('againBtn').onclick = () => { current = null; showView('setup'); };
+// Done: if the session isn't on Strava yet, offer a one-tap post (asked once per session).
+function leaveResult() { $('postModal').classList.add('hidden'); current = null; showView('setup'); }
+$('againBtn').onclick = () => {
+  const s = current;
+  if (!s || s.strava_activity_id || s.strava_asked || !state.strava || !stravaReady()) return leaveResult();
+  s.strava_asked = true; saveSessions();
+  $('postTitle').textContent = sessionTitle(s);
+  $('postSub').textContent = `${tr('Skill score')} ${s.skill_score} · ${s.makes}/${s.attempts} · ${distLabel(s.distance_m)}`;
+  $('postGo').innerHTML = `${STRAVA_ICON} ${tr('Upload to Strava')}`; $('postGo').disabled = false;
+  $('postModal').classList.remove('hidden');
+};
+$('postGo').onclick = async () => { $('postGo').disabled = true; $('postGo').innerHTML = `${STRAVA_ICON} ${tr('Uploading…')}`; await uploadToStrava(); leaveResult(); };
+$('postNo').onclick = leaveResult;
 
 /* =============================================================================
    Strava
@@ -1774,7 +1811,7 @@ function renderAcct() {
     el.innerHTML = `<span class="cap">Strava</span><div class="who">${photoOf(a) ? `<img src="${esc(photoOf(a))}" alt="" onerror="this.outerHTML='<span class=&quot;av&quot;>${esc(initialsOf(a))}</span>'">` : `<span class="av">${esc(initialsOf(a))}</span>`}<div><b>${esc([a && a.firstname, a && a.lastname].filter(Boolean).join(' ') || tr('Strava athlete'))}</b><div class="cap">${tr('Strava connected')}</div></div></div>
       <label class="toggle"><input type="checkbox" id="acctAuto" ${autoStrava() ? 'checked' : ''}> ${tr('Post to Strava automatically when I finish')}</label>
       <div class="row">${a && a.id ? `<a class="btn sm viewstrava" href="https://www.strava.com/athletes/${esc(a.id)}" target="_blank" rel="noopener">${tr('View on Strava')}</a>` : ''}<button class="btn sm" id="stravaOff">${tr('Disconnect')}</button></div>${POWERED}`;
-    $('acctAuto').onchange = (e) => LS.set('autoStrava', e.target.checked);
+    $('acctAuto').onchange = (e) => LS.set('autoStrava2', e.target.checked);
     $('stravaOff').onclick = disconnectStrava;
   } else {
     el.innerHTML = `<span class="cap">Strava</span><p class="note" style="text-align:start;margin:0">${tr(stravaReady() ? 'Connect once. After that every session posts itself.' : 'Strava goes live once the app is deployed.')}</p>
@@ -1964,7 +2001,7 @@ function renderStravaBox(msg, cls) {
       <span class="strava-next"><button class="btn sm" id="cardThenStrava">${tr('Add the photo card')}</button><a class="btn sm" href="https://www.strava.com/activities/${esc(current.strava_activity_id)}" target="_blank" rel="noopener" class="viewstrava">${tr('View on Strava')}</a></span>
       <label class="toggle"><input type="checkbox" id="autoStrava" ${autoStrava() ? 'checked' : ''}> ${tr('Post to Strava automatically when I finish')}</label>${POWERED}`;
     $('cardThenStrava').onclick = saveCard;
-    $('autoStrava').onchange = (e) => { LS.set('autoStrava', e.target.checked); };
+    $('autoStrava').onchange = (e) => { LS.set('autoStrava2', e.target.checked); };
     return;
   }
   btn.classList.remove('hidden'); btn.disabled = false;
@@ -2040,7 +2077,8 @@ async function stravaToken() {
   } catch (e) { if (e.status && e.status < 500) { state.strava = null; LS.del('strava'); renderStravaPill(); } return null; }
 }
 function localIso(d) { const z = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`; }
-const autoStrava = () => LS.get('autoStrava', true);
+// Off by default: athletes choose to post (one tap when they tap Done). The toggle keeps the old auto-post.
+const autoStrava = () => LS.get('autoStrava2', false);
 // Fire-and-forget post right after Finish, for athletes who connected Strava once.
 function autoPostStrava() { if (current && !current.strava_activity_id && state.strava && stravaReady() && autoStrava()) uploadToStrava(); }
 // After posting, renaming the session or changing wind/ground updates the Strava activity.
