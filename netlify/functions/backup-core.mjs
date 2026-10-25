@@ -46,7 +46,8 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
     if (!a) return [{ error: 'Signed out. Sign in again.' }, 401];
     key = `user/${a.id}`;
     // History saved before accounts existed (keyed by Strava athlete) joins the account's.
-    if (a.links && a.links.strava) legacy = `athlete/${a.links.strava}`;
+    // So does the history of any account merged into this one.
+    legacy = [...(a.links && a.links.strava ? [`athlete/${a.links.strava}`] : []), ...(a.aliases || []).map((x) => `user/${x}`)];
   } else {
     if (!body.access_token) return [{ error: 'Sign in to use the backup.' }, 401];
     let athleteId = null;
@@ -57,12 +58,12 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
     if (!athleteId) return [{ error: 'Strava sign-in expired. Connect again.' }, 401];
     key = `athlete/${athleteId}`;
   }
-  if (legacy) {
-    const old = await store.get(legacy, { type: 'json' });
+  for (const from of legacy || []) {
+    const old = await store.get(from, { type: 'json' });
     if (old && old.sessions && old.sessions.length) {
       const cur = (await store.get(key, { type: 'json' })) || { sessions: [] };
       await store.setJSON(key, { sessions: merge(old.sessions, cur.sessions || []), profile: cur.profile || old.profile || null, updated_at: new Date().toISOString() });
-      await store.setJSON(legacy, { ...old, sessions: [], moved_to: key });
+      await store.setJSON(from, { ...old, sessions: [], moved_to: key });
     }
   }
 

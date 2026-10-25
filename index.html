@@ -788,7 +788,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.29.1';
+const APP_VERSION = '2.29.2';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -2320,6 +2320,9 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 setInterval(() => { if (document.visibilityState === 'visible' && LS.get('acctHandoff', null)) claimAccount(); }, 3000);
 async function accountSignedIn(r, quiet) {
   if (!r || !r.token || !r.account) return;
+  // This phone was already signed in to another account (e.g. Google in Safari, Strava in the app): same person, merge.
+  const prev = state.account;
+  if (prev && prev.token && prev.id !== r.account.id) { try { r = await api('/account', { method: 'POST', body: JSON.stringify({ action: 'merge', token: r.token, other: prev.token }) }); } catch {} }
   const was = state.account && state.account.id;
   state.account = { token: r.token, ...r.account }; LS.set('account', state.account);
   if (!state.profile.name && r.account.name) { state.profile.name = r.account.name; saveProfile(); }
@@ -2335,6 +2338,26 @@ async function signOut() {
   const t = state.account && state.account.token; state.account = null; LS.del('account');
   if (t) api('/account', { method: 'POST', body: JSON.stringify({ action: 'signout', token: t }) }).catch(() => {});
   renderStravaPill(); renderAcct(); toast(tr('Signed out. Your sessions stay on this phone.'));
+}
+// One person, one account: keep the saved account current (another phone may have merged it), and
+// link the Strava connected on this phone to it, merging the two accounts if Strava already had one.
+async function syncAccount() {
+  if (syncAccount.busy) return; syncAccount.busy = true;
+  try {
+    if (state.account) {
+      try {
+        const r = await api('/account', { method: 'POST', body: JSON.stringify({ action: 'me', token: state.account.token }) });
+        const a = state.account, b = r.account || {};
+        if (b.id && (b.id !== a.id || b.strava !== a.strava || b.google !== a.google || b.name !== a.name || b.picture !== a.picture)) await accountSignedIn({ token: a.token, account: b }, true);
+      } catch (e) { if (e.status === 401) { state.account = null; LS.del('account'); renderAcct(); renderStravaPill(); } }
+    }
+    if (state.strava && (!state.account || !state.account.strava)) {
+      const at = await stravaToken().catch(() => null);
+      if (at) await accountSignedIn(await api('/account', { method: 'POST', body: JSON.stringify({ action: 'strava', access_token: at, token: state.account ? state.account.token : undefined }) }), true);
+    }
+    // Once per phone: re-register on every team so rows left under older names move to the account.
+    if (state.account && LS.get('adoptV', 0) < 2) { teamsList().forEach(t => memberPing(t.code, 'seen')); LS.set('adoptV', 2); }
+  } catch {} finally { syncAccount.busy = false; }
 }
 // Team actions wait for the account (one tap), then carry on where the person was.
 function needAccount(p) {
@@ -2574,7 +2597,10 @@ const inSeason = (iso, se = season()) => { const d = iso.slice(0, 10); return d 
 const legacyKey = () => state.strava && state.strava.athlete && state.strava.athlete.id ? `strava:${state.strava.athlete.id}` : `name:${String(state.profile.name || 'Athlete').trim().slice(0, 40).toLowerCase()}`;
 const myKey = () => state.account ? `acct:${state.account.id}` : legacyKey();
 // Keys this person may have used before the account; the server moves those rows to the account.
-const oldKeys = () => [`name:${String(state.profile.name || '').trim().slice(0, 40).toLowerCase()}`, ...(state.strava && state.strava.athlete ? [`strava:${state.strava.athlete.id}`] : [])].filter(k => k !== 'name:');
+const oldKeys = () => {
+  const ath = state.strava && state.strava.athlete, names = [state.profile.name, state.account && state.account.name, ath && `${ath.firstname || ''} ${(ath.lastname || '').slice(0, 1)}.`];
+  return [...new Set(names.map(n => `name:${String(n || '').trim().slice(0, 40).toLowerCase()}`)), ...(ath ? [`strava:${ath.id}`] : [])].filter(k => k !== 'name:' && k !== 'name:.');
+};
 const isOwner = () => !!(activeTeam() || {}).owner || !!(teamData && (teamData.captains || []).includes(myKey()));
 // Who I am, for captain-only and roster calls (a Strava token lets the server verify it).
 async function whoBody() { const token = state.strava ? await stravaToken().catch(() => null) : null; return { name: state.profile.name, access_token: token || undefined, account_token: state.account ? state.account.token : undefined, old_keys: state.account ? oldKeys() : undefined, cap: (activeTeam() || {}).ck || undefined }; }
@@ -3149,7 +3175,7 @@ let recovered = null;
   } else LS.del('live');
 }
 if (!session) nextIntro();
-loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimAccount(); claimPendingInvite(); retryPendingShares(); handleProReturn(); refreshPro(false); });
+loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimAccount(); syncAccount(); claimPendingInvite(); retryPendingShares(); handleProReturn(); refreshPro(false); });
 // phrases(): the data words the language files translate (used when adding a language).
 window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
 })();

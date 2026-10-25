@@ -60,18 +60,24 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
   // Rows this person left under older keys (their name, or Strava id before accounts) move to their account.
   const adopt = async (code, me, body) => {
     if (!me.acct) return;
-    const old = (Array.isArray(body.old_keys) ? body.old_keys : []).map(String).filter((k) => /^name:.{1,40}$/.test(k) || (me.acct.links && me.acct.links.strava && k === `strava:${me.acct.links.strava}`)).slice(0, 4);
-    if (!old.length) return;
+    // Keys the server can vouch for (the linked Strava athlete, accounts merged into this one), plus
+    // name rows matching the names this phone used. "Harmodio C" and "harmodio c." are the same name.
+    const norm = (k) => k.toLowerCase().replace(/^name:/, '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const sure = new Set([...(me.acct.links && me.acct.links.strava ? [`strava:${me.acct.links.strava}`] : []), ...(me.acct.aliases || []).map((x) => `acct:${x}`)]);
+    const names = new Set((Array.isArray(body.old_keys) ? body.old_keys : []).map(String).filter((k) => /^name:.{1,40}$/.test(k)).slice(0, 6).map(norm).filter(Boolean));
+    const isOld = (k) => !!k && k !== me.key && (sure.has(k) || (k.startsWith('name:') && names.has(norm(k))));
+    if (!sure.size && !names.size) return;
     const reg = (await store.get(`members/${code}`, { type: 'json' })) || {};
+    const old = Object.keys(reg).filter(isOld);
     let touched = false;
     for (const k of old) if (reg[k]) { if (reg[k].removed) continue; const m = reg[k]; delete reg[k]; reg[me.key] = { ...m, ...(reg[me.key] || {}), joined_at: [m.joined_at, (reg[me.key] || {}).joined_at].filter(Boolean).sort()[0] }; touched = true; }
     if (touched) await store.setJSON(`members/${code}`, reg);
     const meta = await store.get(`meta/${code}`, { type: 'json' });
-    if (meta && (meta.captains || []).some((k) => old.includes(k))) await store.setJSON(`meta/${code}`, { ...meta, captains: [...new Set(meta.captains.map((k) => (old.includes(k) ? me.key : k)))] });
+    if (meta && (meta.captains || []).some(isOld)) await store.setJSON(`meta/${code}`, { ...meta, captains: [...new Set(meta.captains.map((k) => (isOld(k) ? me.key : k)))] });
     const { blobs } = await store.list({ prefix: `${code}/` });
     for (const { key } of blobs) {
       const row = await store.get(key, { type: 'json' });
-      if (row && old.includes(row.athlete_key)) await store.setJSON(key, { ...row, athlete_key: me.key, name: me.name, verified: me.verified || row.verified });
+      if (row && isOld(row.athlete_key)) await store.setJSON(key, { ...row, athlete_key: me.key, name: me.name, verified: me.verified || row.verified });
     }
   };
   // Who is asking: a Strava token proves it (strava:<id>); otherwise the name they gave (name:<name>).

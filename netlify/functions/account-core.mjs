@@ -12,13 +12,36 @@ const HANDOFF_MS = 20 * 60e3;
 
 const rand = (n) => [...crypto.getRandomValues(new Uint8Array(n))].map((b) => b.toString(16).padStart(2, '0')).join('');
 const shortName = (first, last) => `${String(first || '').trim()} ${String(last || '').trim().slice(0, 1)}${last ? '.' : ''}`.trim().slice(0, 40);
-const pub = (a) => a && { id: a.id, name: a.name, picture: a.picture || null, google: !!(a.links && a.links.google), strava: !!(a.links && a.links.strava) };
+const pub = (a) => a && { id: a.id, name: a.name, picture: a.picture || null, google: !!(a.links && a.links.google), strava: !!(a.links && a.links.strava), aliases: a.aliases || [] };
+
+// An account by id, following merges (an account merged into another points at it).
+async function load(store, id) {
+  for (let i = 0; id && i < 5; i++) {
+    const a = await store.get(`acct/${id}`, { type: 'json' });
+    if (!a || !a.merged_into) return a;
+    id = a.merged_into;
+  }
+  return null;
+}
 
 // The account a session token belongs to, or null.
 export async function accountOf(store, token) {
   if (!/^[0-9a-f]{40,80}$/.test(String(token || ''))) return null;
   const s = await store.get(`sess/${token}`, { type: 'json' });
-  return s ? store.get(`acct/${s.acct}`, { type: 'json' }) : null;
+  return s ? load(store, s.acct) : null;
+}
+
+// Two accounts turned out to be one person (they signed in with Google on one phone and Strava on
+// another, then linked both). Everything moves into `keep`; `gone` remembers where it went, so
+// teams and backups can pick up rows left under the old id (acct.aliases).
+async function merge(store, keep, gone) {
+  keep.links = { ...(gone.links || {}), ...(keep.links || {}) };
+  keep.aliases = [...new Set([...(keep.aliases || []), gone.id, ...(gone.aliases || [])])].filter((x) => x !== keep.id).slice(-20);
+  if (!keep.picture && gone.picture) keep.picture = gone.picture;
+  if (gone.created_at && (!keep.created_at || gone.created_at < keep.created_at)) keep.created_at = gone.created_at;
+  for (const [kind, pid] of Object.entries(gone.links || {})) await store.set(`link/${kind}:${pid}`, keep.id);
+  await store.setJSON(`acct/${gone.id}`, { id: gone.id, merged_into: keep.id, at: new Date().toISOString() });
+  return keep;
 }
 
 // Find the account for a provider id, link it to the signed-in account, or create a new one.
@@ -26,8 +49,10 @@ async function upsert(store, kind, pid, profile, token) {
   const linkKey = `link/${kind}:${pid}`, linked = await store.get(linkKey, { type: 'text' });
   const current = token ? await accountOf(store, token) : null;
   let acct;
-  if (linked) acct = await store.get(`acct/${linked}`, { type: 'json' });
+  if (linked) acct = await load(store, linked);
   else if (current) acct = current; // signed in already: this provider joins the same account
+  // Signed in to one account while this provider already belongs to another: same person, one account.
+  if (acct && current && current.id !== acct.id) acct = await merge(store, acct, current);
   if (!acct) acct = { id: 'u' + rand(10), name: profile.name || 'Athlete', picture: profile.picture || null, links: {}, created_at: new Date().toISOString() };
   acct.links = { ...(acct.links || {}), [kind]: String(pid) };
   if (!acct.picture && profile.picture) acct.picture = profile.picture;
@@ -35,7 +60,8 @@ async function upsert(store, kind, pid, profile, token) {
   await store.setJSON(`acct/${acct.id}`, acct);
   await store.set(linkKey, acct.id);
   // Reuse the session when it already points at this account; otherwise start a new one.
-  let sess = token && current && current.id === acct.id ? token : null;
+  let sess = token && current ? token : null;
+  if (sess && current.id !== acct.id) await store.setJSON(`sess/${sess}`, { acct: acct.id, at: Date.now() });
   if (!sess) { sess = rand(24); await store.setJSON(`sess/${sess}`, { acct: acct.id, at: Date.now() }); }
   return { token: sess, account: pub(acct) };
 }
@@ -53,6 +79,16 @@ export async function handle(req, store, { env = () => '', fetchImpl = fetch, ha
   if (action === 'signout') {
     if (/^[0-9a-f]{40,80}$/.test(String(body.token || ''))) await store.delete(`sess/${body.token}`);
     return [{ ok: true }, 200];
+  }
+  // The same phone was signed in to two accounts: holding both sessions proves they are one person.
+  if (action === 'merge') {
+    const a = await accountOf(store, body.token), b = await accountOf(store, body.other);
+    if (!a) return [{ error: 'Signed out' }, 401];
+    if (b && b.id !== a.id) {
+      await store.setJSON(`acct/${a.id}`, await merge(store, a, b));
+      if (/^[0-9a-f]{40,80}$/.test(String(body.other))) await store.setJSON(`sess/${body.other}`, { acct: a.id, at: Date.now() });
+    }
+    return [{ token: body.token, account: pub(await load(store, a.id)) }, 200];
   }
   if (action === 'claim') {
     const key = String(body.handoff || '');
