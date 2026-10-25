@@ -232,6 +232,7 @@ body.flow-mode nav.tabs{display:none}
 .counter{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pform{display:flex;gap:8px}
 .item.tap{cursor:pointer}
+.brank.tap{cursor:pointer}.brank.tap:active,.item.tap:active{opacity:.6}
 .chal{font-size:15px;color:var(--muted);margin:2px 0 10px}
 .chal b{font-size:30px;color:var(--text);letter-spacing:-.02em}
 #challengeCard .track{height:10px;border-radius:99px;background:var(--card2);overflow:hidden}
@@ -499,10 +500,10 @@ nav.tabs button{position:relative;z-index:1}
 
 <!-- ================= RESULT ================= -->
 <section id="view-result" class="screen hidden">
-  <div class="hero"><div class="art" data-art="thrower"></div></div>
+  <div class="hero"><div class="art" data-art="thrower"></div><button class="fab" id="resultX" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="head">
     <div class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-    <h1 class="title" style="font-size:42px">Session complete</h1>
+    <h1 class="title" style="font-size:42px" id="resultTitle">Session complete</h1>
     <div class="trio">
       <div><div class="v" id="rScore">0</div><div class="cap" id="rBand">LANZA Score</div></div>
       <div><div class="v" id="rAcc">0%</div><div class="cap" id="rMk">Accuracy</div></div>
@@ -773,7 +774,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.27.0';
+const APP_VERSION = '2.28.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1567,7 +1568,7 @@ $('endSession').onclick = () => {
   if (!session.log.length) { toast(tr('Log at least one throw first')); return; }
   current = sessionRecord(session, Date.now());
   state.sessions.unshift(current); saveSessions();
-  endPractice(); renderResult(); showView('result');
+  endPractice(); resultFresh = true; resultBack = null; renderResult(); showView('result');
   shareToTeam(current); autoPostStrava(); track('session');
   if (thisWeek().length === goalN()) setTimeout(() => { chimeFanfare(); toast(tr('Weekly goal reached!')); }, 2600);
   say(tr('Saved. LANZA Score {n}.', { n: current.skill_score }));
@@ -1580,6 +1581,7 @@ function setCond(key, r) {
 }
 function renderResult() {
   const s = current, w = WIND[s.wind_rating - 1];
+  $('resultTitle').textContent = resultFresh ? tr('Session complete') : new Date(s.created_at).toLocaleDateString(fmtLocale(), { weekday: 'short', day: 'numeric', month: 'short' }); $('view-result').querySelector('.check').classList.toggle('hidden', !resultFresh);
   $('windList').innerHTML = WIND.map(x => `<button data-r="${x.r}" class="${x.r === s.wind_rating ? 'on' : ''}">${x.r}<small>${tr(x.name)}</small></button>`).join('');
   $('windList').querySelectorAll('button').forEach(b => b.onclick = () => setCond('wind_rating', +b.dataset.r));
   // Wet/dry no longer asked (target practice); older sessions keep their saved factor.
@@ -1813,7 +1815,11 @@ function drawSticker(s, team = '') {
   let px = 34; g.letterSpacing = `${sp}px`; g.font = font(700, px);
   while (px > 18 && g.measureText(head).width + 64 > W - 60) g.font = font(700, --px);
   const tw = g.measureText(head).width, x0 = W / 2 - (tw + 64) / 2;
-  g.textAlign = 'left'; g.fillText(head, x0 + 64, 78); g.letterSpacing = '0px'; g.textAlign = 'center';
+  g.textAlign = 'left';
+  // "TEAM TRAINS ON" in white, then LANZA in the app color so the brand pops.
+  if (team) { const brand = BRAND.name.toUpperCase(), pre = head.slice(0, head.length - brand.length); g.fillText(pre, x0 + 64, 78); g.save(); g.fillStyle = AC().hi; g.shadowColor = AC().hi; g.shadowBlur = 16; g.fillText(brand, x0 + 64 + g.measureText(pre).width, 78); g.restore(); }
+  else g.fillText(head, x0 + 64, 78);
+  g.letterSpacing = '0px'; g.textAlign = 'center';
   g.save(); g.translate(x0 + 20, 60); g.rotate(40 * Math.PI / 180); g.scale(.09, .09); g.translate(-200, -408);
   g.fill(new Path2D('M200 30 L312 232 L215 398 V760 L200 786 L185 760 V398 L88 232 Z M200 94 L276 232 L200 362 L124 232 Z M200 122 L260 232 L200 334 L140 232 Z'), 'evenodd'); g.restore();
   // the drawn target, like a route line
@@ -1905,7 +1911,15 @@ $('storyShare').onclick = async () => {
 $('shareClose').onclick = () => $('shareModal').classList.add('hidden');
 $('shareModal').onclick = (e) => { if (e.target === $('shareModal')) $('shareModal').classList.add('hidden'); };
 // Done: if the session isn't on Strava yet, offer a one-tap post (asked once per session).
-function leaveResult() { $('postModal').classList.add('hidden'); current = null; showView('setup'); }
+function leaveResult() { $('postModal').classList.add('hidden'); current = null; const back = resultBack; resultBack = null; if (back) back(); else showView('setup'); }
+/* Any past session row opens its session view; the X (or Done) goes back where it was opened from. */
+let resultBack = null, resultFresh = false;
+function openSession(id, back) {
+  const s = state.sessions.find(x => x.id === id); if (!s) return false;
+  document.querySelectorAll('.modal-bg:not(.hidden)').forEach(m => m.classList.add('hidden'));
+  current = s; resultFresh = false; resultBack = back || null; renderResult(); showView('result'); window.scrollTo(0, 0); return true;
+}
+$('resultX').onclick = () => { if (resultFresh) $('againBtn').click(); else leaveResult(); };
 /* Strava has no drafts, so the post is edited here first (title, caption, team), published
    only on Publish, then opened in Strava for photos. */
 let postFromDone = false;
@@ -1927,7 +1941,7 @@ $('postDesc').oninput = () => { if (current) { current.caption = $('postDesc').v
 $('postName').onchange = () => { if (current) { const t = $('postName').value.trim().slice(0, 80); current.title = t === defaultTitle(current) ? '' : t; saveSessions(); renderName(); } };
 $('againBtn').onclick = () => {
   const s = current;
-  if (!s || s.strava_activity_id || s.strava_asked || !state.strava || !stravaReady()) return leaveResult();
+  if (!s || !resultFresh || s.strava_activity_id || s.strava_asked || !state.strava || !stravaReady()) return leaveResult();
   s.strava_asked = true; saveSessions(); openPost(true);
 };
 $('postGo').onclick = async () => {
@@ -2079,8 +2093,9 @@ function openBest() {
   $('bestTop').textContent = best; $('bestBand').textContent = top.length ? scoreBand(best) : '';
   $('bestNudge').innerHTML = !top.length ? esc(tr('Log a session to set your first record.'))
     : `<b>${esc(tr('Beat {n} to set a new record.', { n: best }))}</b>` + (fifth != null && fifth < best ? `<span>${esc(tr('{n} gets you into your top 5.', { n: fifth + 1 }))}</span>` : '');
-  const row = (s, i) => `<div class="brank${i === 0 ? ' top' : ''}"><span class="pos">${i === 0 ? BADGE : i + 1}</span><div class="info"><div class="t">${esc(throwLabel(s))} · ${esc(distLabel(s.distance_m))}</div><div class="cap">${esc(dateStr(s.created_at))} · ${Math.round(s.accuracy * 100)}%</div></div><span class="sc">${s.skill_score}</span></div>`;
+  const row = (s, i) => `<div class="brank tap${i === 0 ? ' top' : ''}" data-open="${esc(s.id)}" role="button" tabindex="0"><span class="pos">${i === 0 ? BADGE : i + 1}</span><div class="info"><div class="t">${esc(throwLabel(s))} · ${esc(distLabel(s.distance_m))}</div><div class="cap">${esc(dateStr(s.created_at))} · ${Math.round(s.accuracy * 100)}%</div></div><span class="sc">${s.skill_score}</span></div>`;
   $('bestList').innerHTML = top.map(row).join('') + (top.length < 5 ? `<div class="brank ghost"><span class="pos">${top.length + 1}</span><div class="info"><div class="t">${esc(tr('Your next session?'))}</div></div><span class="sc">?</span></div>` : '');
+  $('bestList').querySelectorAll('[data-open]').forEach(el => el.onclick = () => openSession(el.dataset.open, () => { showView('setup'); openBest(); }));
   $('bestModal').classList.remove('hidden');
 }
 $('bestCard').onclick = openBest;
@@ -2251,7 +2266,7 @@ async function stravaConnected(t) {
     renderSetup(); renderAcct(); await restoreBackup();
     const pending = LS.get('pendingUpload', null); LS.del('pendingUpload');
     const row = pending && state.sessions.find(s => s.id === pending);
-    if (row) { current = row; renderResult(); showView('result'); openPost(false); }
+    if (row) { current = row; resultFresh = false; resultBack = null; renderResult(); showView('result'); openPost(false); }
   } catch (e) { toast(e.message); }
 }
 async function stravaToken() {
@@ -2591,12 +2606,23 @@ function renderBoard() {
   $('missingList').innerHTML = missing.length ? missing.map(s => `<span>${esc(s.name)} · ${tr('last {d}', { d: dateStr(s.created_at) })}</span>`).join('') : `<span style="color:var(--ok)">${tr('Everyone has practiced this week')}</span>`;
   $('boardList').querySelectorAll('[data-k]').forEach(el => el.onclick = () => openPlayer(el.dataset.k));
   renderChallenge();
-  $('teamRecent').innerHTML = rows.length ? rows.slice(0, 12).map(s => sessionItem(s, teamBest().has(s))).join('') : `<div class="empty">${tr('Nothing yet.')}</div>`;
+  $('teamRecent').innerHTML = rows.length ? rows.slice(0, 12).map(s => tapItem(s, teamBest().has(s))).join('') : `<div class="empty">${tr('Nothing yet.')}</div>`;
+  wireItems($('teamRecent'), () => showView('team'));
 }
 // Each athlete's best session in the loaded team data.
 function teamBest() {
   const top = new Map(); (teamData?.sessions || []).forEach(s => { const b = top.get(s.athlete_key); if (!b || s.skill_score > b.skill_score) top.set(s.athlete_key, s); });
   return new Set(top.values());
+}
+// Team rows: my own sessions open their session view, a teammate's opens their player card.
+const mine = (s) => state.sessions.some(x => x.id === s.id);
+function tapItem(s, best) { return sessionItem(s, best).replace('<div class="item">', `<div class="item tap" data-open="${esc(s.id)}" data-k="${esc(s.athlete_key || '')}" role="button" tabindex="0">`); }
+function wireItems(box, back) {
+  box.querySelectorAll('[data-open]').forEach(el => el.onclick = (e) => {
+    if (e.target.closest('a')) return;
+    if (mine({ id: el.dataset.open })) openSession(el.dataset.open, back);
+    else if (el.dataset.k && teamData && $('playerModal').classList.contains('hidden')) openPlayer(el.dataset.k);
+  });
 }
 function sessionItem(s, best) {
   return `<div class="item"><div class="cap when">${esc(whenStr(s.created_at))}</div><div class="t">${s.name ? esc(s.name) : `${distLabel(s.distance_m)} · ${esc(tr(s.target))}`}${s.strava_activity_id ? `<a class="tag strava" href="https://www.strava.com/activities/${esc(s.strava_activity_id)}" target="_blank" rel="noopener">${tr('View on Strava')}</a>` : ''}</div><div class="r">${best ? PB : ''}${s.skill_score}<small>${tr('SCORE')}</small></div><div class="d">${s.throw && s.throw !== 'mixed' ? esc(throwLabel(s)) + ' · ' : ''}${Math.round(s.accuracy * 100)}% · ${s.makes}/${s.attempts}${s.name ? ` · ${distLabel(s.distance_m)}` : ''} · ${tr(WIND[(s.wind_rating || 1) - 1].name)}</div></div>`;
@@ -2654,8 +2680,9 @@ function openPlayer(key) {
     + (locked ? `<div class="focus"><p>${tr('Coach view shows each player\'s throws, trends and what to work on. It comes with LANZA Pro.')}</p><button class="btn sm primary" id="playerPro">${tr('Go Pro')}</button></div>`
     : `<div class="label-row"><span class="cap">${tr('Last 4 weeks')}</span><span class="cap">${wk.map(v => v == null ? '–' : v).join(' · ')}</span></div>
       <div>${by.map(x => `<div class="tbar"><span class="n">${tr(x.t.name)}</span><div class="track"><div class="fill" style="width:${Math.round(x.acc * 100)}%"></div></div><span class="v">${Math.round(x.acc * 100)}%</span><span class="d">${tr('{n} throws', { n: x.att })} · ${tr(x.n === 1 ? '{n} session' : '{n} sessions', { n: x.n })}</span></div>`).join('') || `<div class="empty">${tr('Nothing yet.')}</div>`}</div>
-      <div class="list">${rs.slice(0, 6).map(s => sessionItem(s, teamBest().has(s))).join('')}</div>`);
+      <div class="list" id="playerList">${rs.slice(0, 6).map(s => tapItem(s, teamBest().has(s))).join('')}</div>`);
   if (locked) $('playerPro').onclick = () => { $('playerModal').classList.add('hidden'); goPro(); };
+  if ($('playerList')) wireItems($('playerList'), () => { showView('team'); openPlayer(key); });
   $('playerModal').classList.remove('hidden');
 }
 $('playerClose').onclick = () => $('playerModal').classList.add('hidden');
@@ -2687,7 +2714,7 @@ function renderStats() {
   $('chartRange').textContent = tr(statDays === 7 ? 'Last 7 days' : statDays === 30 ? 'Last 30 days' : 'All time');
   $('historyList').innerHTML = rows.length ? rows.map(s => sessionItem({ ...s, name: '' }, s === myBest).replace('<div class="item">', `<button class="item" data-open="${esc(s.id)}">`).replace(/<\/div>$/, '</button>')).join('')
     : `<div class="empty">${tr(statDays ? 'No sessions in this period. Your first practice is one tap away.' : 'No sessions yet. Your first practice is one tap away.')}</div>`;
-  $('historyList').querySelectorAll('[data-open]').forEach(b => b.onclick = (e) => { if (e.target.closest('a')) return; current = state.sessions.find(s => s.id === b.dataset.open); renderResult(); showView('result'); });
+  $('historyList').querySelectorAll('[data-open]').forEach(b => b.onclick = (e) => { if (e.target.closest('a')) return; const y = window.scrollY; openSession(b.dataset.open, () => { showView('stats'); requestAnimationFrame(() => window.scrollTo(0, y)); }); });
   requestAnimationFrame(() => drawBars(rows.slice().reverse()));
   renderThrows(rows);
 }
