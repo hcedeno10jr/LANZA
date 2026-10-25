@@ -1,5 +1,5 @@
 // Privacy-friendly usage counts: no ids, no cookies, just daily totals per event and source.
-export const EVENTS = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'pro', 'story'];
+export const EVENTS = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'pro', 'story', 'ad_offer', 'ad_view', 'ad_nofill'];
 const clean = (s) => String(s || 'direct').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 30) || 'direct';
 const day = (d = new Date()) => d.toISOString().slice(0, 10);
 

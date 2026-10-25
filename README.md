@@ -34,14 +34,15 @@ Throwing practice for Ultimate Frisbee. Athletes can start a session in one tap.
 | `STRAVA_CLIENT_SECRET` | From the Strava API page. Keep it secret. |
 | `ADS_ENABLED` | Leave unset for now. Set it to `true` to turn on the weekly ad gate. |
 | `AD_UNIT_PATH` | Optional. A Google Ad Manager rewarded ad unit, for example `/1234567/lanza_rewarded` |
+| `ADS_TEST` | Optional. `true` shows Google's sample rewarded ad, to test the flow before your own unit is approved. Remove it when `AD_UNIT_PATH` is set. |
+| `ADS_PUBLISHER_ID` | Optional. Your Google publisher id (`pub-…`). The app then serves `/ads.txt`, which Google needs before it pays for ads. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google sign-in for LANZA accounts (OAuth web client, redirect URI `https://<your-app>/`). |
 | `FREE_SESSIONS_PER_WEEK` | Optional. Defaults to `1`. |
 | `PRO_PAYMENT_LINK` | Optional. Your Stripe Payment Link for LANZA Pro. Leave unset to hide Pro. |
 | `PRO_PORTAL_URL` | Optional. Stripe customer portal link, so subscribers can cancel themselves. |
 | `PRO_PRICE_LABEL` | Optional. The price shown on the button, for example `$2.99/month`. |
 | `STRIPE_WEBHOOK_SECRET` | Needed with Pro. The signing secret of the Stripe webhook (starts with `whsec_`). |
 | `USAGE_KEY` | Any long password. You type it on `/usage.html` to see usage numbers. |
-
-4. **Fill in your contact email** in `privacy.html` (replace both `CONTACT_EMAIL`).
 
 After changing environment variables, redeploy once (Deploys > Trigger deploy).
 
@@ -60,17 +61,19 @@ New Strava apps can connect only a few athletes until Strava reviews them. The a
    - Data: the athlete's own sessions; privacy policy at `https://<your-app>/privacy.html`; athletes can disconnect and delete their backup in the app.
    - Expected athletes: your club or league size to start.
    - Screenshots: the You screen with the Connect button, a result screen after posting, and the post on Strava.
-4. Optional: swap the drawn Strava button and "Powered by Strava" label for Strava's official image files from their brand guidelines page, if the reviewer asks.
+4. The official "Connect with Strava" button and "Powered by Strava" logo are in `strava/` (unmodified SVGs from Strava). Strava reviews only apps that already reached the 10-athlete limit.
 
 ## Making money
 
 There are two switches. Both are off until you set them, and both can run together.
 
 **Rewarded ads.** Each athlete gets `FREE_SESSIONS_PER_WEEK` free sessions a week; each extra one asks them to watch an ad first.
-1. Get a Google Ad Manager account. It's free, but Google has to approve it and link it to AdSense. Then create a rewarded ad unit for web.
-2. Set `AD_UNIT_PATH` to that unit and `ADS_ENABLED=true`, then redeploy.
+1. Open an AdSense account for the site and get it approved. Then open Google Ad Manager (free) and link it to AdSense.
+2. In Ad Manager: Inventory > Ad units > New ad unit, size "Out-of-page" with the Rewarded format for web; set the reward (1 session). Under Protections, turn off "Block non-instream video ads".
+3. Set `ADS_PUBLISHER_ID` (your `pub-…` id) so `/ads.txt` is served, `AD_UNIT_PATH` (e.g. `/1234567/lanza_rewarded`) and `ADS_ENABLED=true`, then redeploy.
+4. To check the flow before Google approves your unit, set `ADS_TEST=true` and `ADS_ENABLED=true` without `AD_UNIT_PATH`: the app shows Google's sample rewarded ad.
 
-If there's no ad to show, or no ad unit is set, a 15-second sponsor slot unlocks the session instead. That slot earns nothing, but athletes never get stuck.
+If no ad is available, a 5-second LANZA card unlocks the session instead, so athletes never get stuck. Deleting a session doesn't give a free one back. `/usage.html` counts ad offers, ads watched and times no ad was available.
 
 **LANZA Pro (subscription).** Pro removes ads, makes sessions unlimited and unlocks coach view (each player's throws on the team board). Pro follows the athlete's Strava account to any phone.
 1. In Stripe, create a product "LANZA Pro" with a monthly price, then a **Payment Link** for it. Under the link's After payment settings, choose "Don't show confirmation page" and redirect to `https://<your-app>/?pro=1`.

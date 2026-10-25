@@ -23,8 +23,8 @@ button{background:#1f2bff;border-color:#1f2bff;font-weight:600}
 <div id="out"></div>
 </main>
 <script>
-const EV = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'pro', 'story'];
-const NAMES = { open: 'Daily opens', install: 'Installs', session: 'Sessions', strava_post: 'Strava posts', team_join: 'Team joins', invite_open: 'Invite opens', pro: 'Pro sign-ups', story: 'Story shares' };
+const EV = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'pro', 'story', 'ad_offer', 'ad_view', 'ad_nofill'];
+const NAMES = { open: 'Daily opens', install: 'Installs', session: 'Sessions', strava_post: 'Strava posts', team_join: 'Team joins', invite_open: 'Invite opens', pro: 'Pro sign-ups', story: 'Story shares', ad_offer: 'Ad offers', ad_view: 'Ads watched', ad_nofill: 'Ads not available' };
 const sum = (o) => Object.values(o || {}).reduce((a, n) => a + n, 0);
 document.getElementById('k').value = sessionStorage.getItem('uk') || '';
 document.getElementById('f').onsubmit = async (e) => {
