@@ -1,6 +1,7 @@
-// History backup: a copy of each athlete's sessions, keyed by their Strava athlete id.
-// The Strava token proves who is asking, so nobody can read or overwrite someone else's history.
+// History backup: a copy of each athlete's sessions, keyed by their LANZA account (or, for older
+// apps, their Strava athlete id). The account or Strava token proves who is asking.
 import { sanitize } from './team-core.mjs';
+import { accountOf } from './account-core.mjs';
 
 const MAX_SESSIONS = 5000;
 const num = (v, lo, hi, d) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
@@ -35,18 +36,35 @@ export function merge(older, newer) {
   return [...by.values()].sort((a, b) => a.created_at.localeCompare(b.created_at)).slice(-MAX_SESSIONS);
 }
 
-export async function handle(req, store, fetchImpl = fetch) {
+export async function handle(req, store, fetchImpl = fetch, accounts = null) {
   if (req.method !== 'POST') return [{ error: 'Use POST' }, 405];
   let body;
   try { body = await req.json(); } catch { return [{ error: 'Invalid JSON' }, 400]; }
-  if (!body.access_token) return [{ error: 'Connect Strava to use the backup.' }, 401];
-  let athleteId = null;
-  try {
-    const r = await fetchImpl('https://www.strava.com/api/v3/athlete', { headers: { authorization: `Bearer ${body.access_token}` } });
-    if (r.ok) athleteId = (await r.json()).id;
-  } catch { /* handled below */ }
-  if (!athleteId) return [{ error: 'Strava sign-in expired. Connect again.' }, 401];
-  const key = `athlete/${athleteId}`;
+  let key = null, legacy = null;
+  if (body.account_token && accounts) {
+    const a = await accountOf(accounts, body.account_token);
+    if (!a) return [{ error: 'Signed out. Sign in again.' }, 401];
+    key = `user/${a.id}`;
+    // History saved before accounts existed (keyed by Strava athlete) joins the account's.
+    if (a.links && a.links.strava) legacy = `athlete/${a.links.strava}`;
+  } else {
+    if (!body.access_token) return [{ error: 'Sign in to use the backup.' }, 401];
+    let athleteId = null;
+    try {
+      const r = await fetchImpl('https://www.strava.com/api/v3/athlete', { headers: { authorization: `Bearer ${body.access_token}` } });
+      if (r.ok) athleteId = (await r.json()).id;
+    } catch { /* handled below */ }
+    if (!athleteId) return [{ error: 'Strava sign-in expired. Connect again.' }, 401];
+    key = `athlete/${athleteId}`;
+  }
+  if (legacy) {
+    const old = await store.get(legacy, { type: 'json' });
+    if (old && old.sessions && old.sessions.length) {
+      const cur = (await store.get(key, { type: 'json' })) || { sessions: [] };
+      await store.setJSON(key, { sessions: merge(old.sessions, cur.sessions || []), profile: cur.profile || old.profile || null, updated_at: new Date().toISOString() });
+      await store.setJSON(legacy, { ...old, sessions: [], moved_to: key });
+    }
+  }
 
   if (body.action === 'load') {
     const d = await store.get(key, { type: 'json' });

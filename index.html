@@ -85,6 +85,7 @@ a{color:var(--text)}
 .install .d{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
 .install .d svg{vertical-align:-3px}
 .install .x{margin-inline-start:auto;align-self:flex-start;color:var(--faint);padding:2px 4px;font-size:18px;line-height:1}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:999px;background:#fff;color:#1f1f1f;font:600 15px/1 -apple-system,system-ui,'Segoe UI',Roboto,sans-serif}
 .btn-strava{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:6px;background:#fc4c02;color:#fff;font:700 15px/1 -apple-system,system-ui,'Segoe UI',Roboto,sans-serif;letter-spacing:0}
 .powered{display:flex;align-items:center;justify-content:center;gap:5px;font:600 10px/1 -apple-system,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .powered b{color:#fc4c02;font-weight:800;letter-spacing:.06em;font-size:12px}
@@ -641,6 +642,7 @@ nav.tabs button{position:relative;z-index:1}
 <div class="modal-bg hidden" id="acctModal">
   <div class="modal acct">
     <h2>You</h2>
+    <div class="sec" id="acctAccount"></div>
     <div class="sec" id="acctStrava"></div>
     <div class="sec hidden" id="acctPro"></div>
     <div class="sec"><span class="cap">Weekly goal · sessions per week</span><div class="goalchips" id="goalChips"></div></div>
@@ -739,9 +741,20 @@ nav.tabs button{position:relative;z-index:1}
   </div>
 </div>
 
+<div class="modal-bg hidden" id="signModal">
+  <div class="modal">
+    <div class="cap">LANZA account</div>
+    <h2 id="signTitle">Keep your spot</h2>
+    <p class="note" id="signText" style="margin:0;font-size:14px">One tap keeps your history and your team spot on any phone or browser. No password.</p>
+    <button class="btn-google" id="signGoogle"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg><span>Continue with Google</span></button>
+    <button class="btn-strava" id="signStrava"></button>
+    <button class="btn" id="signNo">Not now</button>
+  </div>
+</div>
+
 <div class="modal-bg hidden" id="handoffModal">
   <div class="modal">
-    <h2>Connected to Strava</h2>
+    <h2 id="handoffTitle">Connected to Strava</h2>
     <p class="note" style="font-size:14px;margin:0">Now open LANZA from your home screen. It finishes connecting on its own. You can close this page.</p>
   </div>
 </div>
@@ -774,7 +787,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.28.1';
+const APP_VERSION = '2.29.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -969,8 +982,9 @@ const state = {
   profile: LS.get('profile', { name: '', team: '' }),
   sessions: LS.get('sessions', []),
   strava: LS.get('strava', null),
+  account: LS.get('account', null),
   adCredits: LS.get('adCredits', {}),
-  config: { stravaClientId: null, adsEnabled: false, adUnitPath: null, freeSessionsPerWeek: 1, proUrl: null, proPortal: null, proPrice: null, online: false }
+  config: { stravaClientId: null, googleClientId: null, adsEnabled: false, adUnitPath: null, freeSessionsPerWeek: 1, proUrl: null, proPortal: null, proPrice: null, online: false }
 };
 function saveSessions() { LS.set('sessions', state.sessions); backupSoon(); }
 function saveProfile() { LS.set('profile', state.profile); backupSoon(); }
@@ -1970,10 +1984,10 @@ const avatarHTML = (a, cls = '') => photoOf(a)
   ? `<img src="${esc(photoOf(a))}" alt="" onerror="this.outerHTML='<span class=&quot;ini ${cls}&quot;>${esc(initialsOf(a))}</span>'">`
   : `<span class="ini ${cls}">${esc(initialsOf(a))}</span>`;
 function renderStravaPill() {
-  const a = state.strava && state.strava.athlete, f = $('profileFab');
+  const a = (state.strava && state.strava.athlete) || (state.account && { firstname: state.account.name, profile: state.account.picture }), f = $('profileFab');
   f.innerHTML = a ? avatarHTML(a) + '<span class="badge"></span>'
     : `<span style="color:var(--strava);display:grid">${STRAVA_ICON}</span>`;
-  f.setAttribute('aria-label', a ? `Strava: ${a.firstname}` : tr('Connect Strava'));
+  f.setAttribute('aria-label', a ? a.firstname : tr('Connect Strava'));
 }
 $('profileFab').onclick = () => openAcct();
 function connectStrava() { if (!stravaReady()) { toast(tr('Strava goes live once the app is deployed')); return; } stravaAuthorize(); }
@@ -1988,6 +2002,7 @@ function openAcct() { $('appColors').classList.add('hidden'); $('appColorBtn').c
 $('acctClose').onclick = () => $('acctModal').classList.add('hidden');
 $('acctModal').onclick = (e) => { if (e.target.id === 'acctModal') $('acctModal').classList.add('hidden'); };
 function renderAcct() {
+  renderAccount();
   const a = state.strava && state.strava.athlete, el = $('acctStrava');
   if (state.strava) {
     el.innerHTML = `<span class="cap">Strava</span><div class="who">${photoOf(a) ? `<img src="${esc(photoOf(a))}" alt="" onerror="this.outerHTML='<span class=&quot;av&quot;>${esc(initialsOf(a))}</span>'">` : `<span class="av">${esc(initialsOf(a))}</span>`}<div><b>${esc([a && a.firstname, a && a.lastname].filter(Boolean).join(' ') || tr('Strava athlete'))}</b><div class="cap">${tr('Strava connected')}</div></div></div>
@@ -2010,7 +2025,7 @@ function renderAcct() {
   renderAppColors();
   $('goalChips').innerHTML = [1, 2, 3, 4, 5, 6, 7].map(n => `<button type="button" data-g="${n}" class="${n === goalN() ? 'on' : ''}">${n}</button>`).join('');
   renderBackupLine();
-  $('deleteBackup').classList.toggle('hidden', !state.strava || LS.get('backupOff', false));
+  $('deleteBackup').classList.toggle('hidden', !(state.strava || state.account) || LS.get('backupOff', false));
   $('acctInstall').classList.toggle('hidden', !canInstall());
   $('acctVersion').textContent = `${BRAND.name} ${APP_VERSION}`;
   $('acctLang').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>${esc(langInfo().name)}`;
@@ -2077,7 +2092,7 @@ function renderGoal() {
 }
 $('goalCard').onclick = () => openAcct();
 // Every closable sheet gets a small X at the top that does what its bottom close button does.
-[['acctModal', 'acctClose'], ['playerModal', 'playerClose'], ['shareModal', 'shareClose'], ['bestModal', 'bestClose'], ['postModal', 'postNo'], ['inviteModal', 'inviteNo'], ['adModal', 'closeAd'], ['throwModal', 'throwDone'], ['membersModal', 'membersClose'], ['handoffModal', null]].forEach(([m, b]) => {
+[['signModal', 'signNo'], ['acctModal', 'acctClose'], ['playerModal', 'playerClose'], ['shareModal', 'shareClose'], ['bestModal', 'bestClose'], ['postModal', 'postNo'], ['inviteModal', 'inviteNo'], ['adModal', 'closeAd'], ['throwModal', 'throwDone'], ['membersModal', 'membersClose'], ['handoffModal', null]].forEach(([m, b]) => {
   const box = $(m) && $(m).querySelector('.modal'); if (!box) return;
   const x = document.createElement('button'); x.type = 'button'; x.className = 'mx'; x.setAttribute('aria-label', tr('Close'));
   x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -2106,14 +2121,16 @@ $('bestGo').onclick = () => { $('bestModal').classList.add('hidden'); tryStart()
 
 /* ---------- history backup: a copy on the server, tied to the Strava account ---------- */
 let backupT = null;
+// The backup follows the LANZA account; older installs without one still use their Strava sign-in.
+async function backupAuth() { if (state.account) return { account_token: state.account.token }; const t = state.strava ? await stravaToken() : null; return t ? { access_token: t } : null; }
 function backupSoon(ms = 4000) {
-  if (!state.strava || !stravaReady() || LS.get('backupOff', false)) return;
+  if (!(state.account || (state.strava && stravaReady())) || LS.get('backupOff', false)) return;
   clearTimeout(backupT); backupT = setTimeout(backupNow, ms);
 }
 async function backupNow() {
-  const token = await stravaToken(); if (!token) return;
+  const auth = await backupAuth(); if (!auth) return;
   try {
-    const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'save', access_token: token, sessions: state.sessions, profile: { ...state.profile, goal: goalN() } }) });
+    const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'save', ...auth, sessions: state.sessions, profile: { ...state.profile, goal: goalN() } }) });
     LS.set('backupAt', d.updated_at); renderBackupLine();
   } catch { /* tries again after the next change */ }
 }
@@ -2126,9 +2143,9 @@ function mergeSessions(list) {
   return added;
 }
 async function restoreBackup() {
-  const token = await stravaToken(); if (!token) return;
+  const auth = await backupAuth(); if (!auth) return;
   try {
-    const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'load', access_token: token }) });
+    const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'load', ...auth }) });
     const added = mergeSessions(d.sessions), p = d.profile;
     if (p) {
       if (!state.profile.team && p.team) { state.profile.team = p.team; state.profile.teamName = p.teamName || ''; }
@@ -2144,8 +2161,8 @@ async function restoreBackup() {
 }
 function renderBackupLine() {
   const el = $('backupLine'), at = LS.get('backupAt', null);
-  if (!stravaReady()) el.textContent = tr('Your history is saved on this phone. Download a copy to keep it safe.');
-  else if (!state.strava) el.textContent = tr('Connect Strava to back up your history automatically.');
+  if (!signInReady()) el.textContent = tr('Your history is saved on this phone. Download a copy to keep it safe.');
+  else if (!state.strava && !state.account) el.textContent = tr('Sign in to back up your history automatically.');
   else if (LS.get('backupOff', false)) { el.innerHTML = `${tr('Backup is off.')} <a href="#" id="backupOn">${tr('Turn on')}</a>`; $('backupOn').onclick = (e) => { e.preventDefault(); LS.del('backupOff'); backupSoon(0); renderAcct(); }; }
   else el.innerHTML = `<span class="dot ok"></span>${at ? tr('Backed up automatically · {d}', { d: esc(whenStr(at)) }) : tr('Backs up automatically after each session.')}`;
 }
@@ -2164,8 +2181,8 @@ $('importFile').onchange = async (e) => {
   } catch { toast(tr('That file isn’t a LANZA backup')); }
 };
 $('deleteBackup').onclick = async () => {
-  const token = await stravaToken(); if (!token) return;
-  try { await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'delete', access_token: token }) }); LS.set('backupOff', true); LS.del('backupAt'); toast(tr('Backup deleted')); }
+  const auth = await backupAuth(); if (!auth) return;
+  try { await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'delete', ...auth }) }); LS.set('backupOff', true); LS.del('backupAt'); toast(tr('Backup deleted')); }
   catch (err) { toast(err.message); }
   renderAcct();
 };
@@ -2229,8 +2246,9 @@ async function handleOAuthReturn() {
   if (!q.has('code') && !q.has('error')) return;
   history.replaceState(null, '', location.pathname);
   let expected = null; try { expected = sessionStorage.getItem('kmos.oauthState'); sessionStorage.removeItem('kmos.oauthState'); } catch {}
-  if (q.get('error')) { toast(tr('Strava sign-in was cancelled')); return; }
   const qs = q.get('state') || '';
+  if (/^gh?\./.test(qs)) return googleReturn(q, qs, expected);
+  if (q.get('error')) { toast(tr('Strava sign-in was cancelled')); return; }
   if (qs.startsWith('h.')) {
     // Started in the home-screen app: hand the tokens over through the server.
     try { await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'exchange', code: q.get('code'), handoff: qs }) }); }
@@ -2257,13 +2275,101 @@ async function claimHandoff() {
   } catch { /* not finished yet; try again next time the app comes to the front */ }
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') claimHandoff(); });
+
+/* =============================================================================
+   LANZA account: one per person, no password (Google or Strava, both can be linked).
+   Practice needs nothing; the account is asked for when joining or creating a team,
+   so history and the team row follow the person to any phone or browser.
+   ============================================================================= */
+const googleReady = () => !!state.config.googleClientId;
+const signInReady = () => googleReady() || stravaReady();
+function openSign(forTeam) {
+  $('signTitle').textContent = tr(forTeam ? 'One account, one spot on the team' : 'Your LANZA account');
+  $('signText').textContent = tr('One tap keeps your history and your team spot on any phone or browser. No password.');
+  $('signGoogle').classList.toggle('hidden', !googleReady()); $('signStrava').classList.toggle('hidden', !stravaReady());
+  $('signStrava').innerHTML = `${STRAVA_ICON} ${tr('Continue with Strava')}`;
+  $('signModal').classList.remove('hidden');
+}
+$('signNo').onclick = () => { LS.del('afterSignIn'); $('signModal').classList.add('hidden'); };
+$('signGoogle').onclick = googleAuthorize;
+$('signStrava').onclick = () => { $('signModal').classList.add('hidden'); current = null; stravaAuthorize(); };
+function googleAuthorize() {
+  const st = (isStandalone() ? 'gh.' : 'g.') + uuid(); try { sessionStorage.setItem('kmos.oauthState', st); } catch {}
+  if (st.startsWith('gh.')) LS.set('acctHandoff', { st, at: Date.now() });
+  const p = new URLSearchParams({ client_id: state.config.googleClientId, redirect_uri: location.origin + '/', response_type: 'code', scope: 'openid profile', prompt: 'select_account', state: st });
+  location.href = `https://accounts.google.com/o/oauth2/v2/auth?${p}`;
+}
+async function googleReturn(q, qs, expected) {
+  if (q.get('error')) { toast(tr('Sign-in was cancelled')); LS.del('afterSignIn'); return; }
+  const body = { action: 'google', code: q.get('code'), redirect_uri: location.origin + '/', token: state.account ? state.account.token : undefined };
+  if (qs.startsWith('gh.')) {
+    // Started in the home-screen app: the result waits on the server for the app.
+    try { await api('/account', { method: 'POST', body: JSON.stringify({ ...body, handoff: qs, token: undefined }) }); } catch (e) { toast(e.message); return; }
+    const h = LS.get('acctHandoff', null); if (h && h.st === qs) return claimAccount();
+    $('handoffTitle').textContent = tr('Signed in'); $('handoffModal').classList.remove('hidden'); return;
+  }
+  if (expected && qs !== expected) { toast(tr('Sign-in failed, please try again')); return; }
+  try { await accountSignedIn(await api('/account', { method: 'POST', body: JSON.stringify(body) })); } catch (e) { toast(e.message); }
+}
+async function claimAccount() {
+  const h = LS.get('acctHandoff', null); if (!h) return;
+  if (Date.now() - h.at > 20 * 60e3) { LS.del('acctHandoff'); return; }
+  try { const r = await api('/account', { method: 'POST', body: JSON.stringify({ action: 'claim', handoff: h.st }) }); if (!r || !r.token) return; LS.del('acctHandoff'); await accountSignedIn(r); } catch {}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') claimAccount(); });
+setInterval(() => { if (document.visibilityState === 'visible' && LS.get('acctHandoff', null)) claimAccount(); }, 3000);
+async function accountSignedIn(r, quiet) {
+  if (!r || !r.token || !r.account) return;
+  const was = state.account && state.account.id;
+  state.account = { token: r.token, ...r.account }; LS.set('account', state.account);
+  if (!state.profile.name && r.account.name) { state.profile.name = r.account.name; saveProfile(); }
+  $('signModal').classList.add('hidden'); renderStravaPill(); renderAcct(); renderSetup();
+  if (!quiet && was !== r.account.id) toast(tr('Signed in as {name}', { name: r.account.name }));
+  await restoreBackup(); backupSoon(800);
+  // Re-register on every team under the account, so rows made before it move over.
+  teamsList().forEach(t => { LS.del('seen_' + t.code); memberPing(t.code, 'seen'); });
+  teamData = null; if (currentView === 'team') renderTeamView();
+  const p = LS.get('afterSignIn', null); LS.del('afterSignIn'); if (p) runPending(p);
+}
+async function signOut() {
+  const t = state.account && state.account.token; state.account = null; LS.del('account');
+  if (t) api('/account', { method: 'POST', body: JSON.stringify({ action: 'signout', token: t }) }).catch(() => {});
+  renderStravaPill(); renderAcct(); toast(tr('Signed out. Your sessions stay on this phone.'));
+}
+// Team actions wait for the account (one tap), then carry on where the person was.
+function needAccount(p) {
+  if (state.account || !signInReady()) return runPending(p);
+  LS.set('afterSignIn', p); openSign(true);
+}
+function runPending(p) {
+  if (p.name) $('nameInput').value = p.name;
+  if (p.t === 'join') joinTeam(p.code, p.tn || '');
+  else if (p.t === 'create') createTeam();
+  else if (p.t === 'invite') { joinTeam(p.code, p.tn || ''); if (p.cap) setTeamMeta(p.code, { owner: true, ck: p.cap }); showView('team'); }
+}
+function renderAccount() {
+  const el = $('acctAccount'), a = state.account;
+  el.classList.toggle('hidden', !signInReady() && !a); if (!signInReady() && !a) return;
+  if (a) {
+    const via = [a.google && 'Google', a.strava && 'Strava'].filter(Boolean).join(' · ');
+    el.innerHTML = `<span class="cap">${tr('LANZA account')}</span><div class="who">${a.picture ? `<img src="${esc(a.picture)}" alt="" onerror="this.outerHTML='<span class=&quot;av&quot;>${esc(String(a.name || '?')[0].toUpperCase())}</span>'">` : `<span class="av">${esc(String(a.name || '?')[0].toUpperCase())}</span>`}<div><b>${esc(a.name)}</b><div class="cap" style="text-align:start;margin:2px 0 0">${esc(via)}</div></div></div>
+      <div class="row">${googleReady() && !a.google ? `<button class="btn sm" id="acctLinkG">${tr('Add Google')}</button>` : ''}<button class="btn sm" id="acctOut">${tr('Sign out')}</button></div>`;
+    $('acctOut').onclick = signOut; if ($('acctLinkG')) $('acctLinkG').onclick = googleAuthorize;
+  } else {
+    el.innerHTML = `<span class="cap">${tr('LANZA account')}</span><p class="note" style="text-align:start;margin:0">${tr('Keep your history and team spot on any phone. No password.')}</p><button class="btn primary" id="acctSign">${tr('Sign in')}</button>`;
+    $('acctSign').onclick = () => openSign(false);
+  }
+}
 setInterval(() => { if (document.visibilityState === 'visible' && LS.get('oauthHandoff', null)) claimHandoff(); }, 3000);
 async function stravaConnected(t) {
   try {
     state.strava = t; LS.set('strava', t); renderStravaPill();
     if (t.athlete && !state.profile.name) { state.profile.name = `${t.athlete.firstname} ${(t.athlete.lastname || '').slice(0, 1)}.`.trim(); saveProfile(); }
     toast(tr('Connected to Strava as {name}', { name: t.athlete?.firstname || tr('you') }));
-    renderSetup(); renderAcct(); await restoreBackup();
+    renderSetup(); renderAcct();
+    // Strava sign-in is also a LANZA account sign-in (or links Strava to the account already open).
+    try { await accountSignedIn(await api('/account', { method: 'POST', body: JSON.stringify({ action: 'strava', access_token: t.access_token, token: state.account ? state.account.token : undefined }) }), true); }
+    catch { await restoreBackup(); }
     const pending = LS.get('pendingUpload', null); LS.del('pendingUpload');
     const row = pending && state.sessions.find(s => s.id === pending);
     if (row) { current = row; resultFresh = false; resultBack = null; renderResult(); showView('result'); openPost(false); }
@@ -2329,7 +2435,7 @@ async function shareToTeam(s) {
   if (!s || !teamsList().length) return;
   const done = new Set(sharedCodes(s)), token = state.strava ? await stravaToken().catch(() => null) : null;
   for (const code of missingTeams(s)) {
-    try { await api('/team', { method: 'POST', body: JSON.stringify({ code, name: state.profile.name, access_token: token, session: s }) }); done.add(code); } catch {}
+    try { await api('/team', { method: 'POST', body: JSON.stringify({ code, name: state.profile.name, access_token: token, account_token: state.account ? state.account.token : undefined, session: s }) }); done.add(code); } catch {}
   }
   s.team_shared = [...done].join(',') || null; saveSessions();
   if (s === current) renderTeamStatus();
@@ -2405,16 +2511,17 @@ function joinTeam(code, teamName = '') {
   const name = $('nameInput').value.trim();
   code = code.trim().toUpperCase().replace(/\s+/g, '-');
   if (!/^[A-Z0-9-]{4,20}$/.test(code)) { toast(tr('Team codes are 4 to 20 letters, numbers or dashes')); return; }
-  if (!name && !state.strava) { toast(tr('Add your name so teammates know who you are')); $('nameInput').focus(); return; }
+  if (!name && !state.strava && !state.account && !state.profile.name) { toast(tr('Add your name so teammates know who you are')); $('nameInput').focus(); return; }
   const ts = teamsList();
   if (!ts.some(t => t.code === code)) ts.push({ code, name: String(teamName).trim().slice(0, 30), color: '' });
-  state.profile = { ...state.profile, name: name || state.profile.name, team: code, teams: ts, teamName: (ts.find(t => t.code === code) || {}).name || '' }; saveProfile();
+  state.profile = { ...state.profile, name: name || state.profile.name || (state.account && state.account.name) || '', team: code, teams: ts, teamName: (ts.find(t => t.code === code) || {}).name || '' }; saveProfile();
   joiningAnother = false; teamData = null; applyTheme(); renderTeamView(); toast(tr('Joined team {code}', { code: teamLabel() })); track('team_join'); retryPendingShares(); memberPing(code, 'join');
 }
-$('joinTeam').onclick = () => joinTeam($('codeInput').value);
-$('createTeam').onclick = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); setTeamMeta(`LZ-${c}`, { owner: true }); renderTeamName(true);
+$('joinTeam').onclick = () => needAccount({ t: 'join', code: $('codeInput').value, name: $('nameInput').value.trim() });
+$('createTeam').onclick = () => needAccount({ t: 'create', name: $('nameInput').value.trim() });
+function createTeam() { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); setTeamMeta(`LZ-${c}`, { owner: true }); renderTeamName(true);
   const start = isoDay(new Date()); saveSeason({ name: seasonName(start), start, end: firstSeasonEnd(start) }, true);
-};
+}
 $('inviteTeam').onclick = () => {
   // /t/CODE is a server page whose link preview shows the team name, then opens the app.
   const nm = (activeTeam() || {}).name || state.profile.teamName || '', tn = nm ? '?tn=' + encodeURIComponent(nm) : '';
@@ -2464,10 +2571,13 @@ async function saveSeason(sn, quiet) {
 }
 const inSeason = (iso, se = season()) => { const d = iso.slice(0, 10); return d >= se.start && d <= se.end; };
 // My key on team boards: the same one the server gives my sessions.
-const myKey = () => state.strava && state.strava.athlete && state.strava.athlete.id ? `strava:${state.strava.athlete.id}` : `name:${String(state.profile.name || 'Athlete').trim().slice(0, 40).toLowerCase()}`;
+const legacyKey = () => state.strava && state.strava.athlete && state.strava.athlete.id ? `strava:${state.strava.athlete.id}` : `name:${String(state.profile.name || 'Athlete').trim().slice(0, 40).toLowerCase()}`;
+const myKey = () => state.account ? `acct:${state.account.id}` : legacyKey();
+// Keys this person may have used before the account; the server moves those rows to the account.
+const oldKeys = () => [`name:${String(state.profile.name || '').trim().slice(0, 40).toLowerCase()}`, ...(state.strava && state.strava.athlete ? [`strava:${state.strava.athlete.id}`] : [])].filter(k => k !== 'name:');
 const isOwner = () => !!(activeTeam() || {}).owner || !!(teamData && (teamData.captains || []).includes(myKey()));
 // Who I am, for captain-only and roster calls (a Strava token lets the server verify it).
-async function whoBody() { const token = state.strava ? await stravaToken().catch(() => null) : null; return { name: state.profile.name, access_token: token || undefined, cap: (activeTeam() || {}).ck || undefined }; }
+async function whoBody() { const token = state.strava ? await stravaToken().catch(() => null) : null; return { name: state.profile.name, access_token: token || undefined, account_token: state.account ? state.account.token : undefined, old_keys: state.account ? oldKeys() : undefined, cap: (activeTeam() || {}).ck || undefined }; }
 async function memberPing(code, op) { try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'member', code, op, ...(await whoBody()) }) }); LS.set('seen_' + code, isoDay(new Date())); } catch {} }
 // Captain key: proves captain rights to the server and travels in captain invite links.
 function capKey() { const t = activeTeam(); if (!t) return ''; if (!t.ck) setTeamMeta(t.code, { ck: uuid().replace(/[^A-Za-z0-9]/g, '').slice(0, 24) }); return activeTeam().ck; }
@@ -2996,8 +3106,9 @@ function openInvite(code) {
   };
   $('inviteJoin').onclick = () => {
     const name = $('inviteName').value.trim();
-    if (!name && !state.strava) { toast(tr('Add your name so teammates know who you are')); $('inviteName').focus(); return; }
-    $('nameInput').value = name; joinTeam(code, inviteTeamName); makeCaptain(); $('inviteModal').classList.add('hidden'); showView('team'); nextIntro();
+    if (!name && !state.strava && !state.account && !signInReady()) { toast(tr('Add your name so teammates know who you are')); $('inviteName').focus(); return; }
+    $('inviteModal').classList.add('hidden'); nextIntro();
+    needAccount({ t: 'invite', code, tn: inviteTeamName, name, cap: inviteCap || undefined });
   };
   $('inviteNo').onclick = () => { $('inviteModal').classList.add('hidden'); nextIntro(); };
 }
@@ -3016,7 +3127,7 @@ async function claimPendingInvite() {
   } catch {}
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') claimPendingInvite(); });
-if (state.strava) backupSoon(8000);
+if (state.strava || state.account) backupSoon(8000);
 { const today = new Date().toISOString().slice(0, 10); if (LS.get('seenDay', '') !== today) { LS.set('seenDay', today); track('open'); } }
 if (standalone() && !LS.get('installSeen', false)) { LS.set('installSeen', true); track('install'); }
 if (inviteCode) track('invite_open');
@@ -3038,7 +3149,7 @@ let recovered = null;
   } else LS.del('live');
 }
 if (!session) nextIntro();
-loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimPendingInvite(); retryPendingShares(); handleProReturn(); refreshPro(false); });
+loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimAccount(); claimPendingInvite(); retryPendingShares(); handleProReturn(); refreshPro(false); });
 // phrases(): the data words the language files translate (used when adding a language).
 window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
 })();

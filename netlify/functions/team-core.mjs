@@ -1,4 +1,5 @@
 // Team board logic, kept separate from Netlify Blobs so it can be tested with any store.
+import { accountOf } from './account-core.mjs';
 const CODE_RE = /^[A-Z0-9-]{4,20}$/;
 const num = (v, lo, hi, d = 0) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
 const WIND = { 1: 1.0, 2: 1.1, 3: 1.25, 4: 1.4, 5: 1.6 };
@@ -54,10 +55,32 @@ export function sanitize(s) {
   };
 }
 
-export async function handle(req, store, fetchImpl = fetch) {
+export async function handle(req, store, fetchImpl = fetch, accounts = null) {
   const url = new URL(req.url);
+  // Rows this person left under older keys (their name, or Strava id before accounts) move to their account.
+  const adopt = async (code, me, body) => {
+    if (!me.acct) return;
+    const old = (Array.isArray(body.old_keys) ? body.old_keys : []).map(String).filter((k) => /^name:.{1,40}$/.test(k) || (me.acct.links && me.acct.links.strava && k === `strava:${me.acct.links.strava}`)).slice(0, 4);
+    if (!old.length) return;
+    const reg = (await store.get(`members/${code}`, { type: 'json' })) || {};
+    let touched = false;
+    for (const k of old) if (reg[k]) { if (reg[k].removed) continue; const m = reg[k]; delete reg[k]; reg[me.key] = { ...m, ...(reg[me.key] || {}), joined_at: [m.joined_at, (reg[me.key] || {}).joined_at].filter(Boolean).sort()[0] }; touched = true; }
+    if (touched) await store.setJSON(`members/${code}`, reg);
+    const meta = await store.get(`meta/${code}`, { type: 'json' });
+    if (meta && (meta.captains || []).some((k) => old.includes(k))) await store.setJSON(`meta/${code}`, { ...meta, captains: [...new Set(meta.captains.map((k) => (old.includes(k) ? me.key : k)))] });
+    const { blobs } = await store.list({ prefix: `${code}/` });
+    for (const { key } of blobs) {
+      const row = await store.get(key, { type: 'json' });
+      if (row && old.includes(row.athlete_key)) await store.setJSON(key, { ...row, athlete_key: me.key, name: me.name, verified: me.verified || row.verified });
+    }
+  };
   // Who is asking: a Strava token proves it (strava:<id>); otherwise the name they gave (name:<name>).
   const identify = async (body) => {
+    // A LANZA account is the strongest identity: one row per person, whatever phone or browser.
+    if (body.account_token && accounts) {
+      const acct = await accountOf(accounts, body.account_token);
+      if (acct) return { name: String(body.name || acct.name || 'Athlete').trim().slice(0, 40) || 'Athlete', strava_id: (acct.links && acct.links.strava) || null, verified: !!(acct.links && acct.links.strava), key: `acct:${acct.id}`, acct };
+    }
     let a = { name: String(body.name || 'Athlete').trim().slice(0, 40) || 'Athlete', strava_id: null, verified: false };
     if (body.access_token) {
       try {
@@ -65,7 +88,7 @@ export async function handle(req, store, fetchImpl = fetch) {
         if (r.ok) { const x = await r.json(); a = { name: `${x.firstname || ''} ${(x.lastname || '').slice(0, 1)}${x.lastname ? '.' : ''}`.trim() || a.name, strava_id: x.id, verified: true }; }
       } catch { /* keep the unverified name */ }
     }
-    return { ...a, key: a.strava_id ? `strava:${a.strava_id}` : `name:${a.name.toLowerCase()}` };
+    return { ...a, key: a.strava_id ? `strava:${a.strava_id}` : `name:${a.name.toLowerCase()}`, acct: null };
   };
   // A captain is whoever holds the team's captain key, or a member a captain promoted.
   const isCaptain = async (meta, body) => {
@@ -144,6 +167,7 @@ export async function handle(req, store, fetchImpl = fetch) {
     // Members: join / leave / seen keep a roster, so the team can see who is in and who left.
     if (body.action === 'member') {
       const me = await identify(body), now = new Date().toISOString();
+      if (body.op !== 'leave') await adopt(code, me, body);
       const reg = (await store.get(`members/${code}`, { type: 'json' })) || {}, m = reg[me.key] || { joined_at: now };
       // A removed player stays out until they join again on purpose (invite link or code).
       if (m.removed && body.op !== 'join') return [{ ok: true, key: me.key, removed: true }, 200];
@@ -189,7 +213,7 @@ export async function handle(req, store, fetchImpl = fetch) {
     const s = sanitize(body.session || {});
     if (!s.id) return [{ error: 'Missing session id' }, 400];
     // A Strava token proves who posted the session, so the board can mark it as verified.
-    const { key: athlete_key, ...athlete } = await identify(body);
+    const { key: athlete_key, acct: _acct, ...athlete } = await identify(body);
     const roster = (await store.get(`members/${code}`, { type: 'json' })) || {};
     if (roster[athlete_key] && roster[athlete_key].removed) return [{ error: 'You were removed from this team', removed: true }, 403];
     const row = { ...s, ...athlete, athlete_key };

@@ -5,6 +5,6 @@ import { handle } from './backup-core.mjs';
 
 export default async (req) => {
   const store = getStore({ name: 'lanza-backups', consistency: 'strong' });
-  const [data, status] = await handle(req, store);
+  const [data, status] = await handle(req, store, fetch, getStore({ name: 'lanza-accounts', consistency: 'strong' }));
   return json(data, status);
 };

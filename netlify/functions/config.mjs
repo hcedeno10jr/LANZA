@@ -5,6 +5,7 @@ import { json, env } from './_shared.mjs';
 export default async () =>
   json({
     stravaClientId: env('STRAVA_CLIENT_ID') || null,
+    googleClientId: env('GOOGLE_CLIENT_ID') || null,
     adsEnabled: env('ADS_ENABLED') === 'true',
     adUnitPath: env('AD_UNIT_PATH') || null, // Google Ad Manager rewarded ad unit, e.g. /1234567/kinetic_rewarded
     freeSessionsPerWeek: Number(env('FREE_SESSIONS_PER_WEEK')) || 1,
