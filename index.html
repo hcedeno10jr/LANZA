@@ -332,7 +332,13 @@ label.f{display:grid;gap:6px}
 .mem .badge{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-hi)}
 .mem button{padding:7px 12px;border-radius:999px;background:var(--card2);color:var(--text);font:600 12.5px var(--font);flex:none}
 .mem button.on{background:var(--accent-tint);color:var(--on-accent)}
-.mem.left{opacity:.55}
+.mem.left .ini,.mem.left .nm{opacity:.55}
+.mem button.dots{padding:6px 10px;background:transparent;color:var(--muted)}
+.mem button.dots.on{background:var(--card2);color:var(--text)}
+.mem button.warn,.memacts button.warn{background:#ff453a;color:#fff}
+.memacts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:2px 0 12px 48px}
+.memacts button{padding:10px 8px;border-radius:999px;background:var(--card2);color:var(--text);font:600 13px var(--font)}
+.memacts button.danger{color:#ff6961}
 .modal .mx{position:sticky;top:0;justify-self:end;z-index:3;width:34px;height:34px;margin:-8px -6px -48px 0;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.10);color:rgba(255,255,255,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .15s,transform .15s}
 .modal .mx:active{transform:scale(.92);background:rgba(255,255,255,.18)}
 .modal .mx svg{width:14px;height:14px}
@@ -767,7 +773,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.26.0';
+const APP_VERSION = '2.27.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1816,12 +1822,9 @@ function drawSticker(s, team = '') {
     const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), bw = Math.max(...xs) - Math.min(...xs) || 1, bh = Math.max(...ys) - Math.min(...ys) || 1;
     const k = Math.min(560 / bw, 300 / bh), ox = W / 2 - (Math.min(...xs) + bw / 2) * k, oy = 280 + (Math.min(...ys) + bh / 2) * k;
     g.beginPath(); pts.forEach(([x, y], i) => g[i ? 'lineTo' : 'moveTo'](ox + x * k, oy - y * k)); g.closePath();
-    // the target glows in the app color, like the story
-    g.save(); const ac = AC(), bx0 = ox + Math.min(...xs) * k, by0 = oy - Math.max(...ys) * k;
-    const fg = g.createLinearGradient(bx0, by0, bx0 + bw * k, by0 + bh * k); fg.addColorStop(0, `rgba(${ac.rgb},.30)`); fg.addColorStop(1, `rgba(${ac.rgb},.06)`);
-    g.shadowColor = 'transparent'; g.fillStyle = fg; g.fill();
-    const sg = g.createLinearGradient(bx0, by0, bx0 + bw * k, by0 + bh * k); sg.addColorStop(0, '#fff'); sg.addColorStop(.35, ac.hi); sg.addColorStop(1, ac.a);
-    g.shadowColor = ac.hi; g.shadowBlur = 34; g.lineWidth = 9; g.lineJoin = 'round'; g.strokeStyle = sg; g.stroke(); g.shadowBlur = 14; g.stroke(); g.restore();
+    // the target line glows in the app color (solid line, no gradient)
+    g.save(); const ac = AC();
+    g.shadowColor = ac.hi; g.shadowBlur = 34; g.lineWidth = 9; g.lineJoin = 'round'; g.strokeStyle = ac.hi; g.stroke(); g.shadowBlur = 14; g.stroke(); g.restore();
     // one LANZA spear stuck inside the target per make, scattered but fixed per session
     const poly = pts.map(([x, y]) => [ox + x * k, oy - y * k]), inside = (x, y) => {
       let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c;
@@ -1829,21 +1832,24 @@ function drawSticker(s, team = '') {
     let seed = [...String(s.id)].reduce((h, ch) => Math.imul(h ^ ch.charCodeAt(0), 16777619), 2166136261) >>> 0;
     const rnd = () => { seed = (seed + 0x6D2B79F5) >>> 0; let t = seed; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
     const x0 = Math.min(...poly.map(q => q[0])), x1 = Math.max(...poly.map(q => q[0])), y0 = Math.min(...poly.map(q => q[1])), y1 = Math.max(...poly.map(q => q[1]));
-    // one LANZA disc per make, seen from the side in flight: a flat rhombus, slightly tilted
-    const n = s.attempts, w = Math.max(18, Math.min(52, Math.min(x1 - x0, y1 - y0) * .26, 60 - n * .7)), h = Math.max(4, w * .2);
+    // Makes land inside the target, misses scatter just outside it; same disc, different weight.
+    const n = s.makes, w = Math.max(18, Math.min(52, Math.min(x1 - x0, y1 - y0) * .26, 60 - Math.max(n, s.attempts - n) * .7)), h = Math.max(4, w * .2);
     const gap = Math.max(w * .75, Math.sqrt((x1 - x0) * (y1 - y0) / Math.max(1, n)) * .75), tips = [];
     for (let t = 0; tips.length < n && t < n * 400; t++) {
       const x = x0 + rnd() * (x1 - x0), y = y0 + rnd() * (y1 - y0), r = (rnd() - .5) * .4, dx = Math.cos(r) * w / 2 + 4, dy = Math.sin(r) * w / 2;
       if (inside(x, y) && inside(x - dx, y - dy) && inside(x + dx, y + dy) && inside(x, y - h) && inside(x, y + h) && tips.every(([u, v]) => Math.hypot((u - x) * .8, (v - y) * 1.6) > gap * Math.max(.3, 1 - t / (n * 300)))) tips.push([x, y, r]);
     }
-    // Every throw is a disc: misses in a quiet grey, makes in the app color with a soft glow.
-    const ac2 = AC(), made = new Set(tips.map((_, i) => i).sort((i, j) => (((i * 2654435761) ^ s.makes) >>> 0) % 997 - (((j * 2654435761) ^ s.makes) >>> 0) % 997).slice(0, s.makes));
-    const disc = (x, y, r) => { g.save(); g.translate(x, y); g.rotate(r); g.beginPath(); g.moveTo(-w / 2, 0); g.lineTo(0, -h / 2); g.lineTo(w / 2, 0); g.lineTo(0, h / 2); g.closePath(); g.fill(); g.restore(); };
-    g.save(); g.shadowColor = 'transparent'; g.fillStyle = 'rgba(200,200,206,.32)'; tips.forEach((t, i) => { if (!made.has(i)) disc(...t); }); g.restore();
-    g.save(); g.shadowColor = ac2.hi; g.shadowBlur = 12; g.shadowOffsetY = 0;
-    tips.map((t, i) => [t, i]).filter(([, i]) => made.has(i)).sort((a, b) => a[0][1] - b[0][1]).forEach(([t]) => {
-      const [x, y, r] = t, dg = g.createLinearGradient(x - w / 2, y, x + w / 2, y); dg.addColorStop(0, ac2.hi); dg.addColorStop(1, ac2.a); g.fillStyle = dg; disc(x, y, r);
-    }); g.restore();
+    const segD = (x, y) => { let m = 1e9; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [ax, ay] = poly[j], [bx, by] = poly[i], vx = bx - ax, vy = by - ay, L = vx * vx + vy * vy || 1, u = Math.max(0, Math.min(1, ((x - ax) * vx + (y - ay) * vy) / L)); m = Math.min(m, Math.hypot(x - ax - u * vx, y - ay - u * vy)); } return m; };
+    const nm = s.attempts - s.makes, out = [], mx0 = Math.max(40, x0 - 150), mx1 = Math.min(W - 40, x1 + 150), my0 = Math.max(118, y0 - 60), my1 = Math.min(472, y1 + 60);
+    for (let t = 0; out.length < nm && t < nm * 600; t++) {
+      const x = mx0 + rnd() * (mx1 - mx0), y = my0 + rnd() * (my1 - my0), r = (rnd() - .5) * .4;
+      const near = segD(x, y), spread = Math.max(.35, 1 - t / (nm * 400));
+      if (!inside(x, y) && near > w * .7 + 6 && near < 70 + 90 * (1 - spread) + w && [...out, ...tips].every(([u, v]) => Math.hypot((u - x) * .8, (v - y) * 1.6) > w * spread)) out.push([x, y, r]);
+    }
+    const ac2 = AC(), disc = (x, y, r) => { g.save(); g.translate(x, y); g.rotate(r); g.beginPath(); g.moveTo(-w / 2, 0); g.lineTo(0, -h / 2); g.lineTo(w / 2, 0); g.lineTo(0, h / 2); g.closePath(); g.fill(); g.restore(); };
+    g.save(); g.shadowColor = 'transparent'; g.fillStyle = 'rgba(200,200,206,.34)'; out.forEach(t => disc(...t)); g.restore();
+    g.save(); g.shadowColor = ac2.hi; g.shadowBlur = 12; g.shadowOffsetY = 0; g.fillStyle = ac2.hi;
+    tips.sort((p1, p2) => p1[1] - p2[1]).forEach(t => disc(...t)); g.restore();
   }
   // stats: three columns like a run sticker
   const col = (label, val, x) => { g.font = font(600, 26); g.letterSpacing = '5px'; g.fillText(label.toUpperCase(), x, 520); g.letterSpacing = '0px'; g.font = font(700, 64); g.fillText(val, x, 594); };
@@ -2401,9 +2407,9 @@ $('inviteTeam').onclick = () => {
   const text = tr('Join my team {code} on {app} and log your throwing practice.', { code: nm ? `${nm} (${state.profile.team})` : state.profile.team, app: BRAND.name });
   if (navigator.share) navigator.share({ title: BRAND.name, text, url }).catch(() => {}); else copyText(`${text} ${url}`);
 };
-$('leaveTeam').onclick = () => {
-  memberPing(state.profile.team, 'leave');
-  const rest = teamsList().filter(t => t.code !== state.profile.team);
+$('leaveTeam').onclick = () => { memberPing(state.profile.team, 'leave'); dropTeam(state.profile.team); };
+function dropTeam(code) {
+  const rest = teamsList().filter(t => t.code !== code);
   state.profile.teams = rest; state.profile.team = rest[0] ? rest[0].code : ''; state.profile.teamName = rest[0] ? rest[0].name : '';
   saveProfile(); teamData = null; applyTheme(); renderTeamView();
 };
@@ -2500,6 +2506,8 @@ async function loadTeam() {
     $('teamNote').textContent = tr('Example data. The live team board turns on once the app is deployed.');
     $('teamNote').classList.remove('hidden');
   }
+  // A captain removed me: leave the team on this phone too.
+  if (teamData && (teamData.removed || []).includes(myKey())) { const t = activeTeam(); toast(tr('A captain removed you from {team}', { team: teamLabel() })); dropTeam(t && t.code); return; }
   renderSeason(); renderBoard(); renderMembersLink();
   if (teamData && teamData.members && LS.get('seen_' + state.profile.team, '') !== isoDay(new Date())) memberPing(state.profile.team, 'seen');
   // The team's creator (or a captain from an older captain link) shows up as captain on the roster too.
@@ -2522,20 +2530,39 @@ function renderMembersLink() {
   const n = memberRows().inn.length; l.textContent = tr(n === 1 ? '{n} member' : '{n} members', { n }); l.classList.toggle('hidden', !n);
 }
 function openMembers() { renderMembers(); $('membersModal').classList.remove('hidden'); }
+let memOpen = '', memArm = '';
 function renderMembers() {
   const { inn, out } = memberRows(), cap = isOwner(), me = myKey();
   const ini = (n) => esc(String(n || '?').split(/\s+/).map(w => w[0] || '').join('').slice(0, 2).toUpperCase());
-  const row = (m, left) => `<div class="mem ${left ? 'left' : ''}"><span class="ini">${ini(m.name)}</span><span class="nm">${esc(m.name)}${m.key === me ? ' · ' + tr('you') : ''}<small>${left ? tr('Left {d}', { d: new Date(m.left_at).toLocaleDateString(fmtLocale(), { day: 'numeric', month: 'short' }) }) : m.captain ? '<span class="badge">' + tr('Captain') + '</span>' : m.verified ? 'Strava' : ''}</small></span>
-    ${!left && cap && m.key !== me ? `<button data-k="${esc(m.key)}" class="${m.captain ? 'on' : ''}">${tr(m.captain ? 'Captain ✓' : 'Make captain')}</button>` : ''}</div>`;
+  const day = (d) => new Date(d).toLocaleDateString(fmtLocale(), { day: 'numeric', month: 'short' });
+  const dots = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
+  const row = (m, left) => {
+    const sub = left ? tr(m.removed ? 'Removed {d}' : 'Left {d}', { d: day(m.left_at) }) : m.captain ? '<span class="badge">' + tr('Captain') + '</span>' : m.verified ? 'Strava' : '';
+    const mine = m.key === me, open = memOpen === m.key, armed = memArm === m.key;
+    const right = !cap || mine ? '' : left
+      ? `<button data-a="forget" data-k="${esc(m.key)}" class="${armed ? 'warn' : ''}">${tr(armed ? 'Tap again to delete' : 'Delete')}</button>`
+      : `<button data-a="menu" data-k="${esc(m.key)}" class="dots ${open ? 'on' : ''}" aria-label="${tr('Manage')}">${dots}</button>`;
+    const acts = open && !left && cap && !mine ? `<div class="memacts"><button data-a="captain" data-k="${esc(m.key)}">${tr(m.captain ? 'Remove captain role' : 'Make captain')}</button><button data-a="remove" data-k="${esc(m.key)}" data-n="${esc(m.name)}" class="${armed ? 'warn' : 'danger'}">${tr(armed ? 'Tap again to remove' : 'Remove from team')}</button></div>` : '';
+    return `<div class="mem ${left ? 'left' : ''}"><span class="ini">${ini(m.name)}</span><span class="nm">${esc(m.name)}${mine ? ' · ' + tr('you') : ''}<small>${sub}</small></span>${right}</div>${acts}`;
+  };
   $('membersBody').innerHTML = `<div><span class="cap">${tr('On the team · {n}', { n: inn.length })}</span><div>${inn.map(m => row(m)).join('') || `<p class="note">${tr('No one yet.')}</p>`}</div></div>`
     + (out.length ? `<div><span class="cap">${tr('Left the team')}</span><div>${out.map(m => row(m, true)).join('')}</div></div>` : '')
-    + (cap ? `<p class="note" style="margin:0;font-size:13px">${tr('Captains can change the season and choose other captains.')}</p>` : '');
-  $('membersBody').querySelectorAll('button[data-k]').forEach(b => b.onclick = async () => {
-    const on = !b.classList.contains('on'); b.disabled = true;
+    + (cap ? `<p class="note" style="margin:0;font-size:13px">${tr('Tap ••• next to a teammate to make them captain or remove them.')}</p>` : '');
+  const arm = (k) => { memArm = k; renderMembers(); clearTimeout(renderMembers.t); renderMembers.t = setTimeout(() => { memArm = ''; renderMembers(); }, 4000); };
+  $('membersBody').querySelectorAll('button[data-a]').forEach(b => b.onclick = async () => {
+    const k = b.dataset.k, a = b.dataset.a, m = [...inn, ...out].find(x => x.key === k);
+    if (a === 'menu') { memOpen = memOpen === k ? '' : k; memArm = ''; return renderMembers(); }
+    if ((a === 'remove' || a === 'forget') && memArm !== k) return arm(k);
+    b.disabled = true; memArm = '';
     try {
-      const d = await api('/team', { method: 'POST', body: JSON.stringify({ action: 'captain', code: state.profile.team, member: b.dataset.k, on, ...(await whoBody()) }) });
-      teamData.captains = d.captains; (teamData.members || []).forEach(m => { m.captain = d.captains.includes(m.key); }); renderMembers(); renderSeason();
-      toast(tr(on ? 'Captain added' : 'Captain removed'));
+      if (a === 'captain') {
+        const on = !m.captain, d = await api('/team', { method: 'POST', body: JSON.stringify({ action: 'captain', code: state.profile.team, member: k, on, ...(await whoBody()) }) });
+        teamData.captains = d.captains; (teamData.members || []).forEach(x => { x.captain = d.captains.includes(x.key); }); toast(tr(on ? 'Captain added' : 'Captain removed'));
+      } else {
+        await api('/team', { method: 'POST', body: JSON.stringify({ action: a, code: state.profile.team, member: k, member_name: m && m.name, ...(await whoBody()) }) });
+        memOpen = ''; toast(tr(a === 'remove' ? '{name} was removed from the team' : 'Deleted', { name: m ? m.name : '' })); await loadTeam(); return renderMembers();
+      }
+      renderMembers(); renderSeason();
     } catch (e) { toast(e.status === 403 ? tr('Only captains can do that') : e.message); b.disabled = false; }
   });
 }

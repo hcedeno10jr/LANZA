@@ -819,7 +819,18 @@ window.LANZA_I18N = {
 "Title": "Título",
 "Training with {team}": "Entrenando con {team}",
 "{n} member": "{n} miembro",
-"{n} members": "{n} miembros"
+"{n} members": "{n} miembros",
+"A captain removed you from {team}": "Un capitán te sacó de {team}",
+"Delete": "Borrar",
+"Manage": "Opciones",
+"Remove captain role": "Quitar rol de capitán",
+"Remove from team": "Sacar del equipo",
+"Removed {d}": "Sacado el {d}",
+"Tap again to delete": "Toca otra vez para borrar",
+"Tap again to remove": "Toca otra vez para sacar",
+"Tap ••• next to a teammate to make them captain or remove them.": "Toca ••• junto a un compañero para hacerlo capitán o sacarlo del equipo.",
+"{name} was removed from the team": "Sacaste a {name} del equipo",
+"Deleted": "Borrado"
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1252,7 +1263,18 @@ window.LANZA_I18N = {
 "Title": "Título",
 "Training with {team}": "Treinando com {team}",
 "{n} member": "{n} membro",
-"{n} members": "{n} membros"
+"{n} members": "{n} membros",
+"A captain removed you from {team}": "Um capitão removeu você de {team}",
+"Delete": "Apagar",
+"Manage": "Opções",
+"Remove captain role": "Tirar papel de capitão",
+"Remove from team": "Remover do time",
+"Removed {d}": "Removido em {d}",
+"Tap again to delete": "Toque de novo para apagar",
+"Tap again to remove": "Toque de novo para remover",
+"Tap ••• next to a teammate to make them captain or remove them.": "Toque em ••• ao lado de um colega para torná-lo capitão ou removê-lo.",
+"{name} was removed from the team": "{name} foi removido do time",
+"Deleted": "Apagado"
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1690,7 +1712,18 @@ window.LANZA_I18N = {
 "Title": "Titre",
 "Training with {team}": "Entraînement avec {team}",
 "{n} member": "{n} membre",
-"{n} members": "{n} membres"
+"{n} members": "{n} membres",
+"A captain removed you from {team}": "Un capitaine t’a retiré de {team}",
+"Delete": "Supprimer",
+"Manage": "Options",
+"Remove captain role": "Retirer le rôle de capitaine",
+"Remove from team": "Retirer de l’équipe",
+"Removed {d}": "Retiré le {d}",
+"Tap again to delete": "Touche encore pour supprimer",
+"Tap again to remove": "Touche encore pour retirer",
+"Tap ••• next to a teammate to make them captain or remove them.": "Touche ••• à côté d’un coéquipier pour le nommer capitaine ou le retirer.",
+"{name} was removed from the team": "{name} a été retiré de l’équipe",
+"Deleted": "Supprimé"
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -2126,7 +2159,18 @@ window.LANZA_I18N = {
 "Title": "Titel",
 "Training with {team}": "Training mit {team}",
 "{n} member": "{n} Mitglied",
-"{n} members": "{n} Mitglieder"
+"{n} members": "{n} Mitglieder",
+"A captain removed you from {team}": "Ein Captain hat dich aus {team} entfernt",
+"Delete": "Löschen",
+"Manage": "Optionen",
+"Remove captain role": "Captain-Rolle entziehen",
+"Remove from team": "Aus dem Team entfernen",
+"Removed {d}": "Entfernt am {d}",
+"Tap again to delete": "Zum Löschen noch mal tippen",
+"Tap again to remove": "Zum Entfernen noch mal tippen",
+"Tap ••• next to a teammate to make them captain or remove them.": "Tippe auf ••• neben einem Mitspieler, um ihn zum Captain zu machen oder zu entfernen.",
+"{name} was removed from the team": "{name} wurde aus dem Team entfernt",
+"Deleted": "Gelöscht"
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2578,7 +2622,18 @@ window.LANZA_I18N = {
 "Title": "Titolo",
 "Training with {team}": "Allenamento con {team}",
 "{n} member": "{n} membro",
-"{n} members": "{n} membri"
+"{n} members": "{n} membri",
+"A captain removed you from {team}": "Un capitano ti ha rimosso da {team}",
+"Delete": "Elimina",
+"Manage": "Opzioni",
+"Remove captain role": "Togli ruolo di capitano",
+"Remove from team": "Rimuovi dalla squadra",
+"Removed {d}": "Rimosso il {d}",
+"Tap again to delete": "Tocca di nuovo per eliminare",
+"Tap again to remove": "Tocca di nuovo per rimuovere",
+"Tap ••• next to a teammate to make them captain or remove them.": "Tocca ••• accanto a un compagno per renderlo capitano o rimuoverlo.",
+"{name} was removed from the team": "{name} è stato rimosso dalla squadra",
+"Deleted": "Eliminato"
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -2997,7 +3052,18 @@ window.LANZA_I18N = {
 "Title": "Titel",
 "Training with {team}": "Training met {team}",
 "{n} member": "{n} lid",
-"{n} members": "{n} leden"
+"{n} members": "{n} leden",
+"A captain removed you from {team}": "Een captain heeft je uit {team} verwijderd",
+"Delete": "Verwijderen",
+"Manage": "Opties",
+"Remove captain role": "Captainrol afnemen",
+"Remove from team": "Uit het team verwijderen",
+"Removed {d}": "Verwijderd op {d}",
+"Tap again to delete": "Tik nog eens om te verwijderen",
+"Tap again to remove": "Tik nog eens om te verwijderen",
+"Tap ••• next to a teammate to make them captain or remove them.": "Tik op ••• naast een teamgenoot om hem captain te maken of te verwijderen.",
+"{name} was removed from the team": "{name} is uit het team verwijderd",
+"Deleted": "Verwijderd"
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3467,7 +3533,18 @@ window.LANZA_I18N = {
 "Title": "タイトル",
 "Training with {team}": "{team}で練習",
 "{n} member": "{n}人",
-"{n} members": "{n}人"
+"{n} members": "{n}人",
+"A captain removed you from {team}": "キャプテンが{team}からあなたを外しました",
+"Delete": "削除",
+"Manage": "オプション",
+"Remove captain role": "キャプテンを外す",
+"Remove from team": "チームから外す",
+"Removed {d}": "{d}に外されました",
+"Tap again to delete": "もう一度タップで削除",
+"Tap again to remove": "もう一度タップで外す",
+"Tap ••• next to a teammate to make them captain or remove them.": "チームメイトの横の•••をタップすると、キャプテンにしたりチームから外したりできます。",
+"{name} was removed from the team": "{name}をチームから外しました",
+"Deleted": "削除しました"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -3932,7 +4009,18 @@ window.LANZA_I18N = {
 "Title": "标题",
 "Training with {team}": "与 {team} 一起训练",
 "{n} member": "{n} 名成员",
-"{n} members": "{n} 名成员"
+"{n} members": "{n} 名成员",
+"A captain removed you from {team}": "队长已将你移出 {team}",
+"Delete": "删除",
+"Manage": "选项",
+"Remove captain role": "取消队长身份",
+"Remove from team": "移出队伍",
+"Removed {d}": "{d} 被移出",
+"Tap again to delete": "再点一次删除",
+"Tap again to remove": "再点一次移出",
+"Tap ••• next to a teammate to make them captain or remove them.": "点队友旁边的 ••• 可以设为队长或移出队伍。",
+"{name} was removed from the team": "已将 {name} 移出队伍",
+"Deleted": "已删除"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4397,7 +4485,18 @@ window.LANZA_I18N = {
 "Title": "標題",
 "Training with {team}": "與 {team} 一起訓練",
 "{n} member": "{n} 名成員",
-"{n} members": "{n} 名成員"
+"{n} members": "{n} 名成員",
+"A captain removed you from {team}": "隊長已將你移出 {team}",
+"Delete": "刪除",
+"Manage": "選項",
+"Remove captain role": "取消隊長身分",
+"Remove from team": "移出隊伍",
+"Removed {d}": "{d} 被移出",
+"Tap again to delete": "再點一次刪除",
+"Tap again to remove": "再點一次移出",
+"Tap ••• next to a teammate to make them captain or remove them.": "點隊友旁邊的 ••• 可以設為隊長或移出隊伍。",
+"{name} was removed from the team": "已將 {name} 移出隊伍",
+"Deleted": "已刪除"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -4865,7 +4964,18 @@ window.LANZA_I18N = {
 "Title": "제목",
 "Training with {team}": "{team}와 함께 훈련",
 "{n} member": "멤버 {n}명",
-"{n} members": "멤버 {n}명"
+"{n} members": "멤버 {n}명",
+"A captain removed you from {team}": "주장이 {team}에서 회원님을 내보냈어요",
+"Delete": "삭제",
+"Manage": "옵션",
+"Remove captain role": "주장 역할 해제",
+"Remove from team": "팀에서 내보내기",
+"Removed {d}": "{d}에 내보내짐",
+"Tap again to delete": "한 번 더 탭하면 삭제",
+"Tap again to remove": "한 번 더 탭하면 내보내기",
+"Tap ••• next to a teammate to make them captain or remove them.": "팀원 옆의 •••을 탭해 주장으로 지정하거나 팀에서 내보낼 수 있어요.",
+"{name} was removed from the team": "{name}님을 팀에서 내보냈어요",
+"Deleted": "삭제됨"
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -5334,7 +5444,18 @@ window.LANZA_I18N = {
 "Title": "כותרת",
 "Training with {team}": "מתאמנים עם {team}",
 "{n} member": "חבר/ה {n}",
-"{n} members": "{n} חברים"
+"{n} members": "{n} חברים",
+"A captain removed you from {team}": "קפטן הוציא אותך מ-{team}",
+"Delete": "מחיקה",
+"Manage": "אפשרויות",
+"Remove captain role": "הסרת תפקיד הקפטן",
+"Remove from team": "הוצאה מהקבוצה",
+"Removed {d}": "הוצא/ה ב-{d}",
+"Tap again to delete": "נגיעה נוספת למחיקה",
+"Tap again to remove": "נגיעה נוספת להוצאה",
+"Tap ••• next to a teammate to make them captain or remove them.": "לחצו על ••• ליד חבר/ת קבוצה כדי למנות לקפטן או להוציא מהקבוצה.",
+"{name} was removed from the team": "{name} הוצא/ה מהקבוצה",
+"Deleted": "נמחק"
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -5770,7 +5891,18 @@ window.LANZA_I18N = {
 "Title": "टाइटल",
 "Training with {team}": "{team} के साथ ट्रेनिंग",
 "{n} member": "{n} सदस्य",
-"{n} members": "{n} सदस्य"
+"{n} members": "{n} सदस्य",
+"A captain removed you from {team}": "एक कप्तान ने आपको {team} से हटा दिया",
+"Delete": "मिटाएँ",
+"Manage": "विकल्प",
+"Remove captain role": "कप्तान की भूमिका हटाएँ",
+"Remove from team": "टीम से हटाएँ",
+"Removed {d}": "{d} को हटाया गया",
+"Tap again to delete": "मिटाने के लिए फिर टैप करें",
+"Tap again to remove": "हटाने के लिए फिर टैप करें",
+"Tap ••• next to a teammate to make them captain or remove them.": "किसी साथी के पास ••• टैप करके उसे कप्तान बनाएँ या टीम से हटाएँ।",
+"{name} was removed from the team": "{name} को टीम से हटा दिया गया",
+"Deleted": "मिट गया"
 }
 }
 };

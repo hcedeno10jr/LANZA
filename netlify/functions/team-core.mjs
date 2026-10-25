@@ -101,8 +101,11 @@ export async function handle(req, store, fetchImpl = fetch) {
     const challenge = await store.get(`challenge/${code}/${monthKey()}`, { type: 'json' });
     const meta = await store.get(`meta/${code}`, { type: 'json' });
     const reg = (await store.get(`members/${code}`, { type: 'json' })) || {}, caps = (meta && meta.captains) || [];
-    const members = Object.entries(reg).map(([key, m]) => ({ key, name: m.name, verified: !!m.verified, joined_at: m.joined_at, left_at: m.left_at || null, captain: caps.includes(key) }));
-    return [{ code, name: (meta && meta.name) || null, color: (meta && meta.color) || null, season: (meta && meta.season) || null, has_captain: !!(meta && (meta.cap || caps.length)), captains: caps, members, week: isoWeek(new Date()), month: monthKey(), challenge: challenge || null, sessions: rows }, 200];
+    const members = Object.entries(reg).filter(([, m]) => !m.hidden).map(([key, m]) => ({ key, name: m.name, verified: !!m.verified, joined_at: m.joined_at, left_at: m.left_at || null, removed: !!m.removed, captain: caps.includes(key) }));
+    // Players a captain removed drop off the board too.
+    const gone = new Set(Object.keys(reg).filter((k) => reg[k].removed));
+    const shown = rows.filter((r) => !gone.has(r.athlete_key)); rows.length = 0; rows.push(...shown);
+    return [{ code, name: (meta && meta.name) || null, color: (meta && meta.color) || null, season: (meta && meta.season) || null, has_captain: !!(meta && (meta.cap || caps.length)), captains: caps, members, removed: [...gone], week: isoWeek(new Date()), month: monthKey(), challenge: challenge || null, sessions: rows }, 200];
   }
   if (req.method === 'POST') {
     let body;
@@ -142,11 +145,26 @@ export async function handle(req, store, fetchImpl = fetch) {
     if (body.action === 'member') {
       const me = await identify(body), now = new Date().toISOString();
       const reg = (await store.get(`members/${code}`, { type: 'json' })) || {}, m = reg[me.key] || { joined_at: now };
-      if (body.op === 'leave') m.left_at = now; else { if (m.left_at) { m.joined_at = now; m.left_at = null; } m.seen_at = now; }
+      // A removed player stays out until they join again on purpose (invite link or code).
+      if (m.removed && body.op !== 'join') return [{ ok: true, key: me.key, removed: true }, 200];
+      if (body.op === 'leave') m.left_at = now; else { if (m.left_at) { m.joined_at = now; m.left_at = null; } m.removed = false; m.hidden = false; m.seen_at = now; }
       reg[me.key] = { ...m, name: me.name, verified: me.verified };
       const keys = Object.keys(reg); if (keys.length > 300) keys.sort((a, b) => (reg[a].seen_at || '').localeCompare(reg[b].seen_at || '')).slice(0, keys.length - 300).forEach((k) => delete reg[k]);
       await store.setJSON(`members/${code}`, reg);
       return [{ ok: true, key: me.key }, 200];
+    }
+    // Captains remove a player from the team, or clear someone who left from the list.
+    if (body.action === 'remove' || body.action === 'forget') {
+      const prev = (await store.get(`meta/${code}`, { type: 'json' })) || {};
+      if (!(await isCaptain(prev, body))) return [{ error: 'Only captains can do that' }, 403];
+      const member = String(body.member || '').slice(0, 60); if (!/^(strava|name):/.test(member)) return [{ error: 'Pick a teammate' }, 400];
+      const reg = (await store.get(`members/${code}`, { type: 'json' })) || {};
+      // A removed player is only hidden, so their sessions stay off the board.
+      if (body.action === 'forget') { if (reg[member] && reg[member].removed) reg[member].hidden = true; else delete reg[member]; }
+      else { reg[member] = { ...(reg[member] || { name: String(body.member_name || member.replace(/^\w+:/, '')).slice(0, 40), joined_at: new Date().toISOString() }), left_at: new Date().toISOString(), removed: true }; }
+      await store.setJSON(`members/${code}`, reg);
+      if ((prev.captains || []).includes(member)) await store.setJSON(`meta/${code}`, { ...prev, captains: prev.captains.filter((k) => k !== member) });
+      return [{ ok: true }, 200];
     }
     // Captains promote or step down other members.
     if (body.action === 'captain') {
@@ -172,6 +190,8 @@ export async function handle(req, store, fetchImpl = fetch) {
     if (!s.id) return [{ error: 'Missing session id' }, 400];
     // A Strava token proves who posted the session, so the board can mark it as verified.
     const { key: athlete_key, ...athlete } = await identify(body);
+    const roster = (await store.get(`members/${code}`, { type: 'json' })) || {};
+    if (roster[athlete_key] && roster[athlete_key].removed) return [{ error: 'You were removed from this team', removed: true }, 403];
     const row = { ...s, ...athlete, athlete_key };
     await store.setJSON(`${code}/${isoWeek(new Date(s.created_at))}/${s.id}`, row);
     return [{ ok: true, session: row }, 200];
