@@ -86,9 +86,10 @@ a{color:var(--text)}
 .install .d svg{vertical-align:-3px}
 .install .x{margin-inline-start:auto;align-self:flex-start;color:var(--faint);padding:2px 4px;font-size:18px;line-height:1}
 .btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:999px;background:#fff;color:#1f1f1f;font:600 15px/1 -apple-system,system-ui,'Segoe UI',Roboto,sans-serif}
-.btn-strava{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:6px;background:#fc4c02;color:#fff;font:700 15px/1 -apple-system,system-ui,'Segoe UI',Roboto,sans-serif;letter-spacing:0}
+.btn-connect{display:flex;justify-content:center;width:100%;padding:0;background:none;border:0}.btn-connect img{display:block;height:48px;width:auto}
+.btn-strava{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:6px;background:#FC5200;color:#fff;font:700 15px/1 -apple-system,system-ui,'Segoe UI',Roboto,sans-serif;letter-spacing:0}
 .powered{display:flex;align-items:center;justify-content:center;gap:5px;font:600 10px/1 -apple-system,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.powered b{color:#fc4c02;font-weight:800;letter-spacing:.06em;font-size:12px}
+.powered b{color:#FC5200;font-weight:800;letter-spacing:.06em;font-size:12px}.powered img{display:block;height:15px;width:auto;opacity:.85}
 .viewstrava{color:#fc4c02!important;font-weight:700;text-decoration:underline;text-underline-offset:2px}
 .acct{text-align:start}
 .acct h2{text-align:center}
@@ -596,7 +597,7 @@ nav.tabs button{position:relative;z-index:1}
         <button class="btn primary" id="saveTeamName">Save</button>
       </div>
       <div class="card" id="challengeCard"></div>
-      <div class="card"><div class="label-row"><span class="cap">Leaderboard</span><span class="cap">Avg score</span></div><div class="list" id="boardList"></div><div class="powered" style="margin-top:12px">Verified with <b>STRAVA</b></div></div>
+      <div class="card"><div class="label-row"><span class="cap">Leaderboard</span><span class="cap">Avg score</span></div><div class="list" id="boardList"></div><div class="powered" style="margin-top:12px"><img src="strava/powered.svg" alt="Powered by Strava" width="146" height="15"></div></div>
       <div class="card"><div class="label-row"><span class="cap" id="missingTitle">Not practiced this week</span></div><div class="chips-missing" id="missingList"></div></div>
       <div class="card"><div class="label-row"><span class="cap">Recent sessions</span></div><div class="list" id="teamRecent"></div></div>
       <div class="card" style="text-align:center"><div class="cap">Team code</div><div class="code" id="teamCodeOut"></div>
@@ -720,7 +721,7 @@ nav.tabs button{position:relative;z-index:1}
     <button class="btn-strava" id="postGo"></button>
     <a class="btn-strava hidden" id="postOpen" target="_blank" rel="noopener"></a>
     <button class="btn" id="postNo">Not now</button>
-    <div class="powered">Powered by <b>STRAVA</b></div>
+    <div class="powered"><img src="strava/powered.svg" alt="Powered by Strava" width="146" height="15"></div>
   </div>
 </div>
 
@@ -747,7 +748,7 @@ nav.tabs button{position:relative;z-index:1}
     <h2 id="signTitle">Keep your spot</h2>
     <p class="note" id="signText" style="margin:0;font-size:14px">One tap keeps your history and your team spot on any phone or browser. No password.</p>
     <button class="btn-google" id="signGoogle"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg><span>Continue with Google</span></button>
-    <button class="btn-strava" id="signStrava"></button>
+    <button class="btn-connect" id="signStrava"><img src="strava/connect.svg" alt="Connect with Strava" width="237" height="48"></button>
     <button class="btn" id="signNo">Not now</button>
   </div>
 </div>
@@ -787,7 +788,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.29.0';
+const APP_VERSION = '2.29.1';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1965,7 +1966,7 @@ $('postGo').onclick = async () => {
   await uploadToStrava();
   if (!s.strava_activity_id) { $('postGo').disabled = false; $('postGo').innerHTML = `${STRAVA_ICON} ${tr('Publish to Strava')}`; return; }
   $('postCap').textContent = tr('Strava'); $('postEdit').classList.add('hidden'); $('postDoneBox').classList.remove('hidden'); $('postGo').classList.add('hidden');
-  $('postOpen').href = `https://www.strava.com/activities/${encodeURIComponent(s.strava_activity_id)}`; $('postOpen').innerHTML = `${STRAVA_ICON} ${tr('Open in Strava')}`; $('postOpen').classList.remove('hidden');
+  $('postOpen').href = `https://www.strava.com/activities/${encodeURIComponent(s.strava_activity_id)}`; $('postOpen').innerHTML = `${STRAVA_ICON} ${tr('View on Strava')}`; $('postOpen').classList.remove('hidden');
   $('postNo').textContent = tr('Done');
 };
 $('postNo').onclick = () => { if (postFromDone) leaveResult(); else { $('postModal').classList.add('hidden'); renderStravaBox(); } };
@@ -1976,7 +1977,7 @@ $('postNo').onclick = () => { if (postFromDone) leaveResult(); else { $('postMod
 const stravaReady = () => !!state.config.stravaClientId;
 const STRAVA_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.4 17.9l-2.1-4.1h-3.1l5.2 10.2 5.1-10.2h-3.1zM10.2 0L3.3 13.8h4.1l2.8-5.5 2.8 5.5h4.1z"/></svg>';
 // Strava brand rules: its own orange button, "Powered by Strava" next to Strava data, "View on Strava" links.
-const POWERED = '<div class="powered">Powered by <b>STRAVA</b></div>';
+const POWERED = '<div class="powered"><img src="strava/powered.svg" alt="Powered by Strava" width="146" height="15"></div>';
 // Strava sends a placeholder path (avatar/athlete/large.png) when there's no photo: show initials instead.
 const photoOf = (a) => a && /^https:\/\//.test(a.profile || '') && !/avatar\/athlete/.test(a.profile) ? a.profile : '';
 const initialsOf = (a) => ((a && a.firstname || state.profile.name || '?').trim()[0] + ((a && a.lastname || '').trim()[0] || '')).toUpperCase();
@@ -2012,7 +2013,7 @@ function renderAcct() {
     $('stravaOff').onclick = disconnectStrava;
   } else {
     el.innerHTML = `<span class="cap">Strava</span><p class="note" style="text-align:start;margin:0">${tr(stravaReady() ? 'Connect once. Then post any session in one tap.' : 'Strava goes live once the app is deployed.')}</p>
-      <button class="btn-strava" id="acctConnect">${STRAVA_ICON} Connect with Strava</button>${POWERED}`;
+      <button class="btn-connect" id="acctConnect"><img src="strava/connect.svg" alt="Connect with Strava" width="237" height="48"></button>${POWERED}`;
     $('acctConnect').onclick = connectStrava;
   }
   const pro = $('acctPro'); pro.classList.toggle('hidden', !state.config.proUrl);
@@ -2287,7 +2288,6 @@ function openSign(forTeam) {
   $('signTitle').textContent = tr(forTeam ? 'One account, one spot on the team' : 'Your LANZA account');
   $('signText').textContent = tr('One tap keeps your history and your team spot on any phone or browser. No password.');
   $('signGoogle').classList.toggle('hidden', !googleReady()); $('signStrava').classList.toggle('hidden', !stravaReady());
-  $('signStrava').innerHTML = `${STRAVA_ICON} ${tr('Continue with Strava')}`;
   $('signModal').classList.remove('hidden');
 }
 $('signNo').onclick = () => { LS.del('afterSignIn'); $('signModal').classList.add('hidden'); };
@@ -3069,7 +3069,7 @@ function paintOnb() {
   $('onbDots').innerHTML = ONB.map((_, i) => `<i class="${i === onbI ? 'on' : ''}"></i>`).join('');
   $('onbSkip').classList.toggle('hidden', last);
   $('onbActions').innerHTML = !last ? `<button class="btn primary" id="onbNext">${tr('Next')}</button>`
-    : `${stravaReady() && !state.strava ? '<button class="btn-strava" id="onbStrava">' + STRAVA_ICON + ' Connect with Strava</button>' : ''}
+    : `${stravaReady() && !state.strava ? '<button class="btn-connect" id="onbStrava"><img src="strava/connect.svg" alt="Connect with Strava" width="237" height="48"></button>' : ''}
        ${state.profile.team || inviteCode ? '' : `<button class="btn" id="onbTeam">${tr('Join your team')}</button>`}
        ${canInstall() && isMobile ? `<button class="btn" id="onbInstall">${tr('Add to Home Screen')}</button>` : ''}
        <button class="btn primary" id="onbGo">${tr('Start throwing')}</button>`;
