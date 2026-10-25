@@ -44,6 +44,7 @@
   --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{overscroll-behavior-y:none}
 html,body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--text);font:15px/1.45 var(--font);-webkit-font-smoothing:antialiased}
 body{min-height:100vh;padding-bottom:calc(84px + var(--safe-b))}
 button,input{font:inherit;color:inherit}
@@ -305,6 +306,7 @@ a.tag{text-decoration:none}
 /* ---------- forms ---------- */
 input[type=text]{background:var(--card2);border:0;border-radius:16px;padding:15px 16px;min-width:0;width:100%;font-size:15px}
 input[type=text]::placeholder{color:var(--faint)}
+#postDesc{background:var(--card2);border:0;border-radius:16px;padding:14px 16px;width:100%;min-width:0;color:var(--text);font:14px/1.45 var(--font);resize:vertical}
 label.f{display:grid;gap:6px}
 .code{font-weight:300;font-size:44px;letter-spacing:.06em;text-align:center}
 .note{font-size:12.5px;color:var(--muted);text-align:center}
@@ -316,6 +318,24 @@ label.f{display:grid;gap:6px}
 .modal-bg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.40);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);display:grid;place-items:end center;padding:12px}
 .modal{width:min(520px,100%);max-height:92vh;overflow:auto;background:linear-gradient(160deg,rgba(32,32,36,.84),rgba(12,12,14,.90));backdrop-filter:blur(28px) saturate(1.7);-webkit-backdrop-filter:blur(28px) saturate(1.7);box-shadow:0 24px 60px rgba(0,0,0,.45);border-radius:28px;padding:22px 18px calc(18px + var(--safe-b));display:grid;gap:14px;text-align:center}
 .modal h2{font-weight:300;font-size:34px;margin:0;letter-spacing:-.02em}
+/* top-right close, pinned while the sheet scrolls, so closing never needs a scroll */
+.ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:60;display:flex;align-items:center;gap:8px;padding:8px 14px 8px 10px;border-radius:999px;background:rgba(28,28,32,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(0,0,0,.4);color:#fff;font:600 13px var(--font);white-space:nowrap;transform:translate(-50%,-80px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s}
+.ptr.drag{transition:none}
+.ptr i{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:var(--accent-hi);display:block;transition:transform .2s}
+.ptr.spin i{animation:ptrspin .7s linear infinite}
+@keyframes ptrspin{to{transform:rotate(360deg)}}
+.mem{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.mem:last-child{border-bottom:0}
+.mem .ini{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--card2);font-weight:700;font-size:13px;flex:none}
+.mem .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.mem .nm small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+.mem .badge{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-hi)}
+.mem button{padding:7px 12px;border-radius:999px;background:var(--card2);color:var(--text);font:600 12.5px var(--font);flex:none}
+.mem button.on{background:var(--accent-tint);color:var(--on-accent)}
+.mem.left{opacity:.55}
+.modal .mx{position:sticky;top:0;justify-self:end;z-index:3;width:34px;height:34px;margin:-8px -6px -48px 0;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.10);color:rgba(255,255,255,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .15s,transform .15s}
+.modal .mx:active{transform:scale(.92);background:rgba(255,255,255,.18)}
+.modal .mx svg{width:14px;height:14px}
 .card.best{cursor:pointer;transition:transform .08s}
 .card.best:active{transform:scale(.97)}
 .bestbig{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-top:-6px}
@@ -448,13 +468,13 @@ nav.tabs button{position:relative;z-index:1}
     <div class="cap">Current accuracy</div>
     <div class="trio">
       <div><div class="v" id="attOut">0</div><div class="cap">Throws</div></div>
-      <div><div class="v" id="scoreLive">0</div><div class="cap">Skill score</div></div>
+      <div><div class="v" id="scoreLive">0</div><div class="cap">LANZA Score</div></div>
       <div><div class="v" id="timer">00:00</div><div class="cap">Elapsed</div></div>
     </div>
   </div>
   <div class="body">
     <div class="card tgt"><canvas id="practiceThumb" aria-hidden="true"></canvas><div><div class="t" id="practiceTarget"></div><div class="cap" id="practiceDiff"></div></div></div>
-    <div class="seg"><button id="changeTarget">Change target</button><button id="changeDist">Change distance</button></div>
+    <div class="seg"><button id="changeTarget">Change target</button><button id="changeDist">Change distance</button><button id="changeThrow">Change throw</button></div>
     <div class="counter">
       <button class="outcome make" id="btnMake"><span class="n" id="makeN">0</span>Make<span class="cap">hit · make · made</span></button>
       <button class="outcome miss" id="btnMiss"><span class="n" id="missN">0</span>Miss<span class="cap">miss · out · off</span></button>
@@ -478,7 +498,7 @@ nav.tabs button{position:relative;z-index:1}
     <div class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h1 class="title" style="font-size:42px">Session complete</h1>
     <div class="trio">
-      <div><div class="v" id="rScore">0</div><div class="cap" id="rBand">Skill score</div></div>
+      <div><div class="v" id="rScore">0</div><div class="cap" id="rBand">LANZA Score</div></div>
       <div><div class="v" id="rAcc">0%</div><div class="cap" id="rMk">Accuracy</div></div>
       <div><div class="v" id="rTime">0:00</div><div class="cap">Duration</div></div>
     </div>
@@ -524,7 +544,7 @@ nav.tabs button{position:relative;z-index:1}
   <div class="body">
     <div class="seg" id="statRange"><button data-r="7" class="on">Week</button><button data-r="30">Month</button><button data-r="0">All</button></div>
     <div class="card">
-      <div class="label-row"><span class="cap">Skill score</span><span class="cap" id="chartRange"></span></div>
+      <div class="label-row"><span class="cap">LANZA Score</span><span class="cap" id="chartRange"></span></div>
       <div class="chart"><canvas id="chartScore"></canvas><div class="tip" id="tipScore"></div></div>
     </div>
     <div class="card" id="throwCard">
@@ -545,10 +565,11 @@ nav.tabs button{position:relative;z-index:1}
       <div><div class="v" id="tAcc">0%</div><div class="cap">Accuracy</div></div>
       <div><div class="v" id="tAvg">0</div><div class="cap">Avg score</div></div>
     </div>
+    <button type="button" class="quicklink hidden" id="membersLink"></button>
   </div>
   <div class="body">
     <div id="teamJoin" style="display:grid;grid-template-columns:minmax(0,1fr);gap:12px">
-      <p class="note" style="font-size:14px">Join your team to compare Skill Scores. Your coach sees who practiced this week.</p>
+      <p class="note" style="font-size:14px">Join your team to compare LANZA Scores. Your coach sees who practiced this week.</p>
       <label class="f"><span class="cap">Your name</span><input type="text" id="nameInput" maxlength="40" placeholder="Jordan K." autocomplete="name"></label>
       <label class="f"><span class="cap">Team code</span><input type="text" id="codeInput" maxlength="20" placeholder="BLAZE-24" autocapitalize="characters"></label>
       <button class="btn primary" id="joinTeam">Join team</button>
@@ -679,12 +700,35 @@ nav.tabs button{position:relative;z-index:1}
 <!-- One-tap Strava post, offered when the athlete taps Done -->
 <div class="modal-bg hidden" id="postModal">
   <div class="modal">
-    <div class="cap">Post to Strava?</div>
-    <h2 id="postTitle" style="margin:0"></h2>
-    <p class="note" id="postSub" style="margin:0;font-size:14px"></p>
+    <div class="cap" id="postCap">Post to Strava?</div>
+    <div id="postEdit" style="display:grid;gap:12px;text-align:start">
+      <label class="f"><span class="cap">Title</span><input type="text" id="postName" maxlength="80"></label>
+      <div class="hidden" id="postTeamRow"><span class="cap">Team in the caption</span><div class="namechips" id="postTeams" style="margin-top:8px"></div></div>
+      <label class="f"><span class="cap">Caption</span><textarea id="postDesc" rows="7" maxlength="2000"></textarea></label>
+      <p class="note" style="margin:0;font-size:13px">Nothing is posted until you tap Publish. Photos are added in Strava right after.</p>
+    </div>
+    <div id="postDoneBox" class="hidden"><h2 style="margin:0">Posted</h2><p class="note" style="margin:6px 0 0;font-size:14px">Open it in Strava to add photos or change anything.</p></div>
     <button class="btn-strava" id="postGo"></button>
+    <a class="btn-strava hidden" id="postOpen" target="_blank" rel="noopener"></a>
     <button class="btn" id="postNo">Not now</button>
     <div class="powered">Powered by <b>STRAVA</b></div>
+  </div>
+</div>
+
+<div class="modal-bg hidden" id="throwModal">
+  <div class="modal">
+    <div class="cap">Change throw</div>
+    <p class="note" style="margin:0;font-size:14px">Throws from now on count as this one. The ones before keep theirs.</p>
+    <div class="throwpick" style="margin:0"><div class="namechips" id="throwChips2"></div><div class="namechips sub" id="styleChips2"></div></div>
+    <button class="btn primary" id="throwDone">Done</button>
+  </div>
+</div>
+
+<div class="modal-bg hidden" id="membersModal">
+  <div class="modal" style="text-align:start">
+    <h2 style="text-align:center">Members</h2>
+    <div id="membersBody" style="display:grid;gap:14px"></div>
+    <button class="btn" id="membersClose">Close</button>
   </div>
 </div>
 
@@ -701,11 +745,14 @@ nav.tabs button{position:relative;z-index:1}
     <p class="note" style="font-size:14px;margin:0">Your sessions will show on the team board. You can leave any time.</p>
     <label class="f" style="text-align:start"><span class="cap">Your name</span><input type="text" id="inviteName" maxlength="40" placeholder="Jordan K." autocomplete="name"></label>
     <button class="btn primary" id="inviteJoin">Join team</button>
+    <button class="btn outline hidden" id="inviteApp">I have LANZA on my home screen</button>
+    <p class="note hidden" id="inviteAppNote" style="margin:0;font-size:14px">Done. Now open LANZA from your home screen: the invite is waiting there for 15 minutes.</p>
     <button class="btn" id="inviteNo">Not now</button>
   </div>
 </div>
 
 <div id="toast" role="status"></div>
+<div class="ptr" id="ptr" aria-live="polite"><i></i><span id="ptrText">Pull to refresh</span></div>
 
 <script src="i18n.js"></script>
 <script>
@@ -720,7 +767,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.25.0';
+const APP_VERSION = '2.26.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -899,12 +946,12 @@ function migrate() {
     ['plan', 'role'].forEach(LS.del);
   }
   if (v < 3) {
-    // v2 → v3: the accuracy-first Skill Score. Rescore saved sessions so old and new numbers compare.
+    // v2 → v3: the accuracy-first LANZA Score. Rescore saved sessions so old and new numbers compare.
     LS.set('sessions', LS.get('sessions', []).map(s => ({ ...s, wet_rating: s.wet_rating || 1,
       skill_score: scoreOf(s.makes, s.attempts, s.difficulty, WIND[(s.wind_rating || 1) - 1].f, 1) })));
   }
   if (v < 4) {
-    // v3 → v4: Skill Score becomes a 0–100 rating. Rescore so old and new sessions compare.
+    // v3 → v4: LANZA Score becomes a 0–100 rating. Rescore so old and new sessions compare.
     LS.set('sessions', LS.get('sessions', []).map(s => ({ ...s,
       skill_score: scoreOf(s.makes, s.attempts, s.difficulty, WIND[(s.wind_rating || 1) - 1].f, WET[(s.wet_rating || 1) - 1].f) })));
   }
@@ -933,7 +980,7 @@ const PRESETS = [{ id: 'pinpoint', ratio: 2 }, { id: 'chest', ratio: 5 }, { id: 
 const sizeTier = (ratio) => SIZE_TIERS.find(t => ratio < t.max);
 const WIND = [{ r: 1, f: 1.0, name: 'Calm' }, { r: 2, f: 1.1, name: 'Breeze' }, { r: 3, f: 1.25, name: 'Cross' }, { r: 4, f: 1.4, name: 'Gusts' }, { r: 5, f: 1.6, name: 'Gale' }];
 const WET = [{ r: 1, f: 1.0, name: 'Dry' }, { r: 2, f: 1.1, name: 'Damp' }, { r: 3, f: 1.2, name: 'Wet' }];
-/* Skill Score: a 0–100 rating of how good a session was (same formula on the server in team-core.mjs).
+/* LANZA Score: a 0–100 rating of how good a session was (same formula on the server in team-core.mjs).
      A     = (makes + 5) / (attempts + 10)          accuracy, counted as if 5 of 10 extra throws were made:
                                                    short sessions sit near 50%, so a high score needs many
                                                    throws made, not a lucky few
@@ -974,7 +1021,9 @@ const STYLES = [
 ];
 const throwOf = (s) => THROWS.find(t => t.id === s.throw) || THROWS[THROWS.length - 1];
 const stylesOf = (s) => (s.styles || []).map(id => STYLES.find(x => x.id === id)).filter(Boolean);
-function throwLabel(s) { const t = throwOf(s), st = stylesOf(s); return [t.id === 'mixed' && st.length ? '' : tr(t.name), ...st.map(x => lc(tr(x.name)))].filter(Boolean).join(' · ').replace(/^./, c => c.toUpperCase()); }
+function throwLabel(s) {
+  if (s.parts && s.parts.length > 1) return [...new Set(s.parts.map(p => throwLabel({ throw: p.throw, styles: p.styles })))].join(' + ');
+  const t = throwOf(s), st = stylesOf(s); return [t.id === 'mixed' && st.length ? '' : tr(t.name), ...st.map(x => lc(tr(x.name)))].filter(Boolean).join(' · ').replace(/^./, c => c.toUpperCase()); }
 const rescore = (s) => scoreOf(s.makes, s.attempts, s.difficulty, WIND[(s.wind_rating || 1) - 1].f, WET[(s.wet_rating || 1) - 1].f);
 migrate(); // after the scoring constants it uses
 state.sessions = LS.get('sessions', []); state.profile = LS.get('profile', state.profile);
@@ -995,7 +1044,7 @@ const allowedThisWeek = () => state.config.freeSessionsPerWeek + (state.adCredit
 /* =============================================================================
    Target: drawn by hand on a to-scale scene, then the distance to it.
    Everything is in metres, so the drawn area gives the size multiplier the same
-   way for everyone and Skill Scores stay comparable.
+   way for everyone and LANZA Scores stay comparable.
    ============================================================================= */
 const DISC_D = 0.274, DISC_AREA = Math.PI * (DISC_D / 2) ** 2;
 const SCENE = { w: 4.4, h: 6.4 };                  // world shown on the draw page, in metres
@@ -1348,7 +1397,7 @@ const stats = (s) => {
 function tryStart() { setup.quick = false; if (needsAd()) { openAdGate(); return; } openTarget('new'); }
 function startSession() {
   audio();
-  session = { id: uuid(), startedAt: Date.now(), log: [], diffs: [], streak: 0, best: 0, targets: 0, cur: null, throw: setup.throw, styles: [...setup.styles] };
+  session = { id: uuid(), startedAt: Date.now(), log: [], diffs: [], streak: 0, best: 0, targets: 0, cur: null, throw: setup.throw, styles: [...setup.styles], parts: [{ throw: setup.throw, styles: [...setup.styles], from: 0 }] };
   applyTarget(); timerId = setInterval(tickTimer, 1000); tickTimer(); requestWakeLock();
   showView('practice'); say(tr('Session started.')); persistLive();
 }
@@ -1368,6 +1417,22 @@ function applyTarget() {
   requestAnimationFrame(() => { const v = fitCanvas($('practiceThumb')); if (v) drawScene(v, session.cur.shape, { small: true }); });
 }
 $('changeTarget').onclick = () => openTarget('change');
+/* Changing throw mid-session starts a new part; each part keeps its own makes so Stats stay right per throw. */
+function renderThrowModal() {
+  $('throwChips2').innerHTML = THROWS.filter(t => t.id !== 'mixed').map(t => `<button type="button" data-t="${t.id}" class="${t.id === session.throw ? 'on' : ''}">${tr(t.name)}</button>`).join('');
+  $('styleChips2').innerHTML = STYLES.map(x => `<button type="button" data-s="${x.id}" class="${session.styles.includes(x.id) ? 'on' : ''}">${tr(x.name)}</button>`).join('');
+  $('throwChips2').querySelectorAll('button').forEach(b => b.onclick = () => { setThrow(session.throw === b.dataset.t ? 'mixed' : b.dataset.t, session.styles); renderThrowModal(); });
+  $('styleChips2').querySelectorAll('button').forEach(b => b.onclick = () => { const id = b.dataset.s; setThrow(session.throw, session.styles.includes(id) ? session.styles.filter(x => x !== id) : [...session.styles, id]); renderThrowModal(); });
+}
+function setThrow(t, styles) {
+  if (!session.parts) session.parts = [{ throw: session.throw, styles: [...session.styles], from: 0 }];
+  const last = session.parts[session.parts.length - 1];
+  if (last.from >= session.log.length) { last.throw = t; last.styles = [...styles]; } else session.parts.push({ throw: t, styles: [...styles], from: session.log.length });
+  session.throw = t; session.styles = [...styles]; setup.throw = t; setup.styles = [...styles]; LS.set('throw', t); LS.set('styles', setup.styles);
+  persistLive(); $('practiceDiff').textContent = `${throwLabel(session)} · ${tr('difficulty {n}/10', { n: levelLabel(session.cur.difficulty) })}`;
+}
+$('changeThrow').onclick = () => { renderThrowModal(); $('throwModal').classList.remove('hidden'); };
+$('throwDone').onclick = () => $('throwModal').classList.add('hidden');
 $('changeDist').onclick = () => { setup.mode = 'change'; setup.distOnly = true; setup.shape = session.cur.shape; setup.distance = session.cur.distance; zoom.cur = null; showView('distance'); requestAnimationFrame(renderDistance); };
 function tickTimer() { if (!session) return; const s = Math.floor((Date.now() - session.startedAt) / 1000); $('timer').textContent = `${String(s / 60 | 0).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }
 async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch {} }
@@ -1482,6 +1547,12 @@ function sessionRecord(ss, endAt) {
     wind_rating: 1, wet_rating: 1, skill_score: st.score, strava_activity_id: null, team_shared: null,
     shape: session.cur.shape || null, throw: session.throw, styles: session.styles
   };
+  const parts = (session.parts || []).map((p, i, a) => { const l = session.log.slice(p.from, i + 1 < a.length ? a[i + 1].from : undefined); return { throw: p.throw, styles: p.styles, attempts: l.length, makes: l.filter(Boolean).length }; }).filter(p => p.attempts);
+  const keyOf = (p) => p.throw + '|' + [...p.styles].sort().join(',');
+  if (new Set(parts.map(keyOf)).size > 1) {
+    rec.parts = parts; const ts = new Set(parts.map(p => p.throw));
+    rec.throw = ts.size === 1 ? parts[0].throw : 'mixed'; rec.styles = parts[0].styles.filter(x => parts.every(p => p.styles.includes(x)));
+  } else if (parts.length) { rec.throw = parts[0].throw; rec.styles = parts[0].styles; }
   rec.title = defaultTitle(rec);
   return rec;
 }
@@ -1493,7 +1564,7 @@ $('endSession').onclick = () => {
   endPractice(); renderResult(); showView('result');
   shareToTeam(current); autoPostStrava(); track('session');
   if (thisWeek().length === goalN()) setTimeout(() => { chimeFanfare(); toast(tr('Weekly goal reached!')); }, 2600);
-  say(tr('Saved. Skill score {n}.', { n: current.skill_score }));
+  say(tr('Saved. LANZA Score {n}.', { n: current.skill_score }));
 };
 function setCond(key, r) {
   if (!current) return;
@@ -1513,14 +1584,14 @@ function renderResult() {
   const others = state.sessions.filter(x => x.id !== s.id && new Date(x.created_at) < new Date(s.created_at));
   const prevBest = others.length ? Math.max(...others.map(x => x.skill_score)) : null;
   const prevStreak = others.length ? Math.max(...others.map(x => x.best_streak || 0)) : null;
-  $('rPB').textContent = prevBest == null ? tr('First session logged') : s.skill_score > prevBest ? tr('Personal best: Skill Score {n}', { n: s.skill_score })
+  $('rPB').textContent = prevBest == null ? tr('First session logged') : s.skill_score > prevBest ? tr('Personal best: LANZA Score {n}', { n: s.skill_score })
     : prevStreak != null && s.best_streak > prevStreak ? tr('Personal best: {n} makes in a row', { n: s.best_streak }) : tr('{d} points off your best of {b}', { d: prevBest - s.skill_score, b: prevBest });
   $('rList').innerHTML = [['Throw', throwLabel(s)], ['Makes', tr('{m} of {n}', { m: s.makes, n: s.attempts })], ['Distance', distLabel(s.distance_m)], ['Target', tr(s.target)],
     ['Difficulty', `${levelLabel(s.difficulty * w.f * wt.f)} / 10`], ['Best streak', s.best_streak], ['Conditions', tr('{w} wind', { w: tr(w.name) })]].map(([k, v]) => `<div>${tr(k)}<b>${esc(v)}</b></div>`).join('');
   $('rHow').textContent = tr('{m}/{n} counts as {a}% (more throws, more weight) × difficulty {d}/10 = {s} ({band})', { m: s.makes, n: s.attempts, a: Math.round((s.makes + 5) / (s.attempts + 10) * 100), d: levelLabel(s.difficulty * w.f * wt.f), s: s.skill_score, band: scoreBand(s.skill_score) });
   renderName(); renderStravaBox(); renderTeamStatus();
 }
-function resultText(s) { return `${BRAND.activityEmoji} ${BRAND.name} · ${tr('Skill Score {n}/100', { n: s.skill_score })} (${scoreBand(s.skill_score)}) · ${s.makes}/${s.attempts} (${Math.round(s.accuracy * 100)}%) · ${distLabel(s.distance_m)} · ${throwLabel(s)}`; }
+function resultText(s) { return `${BRAND.activityEmoji} ${BRAND.name} · ${tr('LANZA Score {n}/100', { n: s.skill_score })} (${scoreBand(s.skill_score)}) · ${s.makes}/${s.attempts} (${Math.round(s.accuracy * 100)}%) · ${distLabel(s.distance_m)} · ${throwLabel(s)}`; }
 function partOfDay(d) { const h = d.getHours(); return h < 5 ? 'Night' : h < 12 ? 'Morning' : h < 17 ? 'Afternoon' : h < 21 ? 'Evening' : 'Night'; }
 // "Evening forehands", "Morning backhand hucks", "Evening throwing session" for mixed.
 // Word order comes from the language file: "{part}" templates and "{throw} {style}".
@@ -1566,22 +1637,25 @@ function isPB(s) {
   const others = state.sessions.filter(x => x.id !== s.id && new Date(x.created_at) < new Date(s.created_at));
   return others.length > 0 && s.skill_score > Math.max(...others.map(x => x.skill_score));
 }
-// This month's rank on the team board (same ordering as the board: average Skill Score).
+// This month's rank on the team board (same ordering as the board: average LANZA Score).
+// The caption names one team (the athlete picks which, or none); default is the active team.
+const captionTeam = (s) => s.caption_team != null ? s.caption_team : (state.profile.team || '');
 async function teamRankLine(s) {
-  if (!state.profile.team) return '';
+  const code = captionTeam(s); if (!code) return '';
+  const label = teamName(teamsList().find(t => t.code === code)) || code;
   try {
-    const d = await api(`/team?code=${encodeURIComponent(state.profile.team)}&weeks=6`);
+    const d = await api(`/team?code=${encodeURIComponent(code)}&weeks=6`);
     const mk = (t) => { const x = new Date(t); return x.getFullYear() * 12 + x.getMonth(); }, month = mk(s.created_at), by = new Map();
     d.sessions.filter(x => mk(x.created_at) === month).forEach(x => { if (!by.has(x.athlete_key)) by.set(x.athlete_key, []); by.get(x.athlete_key).push(x); });
     const board = [...by.entries()].map(([k, rs]) => ({ k, rs, avg: rs.reduce((a, x) => a + x.skill_score, 0) / rs.length })).sort((a, b) => b.avg - a.avg);
     const i = board.findIndex(r => r.rs.some(x => x.id === s.id));
-    return i < 0 || board.length < 2 ? '' : '📈 ' + tr('#{r} of {n} on {team} this month', { r: i + 1, n: board.length, team: teamLabel() });
-  } catch { return ''; }
+    return i < 0 || board.length < 2 ? '🥏 ' + tr('Training with {team}', { team: label }) : '📈 ' + tr('#{r} of {n} on {team} this month', { r: i + 1, n: board.length, team: label });
+  } catch { return '🥏 ' + tr('Training with {team}', { team: label }); }
 }
 async function stravaDescription(s) {
   const w = WIND[s.wind_rating - 1], url = appUrl();
   return [
-    `${tr('Skill Score {n}/100', { n: s.skill_score })} · ${scoreBand(s.skill_score)}${isPB(s) ? ' · 🏆 ' + tr('New personal best') : ''}`,
+    `${tr('LANZA Score {n}/100', { n: s.skill_score })} · ${scoreBand(s.skill_score)}${isPB(s) ? ' · 🏆 ' + tr('New personal best') : ''}`,
     `🥏 ${throwLabel(s)}`,
     '🎯 ' + tr('{m}/{n} makes ({p}%) · best streak {b}', { m: s.makes, n: s.attempts, p: Math.round(s.accuracy * 100), b: s.best_streak }),
     '📏 ' + tr('{d} · {target} target', { d: distLabel(s.distance_m), target: lc(tr(s.target)) }),
@@ -1677,12 +1751,24 @@ function drawStory(s) {
   g.fillStyle = '#fff'; g.font = font(700, 30); g.letterSpacing = '10px'; g.fillText(BRAND.name, ax + 108, ay + 82); g.letterSpacing = '0px';
   g.restore();
   // title + what it was
+  // Long titles shrink, then wrap to two lines, never past the card edge.
   const tx = ax; let y = ay + ah + 100;
-  g.fillStyle = '#fff'; g.font = font(700, 58); g.fillText(sessionTitle(s), tx, y, aw);
-  y += 58; g.fillStyle = 'rgba(255,255,255,.6)'; g.font = font(500, 36);
-  g.fillText(`${throwLabel(s)} · ${distLabel(s.distance_m)} · ${tr(s.target)}`, tx, y, aw);
+  const clip = (t, max) => { if (g.measureText(t).width <= max) return t; while (t.length > 1 && g.measureText(t + '…').width > max) t = t.slice(0, -1); return t.trimEnd() + '…'; };
+  const title = sessionTitle(s); let tpx = 58; g.font = font(700, tpx);
+  while (tpx > 46 && g.measureText(title).width > aw) g.font = font(700, --tpx);
+  let lines = [title];
+  if (g.measureText(title).width > aw) {
+    const words = title.split(/\s+/); let a = '';
+    for (let i = 0; i < words.length; i++) { const t = a ? a + ' ' + words[i] : words[i]; if (g.measureText(t).width > aw && a) { lines = [a, clip(words.slice(i).join(' '), aw)]; break; } a = t; }
+    if (lines.length === 1) lines = [clip(title, aw)];
+  }
+  g.fillStyle = '#fff'; lines.forEach((l, i) => g.fillText(l, tx, y + i * (tpx + 8)));
+  y += (lines.length - 1) * (tpx + 8) + 58; g.fillStyle = 'rgba(255,255,255,.6)';
+  let spx = 36; const sub = `${throwLabel(s)} · ${distLabel(s.distance_m)} · ${tr(s.target)}`; g.font = font(500, spx);
+  while (spx > 26 && g.measureText(sub).width > aw) g.font = font(500, --spx);
+  g.fillText(clip(sub, aw), tx, y);
   // score, with the badge on a personal best
-  y += 230; g.fillStyle = '#fff'; g.font = font(700, 220); g.fillText(String(s.skill_score), tx, y);
+  y += lines.length > 1 ? 200 : 230; g.fillStyle = '#fff'; g.font = font(700, 220); g.fillText(String(s.skill_score), tx, y);
   let sx = tx + g.measureText(String(s.skill_score)).width + 34;
   if (isPB(s)) {
     g.save(); g.translate(sx, y - 150); g.scale(1.6, 1.6); g.shadowColor = AC().hi; g.shadowBlur = 24;
@@ -1694,7 +1780,7 @@ function drawStory(s) {
   const fitLine = (t, x, yy, max, px) => { g.font = font(700, px); while (px > 18 && g.measureText(t).width > max) g.font = font(700, --px); g.fillText(t, x, yy); };
   const room = cx + cw - 56 - sx;
   g.fillStyle = AC().tint; g.letterSpacing = '5px';
-  fitLine(tr('Skill score').toUpperCase(), sx, y - 112, room, 30);
+  fitLine(tr('LANZA Score').toUpperCase(), sx, y - 112, room, 30);
   fitLine(scoreBand(s.skill_score).toUpperCase(), sx, y - 66, room, 30);
   if (isPB(s)) { g.fillStyle = '#fff'; fitLine(tr('NEW PB').toUpperCase(), sx, y - 20, room, 30); }
   g.letterSpacing = '0px';
@@ -1730,7 +1816,12 @@ function drawSticker(s, team = '') {
     const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), bw = Math.max(...xs) - Math.min(...xs) || 1, bh = Math.max(...ys) - Math.min(...ys) || 1;
     const k = Math.min(560 / bw, 300 / bh), ox = W / 2 - (Math.min(...xs) + bw / 2) * k, oy = 280 + (Math.min(...ys) + bh / 2) * k;
     g.beginPath(); pts.forEach(([x, y], i) => g[i ? 'lineTo' : 'moveTo'](ox + x * k, oy - y * k)); g.closePath();
-    g.lineWidth = 9; g.lineJoin = 'round'; g.stroke();
+    // the target glows in the app color, like the story
+    g.save(); const ac = AC(), bx0 = ox + Math.min(...xs) * k, by0 = oy - Math.max(...ys) * k;
+    const fg = g.createLinearGradient(bx0, by0, bx0 + bw * k, by0 + bh * k); fg.addColorStop(0, `rgba(${ac.rgb},.30)`); fg.addColorStop(1, `rgba(${ac.rgb},.06)`);
+    g.shadowColor = 'transparent'; g.fillStyle = fg; g.fill();
+    const sg = g.createLinearGradient(bx0, by0, bx0 + bw * k, by0 + bh * k); sg.addColorStop(0, '#fff'); sg.addColorStop(.35, ac.hi); sg.addColorStop(1, ac.a);
+    g.shadowColor = ac.hi; g.shadowBlur = 34; g.lineWidth = 9; g.lineJoin = 'round'; g.strokeStyle = sg; g.stroke(); g.shadowBlur = 14; g.stroke(); g.restore();
     // one LANZA spear stuck inside the target per make, scattered but fixed per session
     const poly = pts.map(([x, y]) => [ox + x * k, oy - y * k]), inside = (x, y) => {
       let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c;
@@ -1739,23 +1830,26 @@ function drawSticker(s, team = '') {
     const rnd = () => { seed = (seed + 0x6D2B79F5) >>> 0; let t = seed; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
     const x0 = Math.min(...poly.map(q => q[0])), x1 = Math.max(...poly.map(q => q[0])), y0 = Math.min(...poly.map(q => q[1])), y1 = Math.max(...poly.map(q => q[1]));
     // one LANZA disc per make, seen from the side in flight: a flat rhombus, slightly tilted
-    const n = s.makes, w = Math.max(18, Math.min(52, Math.min(x1 - x0, y1 - y0) * .26, 60 - n * .7)), h = Math.max(4, w * .2);
+    const n = s.attempts, w = Math.max(18, Math.min(52, Math.min(x1 - x0, y1 - y0) * .26, 60 - n * .7)), h = Math.max(4, w * .2);
     const gap = Math.max(w * .75, Math.sqrt((x1 - x0) * (y1 - y0) / Math.max(1, n)) * .75), tips = [];
     for (let t = 0; tips.length < n && t < n * 400; t++) {
       const x = x0 + rnd() * (x1 - x0), y = y0 + rnd() * (y1 - y0), r = (rnd() - .5) * .4, dx = Math.cos(r) * w / 2 + 4, dy = Math.sin(r) * w / 2;
       if (inside(x, y) && inside(x - dx, y - dy) && inside(x + dx, y + dy) && inside(x, y - h) && inside(x, y + h) && tips.every(([u, v]) => Math.hypot((u - x) * .8, (v - y) * 1.6) > gap * Math.max(.3, 1 - t / (n * 300)))) tips.push([x, y, r]);
     }
-    tips.sort((p1, p2) => p1[1] - p2[1]).forEach(([x, y, r]) => {
-      g.save(); g.translate(x, y); g.rotate(r);
-      g.beginPath(); g.moveTo(-w / 2, 0); g.lineTo(0, -h / 2); g.lineTo(w / 2, 0); g.lineTo(0, h / 2); g.closePath(); g.fill();
-      g.restore();
-    });
+    // Every throw is a disc: misses in a quiet grey, makes in the app color with a soft glow.
+    const ac2 = AC(), made = new Set(tips.map((_, i) => i).sort((i, j) => (((i * 2654435761) ^ s.makes) >>> 0) % 997 - (((j * 2654435761) ^ s.makes) >>> 0) % 997).slice(0, s.makes));
+    const disc = (x, y, r) => { g.save(); g.translate(x, y); g.rotate(r); g.beginPath(); g.moveTo(-w / 2, 0); g.lineTo(0, -h / 2); g.lineTo(w / 2, 0); g.lineTo(0, h / 2); g.closePath(); g.fill(); g.restore(); };
+    g.save(); g.shadowColor = 'transparent'; g.fillStyle = 'rgba(200,200,206,.32)'; tips.forEach((t, i) => { if (!made.has(i)) disc(...t); }); g.restore();
+    g.save(); g.shadowColor = ac2.hi; g.shadowBlur = 12; g.shadowOffsetY = 0;
+    tips.map((t, i) => [t, i]).filter(([, i]) => made.has(i)).sort((a, b) => a[0][1] - b[0][1]).forEach(([t]) => {
+      const [x, y, r] = t, dg = g.createLinearGradient(x - w / 2, y, x + w / 2, y); dg.addColorStop(0, ac2.hi); dg.addColorStop(1, ac2.a); g.fillStyle = dg; disc(x, y, r);
+    }); g.restore();
   }
   // stats: three columns like a run sticker
   const col = (label, val, x) => { g.font = font(600, 26); g.letterSpacing = '5px'; g.fillText(label.toUpperCase(), x, 520); g.letterSpacing = '0px'; g.font = font(700, 64); g.fillText(val, x, 594); };
   col(tr('Makes'), `${s.makes}/${s.attempts}`, W / 6); col(tr('Accuracy'), `${Math.round(s.accuracy * 100)}%`, W / 2); col(tr('Distance'), distLabel(s.distance_m), W * 5 / 6);
   // score
-  g.font = font(600, 26); g.letterSpacing = '5px'; g.fillText(tr('Skill score').toUpperCase(), W / 2, 680); g.letterSpacing = '0px';
+  g.font = font(600, 26); g.letterSpacing = '5px'; g.fillText(tr('LANZA Score').toUpperCase(), W / 2, 680); g.letterSpacing = '0px';
   g.font = font(800, 150); const sc = String(s.skill_score), sw = g.measureText(sc).width; g.fillText(sc, W / 2, 820);
   if (isPB(s)) {
     g.save(); g.translate(W / 2 + sw / 2 + 24, 712); g.scale(1.9, 1.9); g.shadowColor = AC().hi; g.shadowBlur = 16;
@@ -1806,17 +1900,41 @@ $('shareClose').onclick = () => $('shareModal').classList.add('hidden');
 $('shareModal').onclick = (e) => { if (e.target === $('shareModal')) $('shareModal').classList.add('hidden'); };
 // Done: if the session isn't on Strava yet, offer a one-tap post (asked once per session).
 function leaveResult() { $('postModal').classList.add('hidden'); current = null; showView('setup'); }
+/* Strava has no drafts, so the post is edited here first (title, caption, team), published
+   only on Publish, then opened in Strava for photos. */
+let postFromDone = false;
+async function openPost(fromDone) {
+  const s = current; if (!s) return; postFromDone = fromDone;
+  $('postCap').textContent = tr('Post to Strava?'); $('postEdit').classList.remove('hidden'); $('postDoneBox').classList.add('hidden'); $('postOpen').classList.add('hidden');
+  $('postGo').classList.remove('hidden'); $('postGo').disabled = false; $('postGo').innerHTML = `${STRAVA_ICON} ${tr('Publish to Strava')}`;
+  $('postNo').textContent = tr('Not now'); $('postName').value = sessionTitle(s);
+  const ts = teamsList(); $('postTeamRow').classList.toggle('hidden', !ts.length);
+  const paintTeams = () => {
+    $('postTeams').innerHTML = [['', tr('No team')], ...ts.map(t => [t.code, teamName(t)])].map(([c, n]) => `<button type="button" data-c="${esc(c)}" class="${captionTeam(s) === c ? 'on' : ''}">${esc(n)}</button>`).join('');
+    $('postTeams').querySelectorAll('button').forEach(b => b.onclick = async () => { s.caption_team = b.dataset.c; s.caption = null; saveSessions(); paintTeams(); $('postDesc').value = $('postDesc').dataset.gen = await stravaDescription(s); });
+  };
+  paintTeams(); $('postDesc').dataset.gen = await stravaDescription(s); $('postDesc').value = s.caption || $('postDesc').dataset.gen;
+  $('postModal').classList.remove('hidden');
+}
+// Only a caption the athlete edited is kept; otherwise it follows later changes (wind, name).
+$('postDesc').oninput = () => { if (current) { current.caption = $('postDesc').value !== $('postDesc').dataset.gen ? $('postDesc').value : null; saveSessions(); } };
+$('postName').onchange = () => { if (current) { const t = $('postName').value.trim().slice(0, 80); current.title = t === defaultTitle(current) ? '' : t; saveSessions(); renderName(); } };
 $('againBtn').onclick = () => {
   const s = current;
   if (!s || s.strava_activity_id || s.strava_asked || !state.strava || !stravaReady()) return leaveResult();
-  s.strava_asked = true; saveSessions();
-  $('postTitle').textContent = sessionTitle(s);
-  $('postSub').textContent = `${tr('Skill score')} ${s.skill_score} · ${s.makes}/${s.attempts} · ${distLabel(s.distance_m)}`;
-  $('postGo').innerHTML = `${STRAVA_ICON} ${tr('Upload to Strava')}`; $('postGo').disabled = false;
-  $('postModal').classList.remove('hidden');
+  s.strava_asked = true; saveSessions(); openPost(true);
 };
-$('postGo').onclick = async () => { $('postGo').disabled = true; $('postGo').innerHTML = `${STRAVA_ICON} ${tr('Uploading…')}`; await uploadToStrava(); leaveResult(); };
-$('postNo').onclick = leaveResult;
+$('postGo').onclick = async () => {
+  const s = current; if (!s) return;
+  { const t = $('postName').value.trim().slice(0, 80); s.title = t === defaultTitle(s) ? '' : t; } s.caption = $('postDesc').value !== $('postDesc').dataset.gen ? $('postDesc').value : null; saveSessions();
+  $('postGo').disabled = true; $('postGo').innerHTML = `${STRAVA_ICON} ${tr('Uploading…')}`;
+  await uploadToStrava();
+  if (!s.strava_activity_id) { $('postGo').disabled = false; $('postGo').innerHTML = `${STRAVA_ICON} ${tr('Publish to Strava')}`; return; }
+  $('postCap').textContent = tr('Strava'); $('postEdit').classList.add('hidden'); $('postDoneBox').classList.remove('hidden'); $('postGo').classList.add('hidden');
+  $('postOpen').href = `https://www.strava.com/activities/${encodeURIComponent(s.strava_activity_id)}`; $('postOpen').innerHTML = `${STRAVA_ICON} ${tr('Open in Strava')}`; $('postOpen').classList.remove('hidden');
+  $('postNo').textContent = tr('Done');
+};
+$('postNo').onclick = () => { if (postFromDone) leaveResult(); else { $('postModal').classList.add('hidden'); renderStravaBox(); } };
 
 /* =============================================================================
    Strava
@@ -1938,6 +2056,13 @@ function renderGoal() {
     : streak ? `${streak} · ${tr('{n} more to keep it', { n: g - n })}` : tr('{n} more this week', { n: g - n });
 }
 $('goalCard').onclick = () => openAcct();
+// Every closable sheet gets a small X at the top that does what its bottom close button does.
+[['acctModal', 'acctClose'], ['playerModal', 'playerClose'], ['shareModal', 'shareClose'], ['bestModal', 'bestClose'], ['postModal', 'postNo'], ['inviteModal', 'inviteNo'], ['adModal', 'closeAd'], ['throwModal', 'throwDone'], ['membersModal', 'membersClose'], ['handoffModal', null]].forEach(([m, b]) => {
+  const box = $(m) && $(m).querySelector('.modal'); if (!box) return;
+  const x = document.createElement('button'); x.type = 'button'; x.className = 'mx'; x.setAttribute('aria-label', tr('Close'));
+  x.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  x.onclick = () => b && $(b) ? $(b).click() : $(m).classList.add('hidden'); box.prepend(x);
+});
 
 /* Best score card → top 5 ranking, with the score to beat and a one-tap start. */
 // #1 badge: the LANZA spearhead diamond with its inner rim line. 
@@ -2120,7 +2245,7 @@ async function stravaConnected(t) {
     renderSetup(); renderAcct(); await restoreBackup();
     const pending = LS.get('pendingUpload', null); LS.del('pendingUpload');
     const row = pending && state.sessions.find(s => s.id === pending);
-    if (row) { current = row; renderResult(); showView('result'); uploadToStrava(); }
+    if (row) { current = row; renderResult(); showView('result'); openPost(false); }
   } catch (e) { toast(e.message); }
 }
 async function stravaToken() {
@@ -2144,7 +2269,7 @@ function scheduleStravaSync() {
   scheduleStravaSync.t = setTimeout(async () => {
     const token = await stravaToken(); if (!token) return;
     try {
-      await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'update', access_token: token, id: s.strava_activity_id, activity: { name: sessionTitle(s), description: await stravaDescription(s) } }) });
+      await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'update', access_token: token, id: s.strava_activity_id, activity: { name: sessionTitle(s), description: s.caption || await stravaDescription(s) } }) });
       if (s === current) renderStravaBox(tr('Strava post updated'));
     } catch (e) { if (s === current) renderStravaBox(); }
   }, 1500);
@@ -2160,7 +2285,7 @@ async function uploadToStrava() {
     const d = await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'upload', access_token: token, activity: {
       name: sessionTitle(s),
       start_date_local: localIso(new Date(s.created_at)), elapsed_time: s.duration_s,
-      description: await stravaDescription(s)
+      description: s.caption || await stravaDescription(s)
     } }) });
     s.strava_activity_id = String(d.id); saveSessions(); if (s === current) renderStravaBox(); toast(tr('Posted to Strava')); track('strava_post');
     shareToTeam(s);
@@ -2169,7 +2294,8 @@ async function uploadToStrava() {
     renderStravaBox(e.message, 'err');
   }
 }
-$('stravaUpload').onclick = uploadToStrava;
+// Connected: open the editor first. Not connected yet: uploadToStrava starts the sign-in.
+$('stravaUpload').onclick = () => { if (state.strava && stravaReady()) openPost(false); else uploadToStrava(); };
 
 /* =============================================================================
    Team board
@@ -2262,18 +2388,21 @@ function joinTeam(code, teamName = '') {
   const ts = teamsList();
   if (!ts.some(t => t.code === code)) ts.push({ code, name: String(teamName).trim().slice(0, 30), color: '' });
   state.profile = { ...state.profile, name: name || state.profile.name, team: code, teams: ts, teamName: (ts.find(t => t.code === code) || {}).name || '' }; saveProfile();
-  joiningAnother = false; teamData = null; applyTheme(); renderTeamView(); toast(tr('Joined team {code}', { code: teamLabel() })); track('team_join'); retryPendingShares();
+  joiningAnother = false; teamData = null; applyTheme(); renderTeamView(); toast(tr('Joined team {code}', { code: teamLabel() })); track('team_join'); retryPendingShares(); memberPing(code, 'join');
 }
 $('joinTeam').onclick = () => joinTeam($('codeInput').value);
 $('createTeam').onclick = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += a[Math.random() * a.length | 0]; joinTeam(`LZ-${c}`); setTeamMeta(`LZ-${c}`, { owner: true }); renderTeamName(true);
   const start = isoDay(new Date()); saveSeason({ name: seasonName(start), start, end: firstSeasonEnd(start) }, true);
 };
 $('inviteTeam').onclick = () => {
-  const url = `${location.origin}${location.pathname}?team=${encodeURIComponent(state.profile.team)}${state.profile.teamName ? '&tn=' + encodeURIComponent(state.profile.teamName) : ''}&src=invite`;
-  const text = tr('Join my team {code} on {app} and log your throwing practice.', { code: state.profile.teamName ? `${state.profile.teamName} (${state.profile.team})` : state.profile.team, app: BRAND.name });
+  // /t/CODE is a server page whose link preview shows the team name, then opens the app.
+  const nm = (activeTeam() || {}).name || state.profile.teamName || '', tn = nm ? '?tn=' + encodeURIComponent(nm) : '';
+  const url = location.protocol.startsWith('http') && !/^(localhost|127\.)/.test(location.hostname) ? `${location.origin}/t/${encodeURIComponent(state.profile.team)}${tn}` : `${location.origin}${location.pathname}?team=${encodeURIComponent(state.profile.team)}${nm ? '&tn=' + encodeURIComponent(nm) : ''}&src=invite`;
+  const text = tr('Join my team {code} on {app} and log your throwing practice.', { code: nm ? `${nm} (${state.profile.team})` : state.profile.team, app: BRAND.name });
   if (navigator.share) navigator.share({ title: BRAND.name, text, url }).catch(() => {}); else copyText(`${text} ${url}`);
 };
 $('leaveTeam').onclick = () => {
+  memberPing(state.profile.team, 'leave');
   const rest = teamsList().filter(t => t.code !== state.profile.team);
   state.profile.teams = rest; state.profile.team = rest[0] ? rest[0].code : ''; state.profile.teamName = rest[0] ? rest[0].name : '';
   saveProfile(); teamData = null; applyTheme(); renderTeamView();
@@ -2309,11 +2438,16 @@ function season() {
 }
 async function saveSeason(sn, quiet) {
   if (teamData) teamData.season = sn; setTeamMeta(state.profile.team, { season: sn }); renderSeason(); renderBoard(); ensureSeasonData(); if (!quiet) toast(tr('Season saved'));
-  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'season', code: state.profile.team, season: sn, cap: capKey(), name: state.profile.name }) }); }
+  try { capKey(); await api('/team', { method: 'POST', body: JSON.stringify({ action: 'season', code: state.profile.team, season: sn, ...(await whoBody()) }) }); }
   catch (e) { if (e.status === 403) { setTeamMeta(state.profile.team, { owner: false }); toast(tr('Only captains can change the season')); loadTeam(); } }
 }
 const inSeason = (iso, se = season()) => { const d = iso.slice(0, 10); return d >= se.start && d <= se.end; };
-const isOwner = () => !!(activeTeam() || {}).owner;
+// My key on team boards: the same one the server gives my sessions.
+const myKey = () => state.strava && state.strava.athlete && state.strava.athlete.id ? `strava:${state.strava.athlete.id}` : `name:${String(state.profile.name || 'Athlete').trim().slice(0, 40).toLowerCase()}`;
+const isOwner = () => !!(activeTeam() || {}).owner || !!(teamData && (teamData.captains || []).includes(myKey()));
+// Who I am, for captain-only and roster calls (a Strava token lets the server verify it).
+async function whoBody() { const token = state.strava ? await stravaToken().catch(() => null) : null; return { name: state.profile.name, access_token: token || undefined, cap: (activeTeam() || {}).ck || undefined }; }
+async function memberPing(code, op) { try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'member', code, op, ...(await whoBody()) }) }); LS.set('seen_' + code, isoDay(new Date())); } catch {} }
 // Captain key: proves captain rights to the server and travels in captain invite links.
 function capKey() { const t = activeTeam(); if (!t) return ''; if (!t.ck) setTeamMeta(t.code, { ck: uuid().replace(/[^A-Za-z0-9]/g, '').slice(0, 24) }); return activeTeam().ck; }
 // Teams made before captains were tracked: whoever sets the first season becomes captain.
@@ -2340,13 +2474,9 @@ function renderSeason(edit) {
   el.innerHTML = `<div class="label-row"><span class="cap">${tr('Season')}</span>${isOwner() ? `<a href="#" class="cap" id="seEdit">${tr('Change end date')}</a>` : ''}</div>
     <div class="chal" style="margin:4px 0 0"><b style="font-size:22px">${esc(se.name)}</b></div><div class="cap" style="text-transform:none;letter-spacing:0">${fmt(se.start)} – ${fmt(se.end)}</div>
     ${isOwner() ? `<button class="btn ${confirming ? 'primary' : ''}" id="seNew" style="margin-top:12px">${tr(confirming ? 'Tap again to end this season and start a new one today' : 'End season and start a new one')}</button>` : ''}
-    ${isOwner() ? `<button class="btn" id="seCap" style="margin-top:8px">${tr('Share the captain role')}</button>` : ''}
+    ${isOwner() ? `<button class="btn" id="seCap" style="margin-top:8px">${tr('Choose captains')}</button>` : ''}
     ${canClaim() ? `<button class="btn" id="seClaim" style="margin-top:12px">${tr("I'm the captain, manage the season")}</button>` : ''}`;
-  if ($('seCap')) $('seCap').onclick = () => {
-    const t = activeTeam(), url = `${location.origin}${location.pathname}?team=${encodeURIComponent(t.code)}${t.name ? '&tn=' + encodeURIComponent(t.name) : ''}&cap=${capKey()}&src=captain`;
-    const text = tr('You’re now a captain of {team} on {app}. Open this link to manage the season.', { team: teamLabel(), app: BRAND.name });
-    if (navigator.share) navigator.share({ title: BRAND.name, text, url }).catch(() => {}); else copyText(`${text} ${url}`);
-  };
+  if ($('seCap')) $('seCap').onclick = openMembers;
   if ($('seClaim')) $('seClaim').onclick = () => { setTeamMeta(state.profile.team, { owner: true }); renderSeason(); };
   if ($('seEdit')) $('seEdit').onclick = (e) => { e.preventDefault(); renderSeason.confirm = false; renderSeason(true); };
   if ($('seNew')) $('seNew').onclick = () => {
@@ -2370,8 +2500,47 @@ async function loadTeam() {
     $('teamNote').textContent = tr('Example data. The live team board turns on once the app is deployed.');
     $('teamNote').classList.remove('hidden');
   }
-  renderSeason(); renderBoard();
+  renderSeason(); renderBoard(); renderMembersLink();
+  if (teamData && teamData.members && LS.get('seen_' + state.profile.team, '') !== isoDay(new Date())) memberPing(state.profile.team, 'seen');
+  // The team's creator (or a captain from an older captain link) shows up as captain on the roster too.
+  const at = activeTeam();
+  if (teamData && Array.isArray(teamData.captains) && at && at.owner && !teamData.captains.includes(myKey())) {
+    capKey(); whoBody().then(w => api('/team', { method: 'POST', body: JSON.stringify({ action: 'captain', code: at.code, member: myKey(), on: true, ...w }) }))
+      .then(d => { if (teamData) { teamData.captains = d.captains; renderMembersLink(); } }).catch(() => {});
+  }
 }
+/* Members: who is on the team now, who left, and (for captains) who else is captain. */
+function memberRows() {
+  const reg = new Map(((teamData && teamData.members) || []).map(m => [m.key, m]));
+  // Teammates who posted sessions before the roster existed still count as in.
+  ((teamData && teamData.sessions) || []).forEach(x => { if (x.athlete_key && !reg.has(x.athlete_key)) reg.set(x.athlete_key, { key: x.athlete_key, name: x.name, verified: x.verified, joined_at: x.created_at, left_at: null, captain: (teamData.captains || []).includes(x.athlete_key) }); });
+  const all = [...reg.values()], by = (a, b) => (b.captain - a.captain) || a.name.localeCompare(b.name);
+  return { inn: all.filter(m => !m.left_at).sort(by), out: all.filter(m => m.left_at).sort((a, b) => b.left_at.localeCompare(a.left_at)) };
+}
+function renderMembersLink() {
+  const l = $('membersLink'); if (!teamData || !teamData.members) { l.classList.add('hidden'); return; }
+  const n = memberRows().inn.length; l.textContent = tr(n === 1 ? '{n} member' : '{n} members', { n }); l.classList.toggle('hidden', !n);
+}
+function openMembers() { renderMembers(); $('membersModal').classList.remove('hidden'); }
+function renderMembers() {
+  const { inn, out } = memberRows(), cap = isOwner(), me = myKey();
+  const ini = (n) => esc(String(n || '?').split(/\s+/).map(w => w[0] || '').join('').slice(0, 2).toUpperCase());
+  const row = (m, left) => `<div class="mem ${left ? 'left' : ''}"><span class="ini">${ini(m.name)}</span><span class="nm">${esc(m.name)}${m.key === me ? ' · ' + tr('you') : ''}<small>${left ? tr('Left {d}', { d: new Date(m.left_at).toLocaleDateString(fmtLocale(), { day: 'numeric', month: 'short' }) }) : m.captain ? '<span class="badge">' + tr('Captain') + '</span>' : m.verified ? 'Strava' : ''}</small></span>
+    ${!left && cap && m.key !== me ? `<button data-k="${esc(m.key)}" class="${m.captain ? 'on' : ''}">${tr(m.captain ? 'Captain ✓' : 'Make captain')}</button>` : ''}</div>`;
+  $('membersBody').innerHTML = `<div><span class="cap">${tr('On the team · {n}', { n: inn.length })}</span><div>${inn.map(m => row(m)).join('') || `<p class="note">${tr('No one yet.')}</p>`}</div></div>`
+    + (out.length ? `<div><span class="cap">${tr('Left the team')}</span><div>${out.map(m => row(m, true)).join('')}</div></div>` : '')
+    + (cap ? `<p class="note" style="margin:0;font-size:13px">${tr('Captains can change the season and choose other captains.')}</p>` : '');
+  $('membersBody').querySelectorAll('button[data-k]').forEach(b => b.onclick = async () => {
+    const on = !b.classList.contains('on'); b.disabled = true;
+    try {
+      const d = await api('/team', { method: 'POST', body: JSON.stringify({ action: 'captain', code: state.profile.team, member: b.dataset.k, on, ...(await whoBody()) }) });
+      teamData.captains = d.captains; (teamData.members || []).forEach(m => { m.captain = d.captains.includes(m.key); }); renderMembers(); renderSeason();
+      toast(tr(on ? 'Captain added' : 'Captain removed'));
+    } catch (e) { toast(e.status === 403 ? tr('Only captains can do that') : e.message); b.disabled = false; }
+  });
+}
+$('membersLink').onclick = openMembers;
+$('membersClose').onclick = () => $('membersModal').classList.add('hidden');
 function renderBoard() {
   if (!teamData) return;
   const all = teamData.sessions, wk = weekKey();
@@ -2499,20 +2668,22 @@ function renderStats() {
    30 days against the 30 before. */
 const MIN_THROWS = 20;   // below this a throw's accuracy isn't trusted for comparisons
 function pool(list) { const att = list.reduce((a, s) => a + s.attempts, 0), mk = list.reduce((a, s) => a + s.makes, 0); return { n: list.length, att, acc: att ? mk / att : 0, avg: list.length ? list.reduce((a, s) => a + s.skill_score, 0) / list.length : 0 }; }
-function throwStats(list) { return THROWS.map(t => ({ t, ...pool(list.filter(s => throwOf(s).id === t.id)) })).filter(x => x.n); }
+// A session where the throw changed counts each part under its own throw.
+const partsOf = (list) => list.flatMap(s => s.parts && s.parts.length ? s.parts.map(p => ({ ...p, skill_score: s.skill_score })) : [s]);
+function throwStats(list) { const ps = partsOf(list); return THROWS.map(t => ({ t, ...pool(ps.filter(s => throwOf(s).id === t.id)) })).filter(x => x.n); }
 function renderThrows(rows) {
   $('throwRange').textContent = tr(statDays === 7 ? 'Last 7 days' : statDays === 30 ? 'Last 30 days' : 'All time');
   const now = Date.now(), last30 = state.sessions.filter(s => now - new Date(s.created_at) < 30 * 864e5), prev30 = state.sessions.filter(s => { const a = now - new Date(s.created_at); return a >= 30 * 864e5 && a < 60 * 864e5; });
   const list = throwStats(rows).sort((a, b) => b.att - a.att);
   if (!list.length) { $('throwBars').innerHTML = `<div class="empty">${tr('Pick a throw before you start, and your strengths show up here.')}</div>`; return; }
   $('throwBars').innerHTML = list.map(x => {
-    const a = pool(last30.filter(s => throwOf(s).id === x.t.id)), b = pool(prev30.filter(s => throwOf(s).id === x.t.id));
+    const a = pool(partsOf(last30).filter(s => throwOf(s).id === x.t.id)), b = pool(partsOf(prev30).filter(s => throwOf(s).id === x.t.id));
     const dv = a.att >= MIN_THROWS && b.att >= MIN_THROWS ? Math.round((a.acc - b.acc) * 100) : null;
     const trend = dv == null ? '' : dv > 0 ? ` · <span class="up">▲ ${tr('{n} pts this month', { n: dv })}</span>` : dv < 0 ? ` · <span class="down">▼ ${tr('{n} pts this month', { n: -dv })}</span>` : ' · ' + tr('steady this month');
     return `<div class="tbar"><span class="n">${tr(x.t.name)}</span><div class="track"><div class="fill" style="width:${Math.round(x.acc * 100)}%"></div></div><span class="v">${Math.round(x.acc * 100)}%</span>
       <span class="d">${tr('{n} throws', { n: x.att })} · ${tr(x.n === 1 ? '{n} session' : '{n} sessions', { n: x.n })} · ${tr('avg score {n}', { n: Math.round(x.avg) })}${x.att < MIN_THROWS ? ' · ' + tr('needs more throws') : ''}${trend}</span></div>`;
   }).join('') + (() => {
-    const st = STYLES.map(x => ({ x, ...pool(rows.filter(s => (s.styles || []).includes(x.id))) })).filter(v => v.att >= 10);
+    const st = STYLES.map(x => ({ x, ...pool(partsOf(rows).filter(s => (s.styles || []).includes(x.id))) })).filter(v => v.att >= 10);
     return st.length ? `<div class="stylerow">${st.map(v => `${tr(v.x.name)} ${Math.round(v.acc * 100)}%`).join(' · ')}</div>` : '';
   })();
 }
@@ -2672,6 +2843,30 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => setInterval(() => r.update(), 30 * 60e3)).catch(() => {}));
 }
 window.addEventListener('online', () => { loadConfig().then(retryPendingShares); });
+/* Pull down at the top of Home, Stats or Team to refresh (also checks for a new app version). */
+(() => {
+  const el = $('ptr'), txt = $('ptrText'), MAX = 90, GO = 64; let y0 = null, d = 0, busy = false;
+  const ok = (t) => ['setup', 'stats', 'team'].includes(currentView) && !document.querySelector('.modal-bg:not(.hidden)') && !(t && t.closest && t.closest('canvas,input,textarea,select'));
+  const show = (px) => { el.style.transform = `translate(-50%,${Math.min(px, MAX) - 52}px)`; el.style.opacity = Math.min(1, px / GO); el.querySelector('i').style.transform = `rotate(${px * 4}deg)`; };
+  document.addEventListener('touchstart', (e) => { if (busy || window.scrollY > 0 || !ok(e.target)) { y0 = null; return; } y0 = e.touches[0].clientY; d = 0; }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (y0 == null) return; const dy = e.touches[0].clientY - y0;
+    if (dy <= 0 || window.scrollY > 0) { if (d) { el.classList.remove('drag'); el.style.opacity = 0; el.style.transform = ''; } d = 0; return; }
+    d = dy * .5; el.classList.add('drag'); show(d); txt.textContent = tr(d >= GO ? 'Release to refresh' : 'Pull to refresh');
+  }, { passive: true });
+  document.addEventListener('touchend', async () => {
+    if (y0 == null) return; y0 = null; el.classList.remove('drag');
+    if (d < GO) { el.style.opacity = 0; el.style.transform = ''; d = 0; return; }
+    busy = true; d = 0; el.classList.add('spin'); el.style.transform = 'translate(-50%,12px)'; el.style.opacity = 1; txt.textContent = tr('Refreshing…'); hapticTick();
+    const t0 = Date.now();
+    try {
+      navigator.serviceWorker && navigator.serviceWorker.getRegistration && navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+      await loadConfig().catch(() => {}); retryPendingShares();
+      if (currentView === 'team' && state.profile.team) await loadTeam(); else if (currentView === 'stats') renderStats(); else renderSetup();
+    } catch {}
+    setTimeout(() => { el.classList.remove('spin'); el.style.opacity = 0; el.style.transform = ''; busy = false; }, Math.max(0, 600 - (Date.now() - t0)));
+  });
+})();
 window.addEventListener('resize', () => { if (currentView === 'target') layoutDraw(); if (currentView === 'distance') renderDistance(); if (currentView === 'stats') renderStats(); });
 
 document.title = BRAND.name; $('brandWord').textContent = BRAND.name;
@@ -2691,12 +2886,12 @@ function openLang(first) {
 const ART = {
   draw: '<svg viewBox="0 0 320 190"><path d="M0 150H320" stroke="#2c2c34" stroke-width="2"/><g fill="#20233a"><circle cx="70" cy="70" r="11"/><path d="M60 84h20l4 40h-6l-2 26h-14l-2-26h-6z"/></g><path d="M150 60q40-28 88-6q34 18 18 56q-16 40-66 34q-52-6-40-84z" fill="rgba(108,117,255,.18)" stroke="#fff" stroke-width="3" stroke-dasharray="9 7"/><circle cx="262" cy="104" r="9" fill="#fff"/><path d="M262 104l14 22" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>',
   log: '<svg viewBox="0 0 320 190"><rect x="40" y="48" width="112" height="96" rx="24" style="fill:var(--accent)"/><path d="M76 98l14 14 28-30" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="168" y="48" width="112" height="96" rx="24" fill="#1c1c20"/><path d="M206 78l36 36M242 78l-36 36" stroke="#8e8e93" stroke-width="7" stroke-linecap="round"/><g fill="#fff" opacity=".85"><rect x="148" y="160" width="24" height="6" rx="3"/></g></svg>',
-  post: '<svg viewBox="0 0 320 190"><rect x="56" y="22" width="208" height="146" rx="18" fill="#fff"/><circle cx="84" cy="50" r="12" fill="#c8c8ce"/><rect x="104" y="42" width="80" height="7" rx="3" fill="#1d1d1f"/><rect x="104" y="54" width="54" height="6" rx="3" fill="#a0a0a6"/><text x="76" y="98" font-family="system-ui" font-weight="800" font-size="17" fill="#1d1d1f">Evening hucks</text><text x="76" y="122" font-family="system-ui" font-size="12" fill="#3a3a3c">Skill Score 66/100 · Sharp</text><text x="76" y="140" font-family="system-ui" font-size="12" fill="#3a3a3c">#2 of 9 this month</text><path d="M238 48l-5-10h-7l12 24 12-24h-7z" fill="#fc4c02"/><path d="M233 38l-6-12-6 12h-5l11-22 11 22z" fill="#fc4c02" opacity=".55"/></svg>'
+  post: '<svg viewBox="0 0 320 190"><rect x="56" y="22" width="208" height="146" rx="18" fill="#fff"/><circle cx="84" cy="50" r="12" fill="#c8c8ce"/><rect x="104" y="42" width="80" height="7" rx="3" fill="#1d1d1f"/><rect x="104" y="54" width="54" height="6" rx="3" fill="#a0a0a6"/><text x="76" y="98" font-family="system-ui" font-weight="800" font-size="17" fill="#1d1d1f">Evening hucks</text><text x="76" y="122" font-family="system-ui" font-size="12" fill="#3a3a3c">LANZA Score 66/100 · Sharp</text><text x="76" y="140" font-family="system-ui" font-size="12" fill="#3a3a3c">#2 of 9 this month</text><path d="M238 48l-5-10h-7l12 24 12-24h-7z" fill="#fc4c02"/><path d="M233 38l-6-12-6 12h-5l11-22 11 22z" fill="#fc4c02" opacity=".55"/></svg>'
 };
 const ONB = [
   { art: 'draw', title: 'Draw any target', text: 'Trace a teammate, a cone or a gap in the trees. The field is drawn to real scale.' },
   { art: 'log', title: 'Make or miss', text: 'Tap after every throw, or go hands-free and just say “make” or “miss”.' },
-  { art: 'post', title: 'Share it on Strava', text: 'Post any session to Strava in one tap with your Skill Score, and your team sees who put in the work.' }
+  { art: 'post', title: 'Share it on Strava', text: 'Post any session to Strava in one tap with your LANZA Score, and your team sees who put in the work.' }
 ];
 let onbI = 0;
 function openOnb() { onbI = 0; paintOnb(); $('onbModal').classList.remove('hidden'); }
@@ -2727,7 +2922,7 @@ $('onbSkip').onclick = () => closeOnb();
     const dir = (dx < 0) !== (document.documentElement.dir === 'rtl') ? 1 : -1; const n = clamp(onbI + dir, 0, ONB.length - 1); if (n !== onbI) { onbI = n; paintOnb(); hapticTick(); } }); }
 
 // Team invite links look like https://app/?team=BLAZE-24
-const inviteTeamName = (new URLSearchParams(location.search).get('tn') || '').trim().slice(0, 30);
+let inviteTeamName = (new URLSearchParams(location.search).get('tn') || '').trim().slice(0, 30);
 const inviteCap = (() => { const c = new URLSearchParams(location.search).get('cap') || ''; return /^[A-Za-z0-9-]{8,64}$/.test(c) ? c : ''; })();
 const inviteCode = (() => { const c = (new URLSearchParams(location.search).get('team') || '').trim().toUpperCase(); return /^[A-Z0-9-]{4,20}$/.test(c) ? c : ''; })();
 function openInvite(code) {
@@ -2736,6 +2931,12 @@ function openInvite(code) {
   if (teamsList().some(t => t.code === code)) { switchTeam(code); if (inviteCap) makeCaptain(); else toast(tr('You’re already on team {code}', { code: teamLabel() })); return nextIntro(); }
   $('inviteTitle').textContent = tr('Join team {code}?', { code: inviteTeamName || code });
   $('inviteName').value = state.profile.name || ''; $('inviteModal').classList.remove('hidden');
+  // iPhone opens links in Safari, never in the home-screen app; park the invite so the app picks it up.
+  $('inviteApp').classList.toggle('hidden', !(isIOS && !standalone())); $('inviteAppNote').classList.add('hidden');
+  $('inviteApp').onclick = async () => {
+    try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'pending', code, tn: inviteTeamName }) }); $('inviteApp').classList.add('hidden'); $('inviteAppNote').classList.remove('hidden'); }
+    catch { toast(tr('Couldn’t reach the server. Try again.')); }
+  };
   $('inviteJoin').onclick = () => {
     const name = $('inviteName').value.trim();
     if (!name && !state.strava) { toast(tr('Add your name so teammates know who you are')); $('inviteName').focus(); return; }
@@ -2749,6 +2950,15 @@ function nextIntro() { const f = intro.shift(); if (f) f(); }
 if (LS0('lang') == null && !/^lanza-lang:/.test(window.name) && LANGS.length > 1) intro.push(() => openLang(true));
 if (!LS.get('onboarded', false)) { if (state.sessions.length) LS.set('onboarded', true); else intro.push(openOnb); }
 if (inviteCode) intro.push(() => openInvite(inviteCode));
+// The home-screen app checks for an invite parked from Safari (see openInvite).
+async function claimPendingInvite() {
+  if (!standalone() || session) return;
+  try {
+    const d = await api('/team?pending=1'), p = d && d.invite; if (!p || LS.get('pendingInvite', 0) === p.at) return;
+    LS.set('pendingInvite', p.at); inviteTeamName = p.tn || ''; openInvite(p.code);
+  } catch {}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') claimPendingInvite(); });
 if (state.strava) backupSoon(8000);
 { const today = new Date().toISOString().slice(0, 10); if (LS.get('seenDay', '') !== today) { LS.set('seenDay', today); track('open'); } }
 if (standalone() && !LS.get('installSeen', false)) { LS.set('installSeen', true); track('install'); }
@@ -2766,14 +2976,14 @@ let recovered = null;
     } else {
       recovered = sessionRecord(L, L.lastAt || Date.now());
       state.sessions.unshift(recovered); saveSessions(); LS.del('live'); track('session');
-      toast(tr('Your last session was saved: Skill Score {n}', { n: recovered.skill_score }));
+      toast(tr('Your last session was saved: LANZA Score {n}', { n: recovered.skill_score }));
     }
   } else LS.del('live');
 }
 if (!session) nextIntro();
-loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); retryPendingShares(); handleProReturn(); refreshPro(false); });
+loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimPendingInvite(); retryPendingShares(); handleProReturn(); refreshPro(false); });
 // phrases(): the data words the language files translate (used when adding a language).
-window.LANZA = { version: APP_VERSION, state, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
+window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
 })();
 </script>
 </body>

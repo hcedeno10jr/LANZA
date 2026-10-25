@@ -98,7 +98,7 @@ Open `https://<your-app>/usage.html` and type your `USAGE_KEY`. It shows the las
 
 ## Scoring
 
-The Skill Score is a 0–100 rating of how good a session was. It's the same everywhere: in the app, on the team board (the server recalculates it, so nobody can post a made-up number) and on Strava.
+The LANZA Score is a 0–100 rating of how good a session was. It's the same everywhere: in the app, on the team board (the server recalculates it, so nobody can post a made-up number) and on Strava.
 
 - **Accuracy (counted):** (makes + 5) ÷ (throws + 10). Short sessions sit near 50%, so a high score takes many throws made, not a lucky few. 9/12 counts as 64%, while 45/50 counts as 83%.
 - **Target and distance:** the athlete hand-draws the target on a to-scale scene (person, 2 m net, 3.05 m hoop, tree), then picks a distance of 2–60 m (starts at 5 m). The size tier comes from the drawn area: under 3× a disc is pinpoint (×2.5), 3–8× chest (×1.8), 8–18× catch zone (×1.2), above that endzone (×0.8). Distance counts ×0.7 at 2 m, ×1.0 at 10 m and ×2.0 at 40 m and beyond.
@@ -127,7 +127,7 @@ Saved sessions are rescored automatically when the formula changes (DATA_VERSION
 
 Once an athlete connects Strava (one time), every finished session posts itself as a Workout; they can switch this off on the result screen. Renaming the session or changing wind and ground afterwards updates the Strava post. The title is the name the athlete picks on the result screen. They can tap a quick name (Evening throwing session, Hucks, Blades, Lefties and so on) or type their own. The quick names are `BRAND.sessionNames` in index.html.
 
-The description lists the Skill Score (with a PB note), makes and streak, distance and target, conditions, this month's team rank, and a link to the app. The link uses `BRAND.appUrl`, or the site address when that is empty.
+The description lists the LANZA Score (with a PB note), makes and streak, distance and target, conditions, this month's team rank, and a link to the app. The link uses `BRAND.appUrl`, or the site address when that is empty.
 
 Strava's API can't attach photos. Instead, the **Card** button (and **Add the photo card** after posting) saves a 1080×1350 session card that the athlete adds to the post (it also fits Instagram).
 
