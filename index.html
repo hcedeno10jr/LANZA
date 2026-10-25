@@ -596,7 +596,7 @@ nav.tabs button{position:relative;z-index:1}
       </div>
       <div class="card" id="challengeCard"></div>
       <div class="card"><div class="label-row"><span class="cap">Leaderboard</span><span class="cap">Avg score</span></div><div class="list" id="boardList"></div><div class="powered" style="margin-top:12px">Verified with <b>STRAVA</b></div></div>
-      <div class="card"><div class="label-row"><span class="cap">Not practiced this week</span></div><div class="chips-missing" id="missingList"></div></div>
+      <div class="card"><div class="label-row"><span class="cap" id="missingTitle">Not practiced this week</span></div><div class="chips-missing" id="missingList"></div></div>
       <div class="card"><div class="label-row"><span class="cap">Recent sessions</span></div><div class="list" id="teamRecent"></div></div>
       <div class="card" style="text-align:center"><div class="cap">Team code</div><div class="code" id="teamCodeOut"></div>
         <button class="btn primary" id="inviteTeam" style="margin-top:12px">Invite teammates</button>
@@ -774,7 +774,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.28.0';
+const APP_VERSION = '2.28.1';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -2599,11 +2599,14 @@ function renderBoard() {
   $('tAvg').textContent = rows.length ? Math.round(rows.reduce((a, s) => a + s.skill_score, 0) / rows.length) : 0;
   $('boardList').innerHTML = board.length ? board.map((r, i) => `<div class="item tap" data-k="${esc(r.key)}"><div class="t"><span class="rank ${i === 0 ? 'top' : ''}">${i + 1}</span>${esc(r.name)}${r.verified ? '<span class="tag strava">Strava ✓</span>' : ''}</div><div class="r">${Math.round(r.avg)}<small>${PB}${tr('BEST {n}', { n: r.best })}</small></div><div class="d">${Math.round(r.acc * 100)}% · ${tr(r.n === 1 ? '{n} session' : '{n} sessions', { n: r.n })} · ${tr('{n} throws', { n: r.att })}</div></div>`).join('')
     : `<div class="empty">${tr(teamRange === 'week' ? 'No sessions this week yet.' : teamRange === 'season' ? 'No sessions this season yet.' : 'No sessions in the last 4 weeks yet.')}</div>`;
-  // Accountability: anyone seen in the last 4 weeks with no session this week.
-  const seen = new Map(); all.forEach(s => { if (!seen.has(s.athlete_key)) seen.set(s.athlete_key, s); });
-  const active = new Set(all.filter(s => weekKey(new Date(s.created_at)) === wk).map(s => s.athlete_key));
-  const missing = [...seen.values()].filter(s => !active.has(s.athlete_key));
-  $('missingList').innerHTML = missing.length ? missing.map(s => `<span>${esc(s.name)} · ${tr('last {d}', { d: dateStr(s.created_at) })}</span>`).join('') : `<span style="color:var(--ok)">${tr('Everyone has practiced this week')}</span>`;
+  // Accountability for the range on screen: who on the team has no session in it.
+  const last = new Map(); all.forEach(s => { if (!last.has(s.athlete_key)) last.set(s.athlete_key, s); });
+  const active = new Set(rows.map(s => s.athlete_key)), gone = new Set(teamData.removed || []);
+  const team = new Map(memberRows().inn.map(m => [m.key, m.name])); last.forEach((s, k) => { if (!team.has(k) && !gone.has(k) && !(teamData.members || []).some(m => m.key === k && m.left_at)) team.set(k, s.name); });
+  const missing = [...team.entries()].filter(([k]) => !active.has(k));
+  const R3 = { week: ['Not practiced this week', 'Everyone has practiced this week'], '4w': ['Not practiced in 4 weeks', 'Everyone has practiced in the last 4 weeks'], season: ['Not practiced this season', 'Everyone has practiced this season'] }[teamRange] || [];
+  $('missingTitle').textContent = tr(R3[0]);
+  $('missingList').innerHTML = missing.length ? missing.map(([k, n]) => `<span>${esc(n)} · ${last.has(k) ? tr('last {d}', { d: dateStr(last.get(k).created_at) }) : tr('no sessions yet')}</span>`).join('') : `<span style="color:var(--ok)">${tr(R3[1])}</span>`;
   $('boardList').querySelectorAll('[data-k]').forEach(el => el.onclick = () => openPlayer(el.dataset.k));
   renderChallenge();
   $('teamRecent').innerHTML = rows.length ? rows.slice(0, 12).map(s => tapItem(s, teamBest().has(s))).join('') : `<div class="empty">${tr('Nothing yet.')}</div>`;

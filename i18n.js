@@ -830,7 +830,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "Toca otra vez para sacar",
 "Tap ••• next to a teammate to make them captain or remove them.": "Toca ••• junto a un compañero para hacerlo capitán o sacarlo del equipo.",
 "{name} was removed from the team": "Sacaste a {name} del equipo",
-"Deleted": "Borrado"
+"Deleted": "Borrado",
+"Not practiced in 4 weeks": "Sin practicar en 4 semanas",
+"Everyone has practiced in the last 4 weeks": "Todos practicaron en las últimas 4 semanas",
+"Not practiced this season": "Sin practicar esta temporada",
+"Everyone has practiced this season": "Todos practicaron esta temporada",
+"no sessions yet": "sin sesiones aún"
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1274,7 +1279,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "Toque de novo para remover",
 "Tap ••• next to a teammate to make them captain or remove them.": "Toque em ••• ao lado de um colega para torná-lo capitão ou removê-lo.",
 "{name} was removed from the team": "{name} foi removido do time",
-"Deleted": "Apagado"
+"Deleted": "Apagado",
+"Not practiced in 4 weeks": "Sem treinar em 4 semanas",
+"Everyone has practiced in the last 4 weeks": "Todos treinaram nas últimas 4 semanas",
+"Not practiced this season": "Sem treinar nesta temporada",
+"Everyone has practiced this season": "Todos treinaram nesta temporada",
+"no sessions yet": "sem sessões ainda"
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1723,7 +1733,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "Touche encore pour retirer",
 "Tap ••• next to a teammate to make them captain or remove them.": "Touche ••• à côté d’un coéquipier pour le nommer capitaine ou le retirer.",
 "{name} was removed from the team": "{name} a été retiré de l’équipe",
-"Deleted": "Supprimé"
+"Deleted": "Supprimé",
+"Not practiced in 4 weeks": "Pas entraîné depuis 4 semaines",
+"Everyone has practiced in the last 4 weeks": "Tout le monde s’est entraîné ces 4 dernières semaines",
+"Not practiced this season": "Pas entraîné cette saison",
+"Everyone has practiced this season": "Tout le monde s’est entraîné cette saison",
+"no sessions yet": "pas encore de séance"
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -2170,7 +2185,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "Zum Entfernen noch mal tippen",
 "Tap ••• next to a teammate to make them captain or remove them.": "Tippe auf ••• neben einem Mitspieler, um ihn zum Captain zu machen oder zu entfernen.",
 "{name} was removed from the team": "{name} wurde aus dem Team entfernt",
-"Deleted": "Gelöscht"
+"Deleted": "Gelöscht",
+"Not practiced in 4 weeks": "Seit 4 Wochen nicht trainiert",
+"Everyone has practiced in the last 4 weeks": "Alle haben in den letzten 4 Wochen trainiert",
+"Not practiced this season": "Diese Saison nicht trainiert",
+"Everyone has practiced this season": "Alle haben diese Saison trainiert",
+"no sessions yet": "noch keine Sessions"
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2633,7 +2653,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "Tocca di nuovo per rimuovere",
 "Tap ••• next to a teammate to make them captain or remove them.": "Tocca ••• accanto a un compagno per renderlo capitano o rimuoverlo.",
 "{name} was removed from the team": "{name} è stato rimosso dalla squadra",
-"Deleted": "Eliminato"
+"Deleted": "Eliminato",
+"Not practiced in 4 weeks": "Nessun allenamento in 4 settimane",
+"Everyone has practiced in the last 4 weeks": "Tutti si sono allenati nelle ultime 4 settimane",
+"Not practiced this season": "Nessun allenamento in questa stagione",
+"Everyone has practiced this season": "Tutti si sono allenati in questa stagione",
+"no sessions yet": "ancora nessuna sessione"
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -3063,7 +3088,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "Tik nog eens om te verwijderen",
 "Tap ••• next to a teammate to make them captain or remove them.": "Tik op ••• naast een teamgenoot om hem captain te maken of te verwijderen.",
 "{name} was removed from the team": "{name} is uit het team verwijderd",
-"Deleted": "Verwijderd"
+"Deleted": "Verwijderd",
+"Not practiced in 4 weeks": "4 weken niet getraind",
+"Everyone has practiced in the last 4 weeks": "Iedereen heeft de afgelopen 4 weken getraind",
+"Not practiced this season": "Dit seizoen niet getraind",
+"Everyone has practiced this season": "Iedereen heeft dit seizoen getraind",
+"no sessions yet": "nog geen sessies"
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3544,7 +3574,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "もう一度タップで外す",
 "Tap ••• next to a teammate to make them captain or remove them.": "チームメイトの横の•••をタップすると、キャプテンにしたりチームから外したりできます。",
 "{name} was removed from the team": "{name}をチームから外しました",
-"Deleted": "削除しました"
+"Deleted": "削除しました",
+"Not practiced in 4 weeks": "4週間練習なし",
+"Everyone has practiced in the last 4 weeks": "この4週間で全員が練習しました",
+"Not practiced this season": "今シーズン練習なし",
+"Everyone has practiced this season": "今シーズン全員が練習しました",
+"no sessions yet": "まだセッションなし"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4020,7 +4055,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "再点一次移出",
 "Tap ••• next to a teammate to make them captain or remove them.": "点队友旁边的 ••• 可以设为队长或移出队伍。",
 "{name} was removed from the team": "已将 {name} 移出队伍",
-"Deleted": "已删除"
+"Deleted": "已删除",
+"Not practiced in 4 weeks": "4 周内未练习",
+"Everyone has practiced in the last 4 weeks": "最近 4 周大家都练过了",
+"Not practiced this season": "本赛季未练习",
+"Everyone has practiced this season": "本赛季大家都练过了",
+"no sessions yet": "还没有训练"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4496,7 +4536,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "再點一次移出",
 "Tap ••• next to a teammate to make them captain or remove them.": "點隊友旁邊的 ••• 可以設為隊長或移出隊伍。",
 "{name} was removed from the team": "已將 {name} 移出隊伍",
-"Deleted": "已刪除"
+"Deleted": "已刪除",
+"Not practiced in 4 weeks": "4 週內未練習",
+"Everyone has practiced in the last 4 weeks": "最近 4 週大家都練過了",
+"Not practiced this season": "本賽季未練習",
+"Everyone has practiced this season": "本賽季大家都練過了",
+"no sessions yet": "還沒有訓練"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -4975,7 +5020,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "한 번 더 탭하면 내보내기",
 "Tap ••• next to a teammate to make them captain or remove them.": "팀원 옆의 •••을 탭해 주장으로 지정하거나 팀에서 내보낼 수 있어요.",
 "{name} was removed from the team": "{name}님을 팀에서 내보냈어요",
-"Deleted": "삭제됨"
+"Deleted": "삭제됨",
+"Not practiced in 4 weeks": "4주 동안 연습 안 함",
+"Everyone has practiced in the last 4 weeks": "지난 4주 동안 모두 연습했어요",
+"Not practiced this season": "이번 시즌 연습 안 함",
+"Everyone has practiced this season": "이번 시즌 모두 연습했어요",
+"no sessions yet": "아직 세션 없음"
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -5455,7 +5505,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "נגיעה נוספת להוצאה",
 "Tap ••• next to a teammate to make them captain or remove them.": "לחצו על ••• ליד חבר/ת קבוצה כדי למנות לקפטן או להוציא מהקבוצה.",
 "{name} was removed from the team": "{name} הוצא/ה מהקבוצה",
-"Deleted": "נמחק"
+"Deleted": "נמחק",
+"Not practiced in 4 weeks": "לא התאמנו ב-4 שבועות",
+"Everyone has practiced in the last 4 weeks": "כולם התאמנו ב-4 השבועות האחרונים",
+"Not practiced this season": "לא התאמנו העונה",
+"Everyone has practiced this season": "כולם התאמנו העונה",
+"no sessions yet": "עדיין אין אימונים"
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -5902,7 +5957,12 @@ window.LANZA_I18N = {
 "Tap again to remove": "हटाने के लिए फिर टैप करें",
 "Tap ••• next to a teammate to make them captain or remove them.": "किसी साथी के पास ••• टैप करके उसे कप्तान बनाएँ या टीम से हटाएँ।",
 "{name} was removed from the team": "{name} को टीम से हटा दिया गया",
-"Deleted": "मिट गया"
+"Deleted": "मिट गया",
+"Not practiced in 4 weeks": "4 हफ़्तों से प्रैक्टिस नहीं",
+"Everyone has practiced in the last 4 weeks": "पिछले 4 हफ़्तों में सबने प्रैक्टिस की",
+"Not practiced this season": "इस सीज़न प्रैक्टिस नहीं",
+"Everyone has practiced this season": "इस सीज़न सबने प्रैक्टिस की",
+"no sessions yet": "अभी कोई सेशन नहीं"
 }
 }
 };
