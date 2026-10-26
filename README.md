@@ -83,7 +83,7 @@ If no ad is available, a 5-second LANZA card unlocks the session instead, so ath
 
 ## Usage numbers
 
-Open `https://<your-app>/usage.html` and type your `USAGE_KEY`. It shows the last 30 days: daily opens, installs, sessions, Strava posts, team joins, invite opens and Pro sign-ups, split by where people came from (`strava` for the link in Strava posts, `invite` for team invite links, or the website that sent them). Nothing identifies an athlete: only daily totals are stored.
+Open `https://<your-app>/usage.html` and type your `USAGE_KEY`. It shows the last 30 days: daily opens, installs, sessions, Strava posts, team joins, invite opens and Pro sign-ups, split by where people came from (`strava` for the link in Strava posts, `invite` for team invite links, or the website that sent them). Nothing identifies an athlete: only daily totals are stored. Above those it shows running totals: people with a LANZA account, how many connected Strava or Google, teams and team members. **Copy for my Claude dashboard** copies the numbers so you can paste them into the LANZA Pulse page in Claude.
 
 ## Updating the app
 

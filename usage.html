@@ -29,13 +29,16 @@ const sum = (o) => Object.values(o || {}).reduce((a, n) => a + n, 0);
 document.getElementById('k').value = sessionStorage.getItem('uk') || '';
 document.getElementById('f').onsubmit = async (e) => {
   e.preventDefault(); const k = document.getElementById('k').value; sessionStorage.setItem('uk', k);
-  const r = await fetch('/.netlify/functions/usage?days=30&key=' + encodeURIComponent(k)); const d = await r.json();
+  const r = await fetch('/.netlify/functions/usage?days=90&key=' + encodeURIComponent(k)); const d = await r.json();
   const out = document.getElementById('out'); if (!r.ok) { out.textContent = d.error || 'Error'; return; }
+  window.lastUsage = d; d.days = d.days.slice(0, 30); const t = d.totals || {};
+  const people = t.accounts == null ? '' : '<div class="tiles">' + [['accounts', 'People with an account'], ['strava', 'Strava connected'], ['google', 'Google sign-in'], ['teams', 'Teams'], ['members', 'Team members']].map(([k, n]) => `<div class="tile"><b>${t[k] || 0}</b><span>${n}</span></div>`).join('') + '</div>';
   const tot = {}, src = {}; d.days.forEach(day => EV.forEach(ev => { tot[ev] = (tot[ev] || 0) + sum(day[ev]); Object.entries(day[ev] || {}).forEach(([s, n]) => { src[s] = src[s] || {}; src[s][ev] = (src[s][ev] || 0) + n; }); }));
-  out.innerHTML = '<div class="tiles">' + EV.map(ev => `<div class="tile"><b>${tot[ev]}</b><span>${NAMES[ev]} · 30 days</span></div>`).join('') + '</div>'
+  out.innerHTML = people + '<p><button id="cp" type="button">Copy for my Claude dashboard</button></p><div class="tiles">' + EV.map(ev => `<div class="tile"><b>${tot[ev]}</b><span>${NAMES[ev]} · 30 days</span></div>`).join('') + '</div>'
     + '<h3>Where people come from</h3><div class="wrap"><table><tr><th>Source</th>' + EV.map(ev => `<th>${NAMES[ev]}</th>`).join('') + '</tr>'
     + Object.entries(src).sort((a, b) => sum(b[1]) - sum(a[1])).map(([s, v]) => `<tr><td>${s.replace(/</g, '')}</td>${EV.map(ev => `<td>${v[ev] || 0}</td>`).join('')}</tr>`).join('') + '</table></div>'
     + '<h3>By day</h3><div class="wrap"><table><tr><th>Day</th>' + EV.map(ev => `<th>${NAMES[ev]}</th>`).join('') + '</tr>'
     + d.days.map(day => `<tr><td>${day.day}</td>${EV.map(ev => `<td>${sum(day[ev])}</td>`).join('')}</tr>`).join('') + '</table></div>';
+  document.getElementById('cp').onclick = async () => { const txt = JSON.stringify(window.lastUsage); try { await navigator.clipboard.writeText(txt); document.getElementById('cp').textContent = 'Copied'; } catch { prompt('Copy this', txt); } };
 };
 </script></body></html>
