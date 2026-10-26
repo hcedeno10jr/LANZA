@@ -852,7 +852,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Inicio de sesión cancelado",
 "Signed in": "Sesión iniciada",
 "Signed out. Your sessions stay on this phone.": "Sesión cerrada. Tus sesiones siguen en este teléfono.",
-"Your LANZA account": "Tu cuenta LANZA"
+"Your LANZA account": "Tu cuenta LANZA",
+"Delete session": "Borrar sesión",
+"Session deleted": "Sesión borrada",
+"Session deleted. The Strava post stays on Strava.": "Sesión borrada. La publicación sigue en Strava.",
+"Follow LANZA on Instagram": "Sigue a LANZA en Instagram"
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1318,7 +1322,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Login cancelado",
 "Signed in": "Conectado",
 "Signed out. Your sessions stay on this phone.": "Você saiu. Suas sessões continuam neste celular.",
-"Your LANZA account": "Sua conta LANZA"
+"Your LANZA account": "Sua conta LANZA",
+"Delete session": "Apagar sessão",
+"Session deleted": "Sessão apagada",
+"Session deleted. The Strava post stays on Strava.": "Sessão apagada. A publicação continua no Strava.",
+"Follow LANZA on Instagram": "Siga o LANZA no Instagram"
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1789,7 +1797,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Connexion annulée",
 "Signed in": "Connecté",
 "Signed out. Your sessions stay on this phone.": "Déconnecté. Tes séances restent sur ce téléphone.",
-"Your LANZA account": "Ton compte LANZA"
+"Your LANZA account": "Ton compte LANZA",
+"Delete session": "Supprimer la séance",
+"Session deleted": "Séance supprimée",
+"Session deleted. The Strava post stays on Strava.": "Séance supprimée. La publication reste sur Strava.",
+"Follow LANZA on Instagram": "Suis LANZA sur Instagram"
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -2258,7 +2270,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Anmeldung abgebrochen",
 "Signed in": "Angemeldet",
 "Signed out. Your sessions stay on this phone.": "Abgemeldet. Deine Einheiten bleiben auf diesem Handy.",
-"Your LANZA account": "Dein LANZA-Konto"
+"Your LANZA account": "Dein LANZA-Konto",
+"Delete session": "Einheit löschen",
+"Session deleted": "Einheit gelöscht",
+"Session deleted. The Strava post stays on Strava.": "Einheit gelöscht. Der Strava-Beitrag bleibt auf Strava.",
+"Follow LANZA on Instagram": "Folge LANZA auf Instagram"
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2743,7 +2759,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Accesso annullato",
 "Signed in": "Accesso effettuato",
 "Signed out. Your sessions stay on this phone.": "Sei uscito. Le tue sessioni restano su questo telefono.",
-"Your LANZA account": "Il tuo account LANZA"
+"Your LANZA account": "Il tuo account LANZA",
+"Delete session": "Elimina sessione",
+"Session deleted": "Sessione eliminata",
+"Session deleted. The Strava post stays on Strava.": "Sessione eliminata. Il post resta su Strava.",
+"Follow LANZA on Instagram": "Segui LANZA su Instagram"
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -3195,7 +3215,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Inloggen geannuleerd",
 "Signed in": "Ingelogd",
 "Signed out. Your sessions stay on this phone.": "Uitgelogd. Je sessies blijven op deze telefoon.",
-"Your LANZA account": "Je LANZA-account"
+"Your LANZA account": "Je LANZA-account",
+"Delete session": "Sessie verwijderen",
+"Session deleted": "Sessie verwijderd",
+"Session deleted. The Strava post stays on Strava.": "Sessie verwijderd. Het bericht blijft op Strava.",
+"Follow LANZA on Instagram": "Volg LANZA op Instagram"
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3698,7 +3722,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "ログインをキャンセルしました",
 "Signed in": "ログインしました",
 "Signed out. Your sessions stay on this phone.": "ログアウトしました。セッションはこのスマホに残ります。",
-"Your LANZA account": "あなたのLANZAアカウント"
+"Your LANZA account": "あなたのLANZAアカウント",
+"Delete session": "セッションを削除",
+"Session deleted": "セッションを削除しました",
+"Session deleted. The Strava post stays on Strava.": "セッションを削除しました。Stravaの投稿はStravaに残ります。",
+"Follow LANZA on Instagram": "InstagramでLANZAをフォロー"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4196,7 +4224,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "已取消登录",
 "Signed in": "已登录",
 "Signed out. Your sessions stay on this phone.": "已退出。你的训练仍保存在这部手机上。",
-"Your LANZA account": "你的 LANZA 账户"
+"Your LANZA account": "你的 LANZA 账户",
+"Delete session": "删除训练",
+"Session deleted": "训练已删除",
+"Session deleted. The Strava post stays on Strava.": "训练已删除。Strava 上的动态仍会保留。",
+"Follow LANZA on Instagram": "在 Instagram 关注 LANZA"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4694,7 +4726,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "已取消登入",
 "Signed in": "已登入",
 "Signed out. Your sessions stay on this phone.": "已登出。你的練習仍保存在這支手機上。",
-"Your LANZA account": "你的 LANZA 帳戶"
+"Your LANZA account": "你的 LANZA 帳戶",
+"Delete session": "刪除練習",
+"Session deleted": "練習已刪除",
+"Session deleted. The Strava post stays on Strava.": "練習已刪除。Strava 上的動態仍會保留。",
+"Follow LANZA on Instagram": "在 Instagram 追蹤 LANZA"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -5195,7 +5231,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "로그인이 취소되었습니다",
 "Signed in": "로그인됨",
 "Signed out. Your sessions stay on this phone.": "로그아웃했습니다. 세션은 이 폰에 남아 있습니다.",
-"Your LANZA account": "내 LANZA 계정"
+"Your LANZA account": "내 LANZA 계정",
+"Delete session": "세션 삭제",
+"Session deleted": "세션을 삭제했습니다",
+"Session deleted. The Strava post stays on Strava.": "세션을 삭제했습니다. Strava 게시물은 Strava에 남아 있습니다.",
+"Follow LANZA on Instagram": "Instagram에서 LANZA 팔로우"
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -5697,7 +5737,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "ההתחברות בוטלה",
 "Signed in": "מחובר",
 "Signed out. Your sessions stay on this phone.": "התנתקת. האימונים שלך נשארים בטלפון הזה.",
-"Your LANZA account": "חשבון LANZA שלך"
+"Your LANZA account": "חשבון LANZA שלך",
+"Delete session": "מחק אימון",
+"Session deleted": "האימון נמחק",
+"Session deleted. The Strava post stays on Strava.": "האימון נמחק. הפוסט נשאר ב-Strava.",
+"Follow LANZA on Instagram": "עקבו אחרי LANZA באינסטגרם"
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -6166,7 +6210,11 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "साइन इन रद्द हुआ",
 "Signed in": "साइन इन हो गया",
 "Signed out. Your sessions stay on this phone.": "साइन आउट हो गया। आपके सत्र इसी फ़ोन पर रहेंगे।",
-"Your LANZA account": "आपका LANZA खाता"
+"Your LANZA account": "आपका LANZA खाता",
+"Delete session": "सत्र हटाएं",
+"Session deleted": "सत्र हटा दिया गया",
+"Session deleted. The Strava post stays on Strava.": "सत्र हटा दिया गया। Strava पोस्ट Strava पर रहेगी।",
+"Follow LANZA on Instagram": "Instagram पर LANZA को फ़ॉलो करें"
 }
 }
 };

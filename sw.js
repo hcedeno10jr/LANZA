@@ -1,7 +1,7 @@
 // LANZA service worker: offline app shell + automatic updates.
 // Bump VERSION on every release (the deploy checklist in README.md says so).
 // The page reloads into the new version on its own, but never during a practice.
-const VERSION = 'lanza-2.29.2';
+const VERSION = 'lanza-2.30.0';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './icon-180.png', './i18n.js', './privacy.html', './strava/connect.svg', './strava/powered.svg'];
 
 self.addEventListener('install', (e) => {

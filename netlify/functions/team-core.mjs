@@ -183,11 +183,26 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
       await store.setJSON(`members/${code}`, reg);
       return [{ ok: true, key: me.key }, 200];
     }
+    // A player deletes one of their own sessions from the board.
+    if (body.action === 'delete_session') {
+      const id = String(body.id || '').slice(0, 64); if (!id) return [{ error: 'Pick a session' }, 400];
+      const me = await identify(body);
+      const mine = new Set([me.key, ...(me.acct && me.acct.links && me.acct.links.strava ? [`strava:${me.acct.links.strava}`] : []), ...((me.acct && me.acct.aliases) || []).map((x) => `acct:${x}`)]);
+      const { blobs } = await store.list({ prefix: `${code}/` });
+      let n = 0;
+      for (const { key } of blobs.filter((b) => b.key.endsWith(`/${id}`))) {
+        const row = await store.get(key, { type: 'json' });
+        if (!row) continue;
+        if (!mine.has(row.athlete_key)) return [{ error: 'You can only delete your own sessions' }, 403];
+        await store.delete(key); n++;
+      }
+      return [{ ok: true, deleted: n }, 200];
+    }
     // Captains remove a player from the team, or clear someone who left from the list.
     if (body.action === 'remove' || body.action === 'forget') {
       const prev = (await store.get(`meta/${code}`, { type: 'json' })) || {};
       if (!(await isCaptain(prev, body))) return [{ error: 'Only captains can do that' }, 403];
-      const member = String(body.member || '').slice(0, 60); if (!/^(strava|name):/.test(member)) return [{ error: 'Pick a teammate' }, 400];
+      const member = String(body.member || '').slice(0, 60); if (!/^(strava|name|acct):/.test(member)) return [{ error: 'Pick a teammate' }, 400];
       const reg = (await store.get(`members/${code}`, { type: 'json' })) || {};
       // A removed player is only hidden, so their sessions stay off the board.
       if (body.action === 'forget') { if (reg[member] && reg[member].removed) reg[member].hidden = true; else delete reg[member]; }
@@ -202,7 +217,7 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
       const first = !prev.cap && !(prev.captains || []).length && /^[A-Za-z0-9-]{8,64}$/.test(String(body.cap || ''));
       if (!first && !(await isCaptain(prev, body))) return [{ error: 'Only captains can do that' }, 403];
       if (first) prev.cap = String(body.cap);
-      const member = String(body.member || '').slice(0, 60); if (!/^(strava|name):/.test(member)) return [{ error: 'Pick a teammate' }, 400];
+      const member = String(body.member || '').slice(0, 60); if (!/^(strava|name|acct):/.test(member)) return [{ error: 'Pick a teammate' }, 400];
       let captains = (prev.captains || []).filter((k) => k !== member); if (body.on) captains.push(member); captains = captains.slice(0, 20);
       await store.setJSON(`meta/${code}`, { ...prev, captains });
       return [{ ok: true, captains }, 200];

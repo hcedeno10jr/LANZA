@@ -150,6 +150,7 @@ a{color:var(--text)}
 .btn:active{transform:scale(.98)}
 .btn.primary{background:var(--accent);color:var(--on-accent);box-shadow:0 10px 36px rgba(var(--accent-rgb),.35)}
 .btn.outline{background:transparent;box-shadow:inset 0 0 0 1px #3a3a40}
+.delsess{display:block;margin:6px auto 0;padding:12px 16px;background:none;border:0;color:var(--muted);font:600 14px/1 inherit;font-family:inherit}.delsess.armed{color:#ff6961}
 .btn.strava{background:var(--strava);color:#fff}
 .btn.sm{width:auto;padding:9px 16px;font-size:13.5px}
 .btn[disabled]{opacity:.5;pointer-events:none}
@@ -536,6 +537,7 @@ nav.tabs button{position:relative;z-index:1}
     <div class="status-line" id="teamStatus"></div>
     <p class="note" id="rHow"></p>
     <button class="btn outline" id="againBtn">Done</button>
+    <button class="delsess" id="delSession">Delete session</button>
   </div>
 </section>
 
@@ -620,7 +622,7 @@ nav.tabs button{position:relative;z-index:1}
   <div class="modal">
     <h2>One more session</h2>
     <p class="note" id="adText" style="font-size:14px;margin:0">Your free session this week is used. Watch a short ad to unlock another.</p>
-    <div id="adArea" class="hidden"><div class="ad-box"><div><div class="cap">Sponsor</div><div class="ad-count" id="adCount">15</div><div class="cap">Unlocks when the timer ends</div></div></div></div>
+    <div id="adArea" class="hidden"><div class="ad-box"><div><div class="cap">Unlocks when the timer ends</div><div class="ad-count" id="adCount">5</div><div id="adHouse" class="hidden"><b style="font-size:17px">@lanzaapp</b><div class="cap">Follow LANZA on Instagram</div></div></div></div></div>
     <div id="adChoices" style="display:grid;grid-template-columns:minmax(0,1fr);gap:10px">
       <button class="btn primary" id="watchAd">Watch ad and unlock</button>
       <button class="btn outline hidden" id="adPro">Go Pro · no ads</button>
@@ -788,7 +790,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.29.2';
+const APP_VERSION = '2.30.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -985,7 +987,7 @@ const state = {
   strava: LS.get('strava', null),
   account: LS.get('account', null),
   adCredits: LS.get('adCredits', {}),
-  config: { stravaClientId: null, googleClientId: null, adsEnabled: false, adUnitPath: null, freeSessionsPerWeek: 1, proUrl: null, proPortal: null, proPrice: null, online: false }
+  config: { stravaClientId: null, googleClientId: null, adsEnabled: false, adUnitPath: null, adsTest: false, freeSessionsPerWeek: 1, proUrl: null, proPortal: null, proPrice: null, online: false }
 };
 function saveSessions() { LS.set('sessions', state.sessions); backupSoon(); }
 function saveProfile() { LS.set('profile', state.profile); backupSoon(); }
@@ -1060,7 +1062,8 @@ function weekKey(d = new Date()) {
 const thisWeek = () => state.sessions.filter(s => weekKey(new Date(s.created_at)) === weekKey());
 const sessionsThisWeek = () => thisWeek().length;
 const isPro = () => !!LS.get('pro', false);
-const needsAd = () => state.config.adsEnabled && !isPro() && sessionsThisWeek() >= allowedThisWeek();
+// Deleted sessions still count toward the week, so deleting one never skips the ad.
+const needsAd = () => state.config.adsEnabled && !isPro() && sessionsThisWeek() + (LS.get('delWeek', {})[weekKey()] || 0) >= allowedThisWeek();
 const allowedThisWeek = () => state.config.freeSessionsPerWeek + (state.adCredits[weekKey()] || 0);
 
 /* =============================================================================
@@ -1596,6 +1599,7 @@ function setCond(key, r) {
 }
 function renderResult() {
   const s = current, w = WIND[s.wind_rating - 1];
+  $('delSession').classList.remove('armed'); $('delSession').textContent = tr('Delete session');
   $('resultTitle').textContent = resultFresh ? tr('Session complete') : new Date(s.created_at).toLocaleDateString(fmtLocale(), { weekday: 'short', day: 'numeric', month: 'short' }); $('view-result').querySelector('.check').classList.toggle('hidden', !resultFresh);
   $('windList').innerHTML = WIND.map(x => `<button data-r="${x.r}" class="${x.r === s.wind_rating ? 'on' : ''}">${x.r}<small>${tr(x.name)}</small></button>`).join('');
   $('windList').querySelectorAll('button').forEach(b => b.onclick = () => setCond('wind_rating', +b.dataset.r));
@@ -1934,6 +1938,33 @@ function openSession(id, back) {
   document.querySelectorAll('.modal-bg:not(.hidden)').forEach(m => m.classList.add('hidden'));
   current = s; resultFresh = false; resultBack = back || null; renderResult(); showView('result'); window.scrollTo(0, 0); return true;
 }
+/* Deleting a session removes it from this phone, the backup (remembered as deleted so other phones
+   drop it too) and every team board it was shared to. A Strava post stays on Strava. */
+$('delSession').onclick = () => {
+  const b = $('delSession'), s = current; if (!s) return;
+  if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = tr('Tap again to delete'); clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove('armed'); b.textContent = tr('Delete session'); }, 4000); return; }
+  deleteSession(s);
+};
+function deletedIds() { return LS.get('deletedSessions', []); }
+function deleteSession(s) {
+  state.sessions = state.sessions.filter(x => x.id !== s.id);
+  if (weekKey(new Date(s.created_at)) === weekKey()) { const wk = weekKey(), dw = LS.get('delWeek', {}); LS.set('delWeek', { [wk]: (dw[wk] || 0) + 1 }); }
+  LS.set('deletedSessions', [...new Set([...deletedIds(), s.id])].slice(-2000));
+  const teams = String(s.team_shared || '').split(',').filter(Boolean);
+  if (teams.length) LS.set('pendingDeletes', [...LS.get('pendingDeletes', []), ...teams.map(code => ({ code, id: s.id }))]);
+  saveSessions(); retryPendingDeletes();
+  toast(s.strava_activity_id ? tr('Session deleted. The Strava post stays on Strava.') : tr('Session deleted'));
+  resultFresh = false; leaveResult(); if (currentView === 'stats') renderStats(); renderSetup();
+}
+async function retryPendingDeletes() {
+  const list = LS.get('pendingDeletes', []); if (!list.length) return;
+  const left = [];
+  for (const d of list) {
+    try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'delete_session', code: d.code, id: d.id, ...(await whoBody()) }) }); }
+    catch (e) { if (!e.status || e.status >= 500) left.push(d); }
+  }
+  LS.set('pendingDeletes', left); teamData = null;
+}
 $('resultX').onclick = () => { if (resultFresh) $('againBtn').click(); else leaveResult(); };
 /* Strava has no drafts, so the post is edited here first (title, caption, team), published
    only on Publish, then opened in Strava for photos. */
@@ -2131,7 +2162,7 @@ function backupSoon(ms = 4000) {
 async function backupNow() {
   const auth = await backupAuth(); if (!auth) return;
   try {
-    const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'save', ...auth, sessions: state.sessions, profile: { ...state.profile, goal: goalN() } }) });
+    const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'save', ...auth, sessions: state.sessions, deleted: deletedIds(), profile: { ...state.profile, goal: goalN() } }) });
     LS.set('backupAt', d.updated_at); renderBackupLine();
   } catch { /* tries again after the next change */ }
 }
@@ -2147,7 +2178,12 @@ async function restoreBackup() {
   const auth = await backupAuth(); if (!auth) return;
   try {
     const d = await api('/backup', { method: 'POST', body: JSON.stringify({ action: 'load', ...auth }) });
-    const added = mergeSessions(d.sessions), p = d.profile;
+    // Sessions deleted on another phone leave this one too.
+    if (Array.isArray(d.deleted) && d.deleted.length) {
+      const gone = new Set(d.deleted); LS.set('deletedSessions', [...new Set([...deletedIds(), ...d.deleted])].slice(-2000));
+      if (state.sessions.some(x => gone.has(x.id))) { state.sessions = state.sessions.filter(x => !gone.has(x.id)); LS.set('sessions', state.sessions); }
+    }
+    const added = mergeSessions((d.sessions || []).filter(x => x && !deletedIds().includes(x.id))), p = d.profile;
     if (p) {
       if (!state.profile.team && p.team) { state.profile.team = p.team; state.profile.teamName = p.teamName || ''; }
       // add any teams this athlete joined on another phone
@@ -2356,6 +2392,8 @@ async function syncAccount() {
       if (at) await accountSignedIn(await api('/account', { method: 'POST', body: JSON.stringify({ action: 'strava', access_token: at, token: state.account ? state.account.token : undefined }) }), true);
     }
     // Once per phone: re-register on every team so rows left under older names move to the account.
+    // Sessions added or deleted on another phone show up here too (at most once an hour).
+    if (state.account && Date.now() - LS.get('restoreAt', 0) > 3600e3) { LS.set('restoreAt', Date.now()); await restoreBackup(); }
     if (state.account && LS.get('adoptV', 0) < 2) { teamsList().forEach(t => memberPing(t.code, 'seen')); LS.set('adoptV', 2); }
   } catch {} finally { syncAccount.busy = false; }
 }
@@ -2930,39 +2968,44 @@ function drawBars(rows) {
 
 /* =============================================================================
    Rewarded ad gate: OFF unless ADS_ENABLED=true in Netlify.
-   With AD_UNIT_PATH set, it shows a Google Ad Manager rewarded ad. Without one,
-   or when no ad is available, a 15-second sponsor slot unlocks the session so
-   athletes are never stuck.
+   With AD_UNIT_PATH set, it shows a Google Ad Manager rewarded ad (ADS_TEST=true uses
+   Google's sample unit, to check everything before the real unit is approved).
+   When no ad is available, a 5-second LANZA card unlocks the session, so athletes
+   are never stuck and never wait for an ad that isn't coming.
    ============================================================================= */
-function grantAdCredit() {
+function grantAdCredit(viewed) {
+  if (viewed) track('ad_view');
   const k = weekKey(); state.adCredits = { [k]: (state.adCredits[k] || 0) + 1 }; LS.set('adCredits', state.adCredits);
   $('adModal').classList.add('hidden'); renderWeek(); chimeFanfare(); toast(tr('Session unlocked')); if (setup.quick) { setup.quick = false; setup.mode = 'new'; startSession(); } else openTarget('new');
 }
-function openAdGate() { $('adPro').classList.toggle('hidden', !state.config.proUrl); $('adArea').classList.add('hidden'); $('adChoices').classList.remove('hidden'); $('adModal').classList.remove('hidden'); }
+function openAdGate() { track('ad_offer'); $('adPro').classList.toggle('hidden', !state.config.proUrl); $('adArea').classList.add('hidden'); $('adChoices').classList.remove('hidden'); $('adModal').classList.remove('hidden'); }
 $('adPro').onclick = () => { $('adModal').classList.add('hidden'); goPro(); };
 $('closeAd').onclick = () => $('adModal').classList.add('hidden');
-$('watchAd').onclick = () => { $('adChoices').classList.add('hidden'); state.config.adUnitPath ? showGptRewarded() : showPlaceholderAd(); };
+const AD_TEST_UNIT = '/22639388115/rewarded_web_example';
+const adUnit = () => state.config.adUnitPath || (state.config.adsTest ? AD_TEST_UNIT : null);
+$('watchAd').onclick = () => { $('adChoices').classList.add('hidden'); adUnit() ? showGptRewarded() : showPlaceholderAd(); };
 function showPlaceholderAd() {
-  $('adModal').classList.remove('hidden'); $('adArea').classList.remove('hidden');
-  let n = 15; $('adCount').textContent = n;
+  if (adUnit()) track('ad_nofill');
+  $('adModal').classList.remove('hidden'); $('adArea').classList.remove('hidden'); $('adHouse').classList.remove('hidden');
+  let n = 5; $('adCount').textContent = n;
   const t = setInterval(() => { n--; $('adCount').textContent = n; if (n <= 0) { clearInterval(t); grantAdCredit(); } }, 1000);
 }
 let gptLoaded = false;
 function showGptRewarded() {
-  $('adArea').classList.remove('hidden'); $('adCount').textContent = '…';
+  $('adArea').classList.remove('hidden'); $('adHouse').classList.add('hidden'); $('adCount').textContent = '…';
   window.googletag = window.googletag || { cmd: [] };
   let slot = null, granted = false, done = false;
   const fallback = setTimeout(() => finish(true), 8000);
   function finish(usePlaceholder) { if (done) return; done = true; clearTimeout(fallback); if (slot) { try { googletag.destroySlots([slot]); } catch {} } if (usePlaceholder) showPlaceholderAd(); }
   if (!gptLoaded) { const s = document.createElement('script'); s.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js'; s.async = true; s.onerror = () => finish(true); document.head.appendChild(s); gptLoaded = true; }
   googletag.cmd.push(() => {
-    slot = googletag.defineOutOfPageSlot(state.config.adUnitPath, googletag.enums.OutOfPageFormat.REWARDED);
+    slot = googletag.defineOutOfPageSlot(adUnit(), googletag.enums.OutOfPageFormat.REWARDED);
     if (!slot) { finish(true); return; }
     slot.addService(googletag.pubads());
     const pa = googletag.pubads();
     pa.addEventListener('rewardedSlotReady', (e) => { if (e.slot !== slot) return; clearTimeout(fallback); $('adModal').classList.add('hidden'); e.makeRewardedVisible(); });
     pa.addEventListener('rewardedSlotGranted', (e) => { if (e.slot === slot) granted = true; });
-    pa.addEventListener('rewardedSlotClosed', (e) => { if (e.slot !== slot) return; finish(false); if (granted) grantAdCredit(); else toast(tr('Watch the whole ad to unlock the session')); });
+    pa.addEventListener('rewardedSlotClosed', (e) => { if (e.slot !== slot) return; finish(false); if (granted) grantAdCredit(true); else toast(tr('Watch the whole ad to unlock the session')); });
     pa.addEventListener('slotRenderEnded', (e) => { if (e.slot === slot && e.isEmpty) finish(true); });
     googletag.enableServices(); googletag.display(slot);
   });
@@ -3175,9 +3218,9 @@ let recovered = null;
   } else LS.del('live');
 }
 if (!session) nextIntro();
-loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimAccount(); syncAccount(); claimPendingInvite(); retryPendingShares(); handleProReturn(); refreshPro(false); });
+loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimAccount(); syncAccount(); claimPendingInvite(); retryPendingShares(); retryPendingDeletes(); handleProReturn(); refreshPro(false); });
 // phrases(): the data words the language files translate (used when adding a language).
-window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
+window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, openSession, view: () => currentView, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
 })();
 </script>
 </body>
