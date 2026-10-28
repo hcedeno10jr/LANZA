@@ -49,6 +49,7 @@ export function sanitize(s) {
     difficulty, attempts, makes, accuracy, wind_rating, wet_rating,
     skill_score: skillScore({ makes, attempts, difficulty, wind_rating, wet_rating }),
     best_streak: Math.round(num(s.best_streak, 0, attempts)),
+    good_shape: Math.round(num(s.good_shape, 0, attempts, 0)),
     throw: THROW_IDS.includes(s.throw) ? s.throw : 'mixed',
     styles: Array.isArray(s.styles) ? [...new Set(s.styles.filter((x) => STYLE_IDS.includes(x)))] : [],
     strava_activity_id: s.strava_activity_id ? String(s.strava_activity_id).replace(/\D/g, '').slice(0, 20) : null
@@ -85,7 +86,7 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
     // A LANZA account is the strongest identity: one row per person, whatever phone or browser.
     if (body.account_token && accounts) {
       const acct = await accountOf(accounts, body.account_token);
-      if (acct) return { name: String(body.name || acct.name || 'Athlete').trim().slice(0, 40) || 'Athlete', strava_id: (acct.links && acct.links.strava) || null, verified: !!(acct.links && acct.links.strava), key: `acct:${acct.id}`, acct };
+      if (acct) return { name: String(body.name || acct.name || 'Athlete').trim().slice(0, 40) || 'Athlete', strava_id: (acct.links && acct.links.strava) || null, verified: true, key: `acct:${acct.id}`, acct };
     }
     let a = { name: String(body.name || 'Athlete').trim().slice(0, 40) || 'Athlete', strava_id: null, verified: false };
     if (body.access_token) {

@@ -150,6 +150,8 @@ a{color:var(--text)}
 .btn:active{transform:scale(.98)}
 .btn.primary{background:var(--accent);color:var(--on-accent);box-shadow:0 10px 36px rgba(var(--accent-rgb),.35)}
 .btn.outline{background:transparent;box-shadow:inset 0 0 0 1px #3a3a40}
+.shapebtn{display:flex;align-items:center;justify-content:center;gap:6px;margin:0 auto;padding:9px 16px;border-radius:999px;border:0;background:var(--card2);color:var(--muted);font:600 13px/1 inherit;font-family:inherit}.shapebtn b{color:#fff}.shapebtn.on{background:var(--accent-tint);color:var(--accent-hi)}.shapebtn:disabled{opacity:.45}
+.streak i.g{box-shadow:0 0 0 2px #fff}
 .delsess{display:block;margin:6px auto 0;padding:12px 16px;background:none;border:0;color:var(--muted);font:600 14px/1 inherit;font-family:inherit}.delsess.armed{color:#ff6961}
 .btn.strava{background:var(--strava);color:#fff}
 .btn.sm{width:auto;padding:9px 16px;font-size:13.5px}
@@ -491,6 +493,7 @@ nav.tabs button{position:relative;z-index:1}
     </div>
     <div class="streak" id="streakBar" aria-label="Throw history"></div>
     <div class="heard" id="heard">Tap the mic for hands-free: say “make” or “miss” after each throw.</div>
+    <button class="shapebtn" id="shapeBtn" disabled><span id="shapeLbl">Good shape</span> <b id="shapeN">0</b></button>
     <div class="minor">
       <button class="btn sm" id="undoBtn">Undo</button>
       <span class="cap">Streak <b id="streakOut" style="color:#fff">0</b> · best <span id="bestStreak">0</span></span>
@@ -586,7 +589,7 @@ nav.tabs button{position:relative;z-index:1}
       <button class="btn primary" id="joinTeam">Join team</button>
       <button class="btn outline" id="createTeam">Create a new team</button>
       <button class="btn hidden" id="cancelJoin">Cancel</button>
-      <p class="note">Share the code only with your team. Players connected to Strava are marked as verified.</p>
+      <p class="note">Share the code only with your team. Signed-in players are marked as verified.</p>
     </div>
     <div id="teamBoard" class="hidden" style="display:grid;grid-template-columns:minmax(0,1fr);gap:14px">
       <div class="teamtabs hidden" id="teamTabs"></div>
@@ -790,7 +793,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.30.0';
+const APP_VERSION = '2.31.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -987,7 +990,7 @@ const state = {
   strava: LS.get('strava', null),
   account: LS.get('account', null),
   adCredits: LS.get('adCredits', {}),
-  config: { stravaClientId: null, googleClientId: null, adsEnabled: false, adUnitPath: null, adsTest: false, freeSessionsPerWeek: 1, proUrl: null, proPortal: null, proPrice: null, online: false }
+  config: { stravaClientId: null, stravaLimited: false, googleClientId: null, adsEnabled: false, adUnitPath: null, adsTest: false, freeSessionsPerWeek: 1, proUrl: null, proPortal: null, proPrice: null, online: false }
 };
 function saveSessions() { LS.set('sessions', state.sessions); backupSoon(); }
 function saveProfile() { LS.set('profile', state.profile); backupSoon(); }
@@ -1105,13 +1108,14 @@ function renderSetup() {
 }
 function renderWeek() {
   const n = sessionsThisWeek(), s = state.strava;
-  let html = s ? `<span class="dot ok"></span>${tr('Strava connected')}` : `<span class="dot"></span>${tr('Strava not connected')}`;
-  if (isPro()) html += ' · LANZA Pro';
+  // Strava is optional: the line only mentions it once it is connected.
+  const parts = s ? [`<span class="dot ok"></span>${tr('Strava connected')}`] : [];
+  if (isPro()) parts.push('LANZA Pro');
   else if (state.config.adsEnabled) {
     const left = Math.max(0, allowedThisWeek() - n);
-    html += left > 0 ? ' · ' + tr(left === 1 ? '{n} free session left this week' : '{n} free sessions left this week', { n: left }) : ' · ' + tr('next session unlocks with a short ad');
+    parts.push(left > 0 ? tr(left === 1 ? '{n} free session left this week' : '{n} free sessions left this week', { n: left }) : tr('next session unlocks with a short ad'));
   }
-  $('weekBox').innerHTML = html;
+  $('weekBox').innerHTML = parts.join(' · '); $('weekBox').classList.toggle('hidden', !parts.length);
 }
 
 /* ---------- the to-scale scene: person, net, tree ---------- */
@@ -1475,10 +1479,18 @@ function record(made) {
   if (made && [5, 10, 15, 20].includes(session.streak)) { chimeFanfare(); say(tr('{n} in a row!', { n: session.streak })); }
   else if (st.attempts % 10 === 0) say(tr('{n} throws. {p} percent.', { n: st.attempts, p: Math.round(st.acc * 100) }));
 }
+/* "Good shape": the throw flew the way it should (nice flight, right release), make or miss.
+   Tap the button or say "good shape" right after the call; it marks the last throw. */
+function markShape() {
+  if (!session || !session.log.length) return;
+  const i = session.log.length - 1; session.good = session.good || [];
+  if (session.good.includes(i)) return;
+  session.good.push(i); persistLive(); renderSession(); tone(1320, 0, 0.09, 'sine', 0.12); if (navigator.vibrate) navigator.vibrate(15);
+}
 function undo() {
   if (!session) return;
   if (!session.log.length) return;
-  session.log.pop(); session.diffs.pop();
+  session.log.pop(); session.diffs.pop(); if (session.good) session.good = session.good.filter(i => i < session.log.length);
   let st = 0, best = 0; for (const m of session.log) { st = m ? st + 1 : 0; best = Math.max(best, st); }
   session.streak = st; session.best = best; persistLive(); renderSession(); tone(600, 0, 0.08, 'square', 0.08); toast(tr('Last throw removed'));
 }
@@ -1487,7 +1499,9 @@ function renderSession() {
   $('accOut').textContent = Math.round(st.acc * 100) + '%'; $('attOut').textContent = st.attempts;
   $('scoreLive').textContent = st.score; $('streakOut').textContent = session.streak; $('bestStreak').textContent = session.best;
   $('makeN').textContent = st.makes; $('missN').textContent = st.misses;
-  $('streakBar').innerHTML = session.log.slice(-60).map(m => `<i class="${m ? '' : 'x'}"></i>`).join('');
+  const off = Math.max(0, session.log.length - 60), good = new Set(session.good || []);
+  $('streakBar').innerHTML = session.log.slice(-60).map((m, j) => `<i class="${m ? '' : 'x'}${good.has(off + j) ? ' g' : ''}"></i>`).join('');
+  $('shapeN').textContent = good.size; $('shapeBtn').disabled = !session.log.length; $('shapeBtn').classList.toggle('on', good.has(session.log.length - 1));
 }
 
 /* ---------- voice (Web Speech API) ---------- */
@@ -1497,14 +1511,20 @@ const VOICE = langInfo().voice || {};
 const MAKE_WORDS = new Set(['hit', 'make', 'made', 'hits', 'maid', ...(VOICE.make || [])].map(w => w.toLowerCase()));
 const MISS_WORDS = new Set(['miss', 'out', 'off', 'missed', 'mist', ...(VOICE.miss || [])].map(w => w.toLowerCase()));
 const UNDO_WORDS = new Set(['undo', ...(VOICE.undo || [])].map(w => w.toLowerCase()));
+// Phrases, matched before single words so "buena forma" isn't heard as "buena" (a make word in Spanish).
+const SHAPE_PHRASES = ['good shape', 'nice shape', 'shape', ...(VOICE.shape || [])].map(w => w.toLowerCase()).sort((a, b) => b.length - a.length);
 let rec = null, micOn = false, handled = new Map(), lastCmdAt = 0;
 // Languages written without spaces (Japanese, Chinese) are scanned for the words in order.
 function parseOutcomes(text) {
   text = text.toLowerCase();
-  const kind = (w) => MAKE_WORDS.has(w) ? 'make' : MISS_WORDS.has(w) ? 'miss' : UNDO_WORDS.has(w) ? 'undo' : null;
-  if (!VOICE.scan) return text.replace(/[^\p{L}\p{M}\s]/gu, ' ').split(/\s+/).map(kind).filter(Boolean);
-  const words = [...MAKE_WORDS, ...MISS_WORDS, ...UNDO_WORDS].sort((a, b) => b.length - a.length), out = [];
-  for (let i = 0; i < text.length;) { const w = words.find(w => text.startsWith(w, i)); if (w) { out.push(kind(w)); i += w.length; } else i++; }
+  const kind = (w) => w === 'zzshapezz' ? 'shape' : MAKE_WORDS.has(w) ? 'make' : MISS_WORDS.has(w) ? 'miss' : UNDO_WORDS.has(w) ? 'undo' : null;
+  if (!VOICE.scan) {
+    let t = ' ' + text.replace(/[^\p{L}\p{M}\s]/gu, ' ').replace(/\s+/g, ' ') + ' ';
+    for (const p of SHAPE_PHRASES) t = t.split(' ' + p + ' ').join(' zzshapezz ').split(' ' + p + ' ').join(' zzshapezz ');
+    return t.split(/\s+/).map(kind).filter(Boolean);
+  }
+  const words = [...SHAPE_PHRASES, ...MAKE_WORDS, ...MISS_WORDS, ...UNDO_WORDS].sort((a, b) => b.length - a.length), out = [];
+  for (let i = 0; i < text.length;) { const w = words.find(w => text.startsWith(w, i)); if (w) { out.push(SHAPE_PHRASES.includes(w) ? 'shape' : kind(w)); i += w.length; } else i++; }
   return out;
 }
 function setMicUI(live, sub) { $('micToggle').classList.toggle('live', live); if (sub != null) $('heard').innerHTML = sub; }
@@ -1520,6 +1540,7 @@ function startMic() {
       const text = e.results[i][0].transcript, outs = parseOutcomes(text), done = handled.get(i) || 0;
       // Interim results react instantly; `handled` stops the final result counting the same words twice.
       if (outs.length > done && !speaking) for (const o of outs.slice(done)) {
+        if (o === 'shape') { markShape(); continue; }
         const now = Date.now(); if (now - lastCmdAt < 350) continue; lastCmdAt = now;
         o === 'undo' ? undo() : record(o === 'make');
       }
@@ -1529,7 +1550,7 @@ function startMic() {
   };
   rec.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { micOn = false; setMicUI(false, tr('Microphone blocked. Allow it for this site in your browser settings.')); } };
   rec.onend = () => { if (micOn) { handled = new Map(); try { rec.start(); } catch { setTimeout(() => micOn && rec && rec.start(), 300); } } };
-  try { rec.start(); micOn = true; setMicUI(true, tr('Listening. Say <b>make</b> or <b>miss</b> after each throw.')); }
+  try { rec.start(); micOn = true; setMicUI(true, tr('Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.')); }
   catch (err) { setMicUI(false, esc(err.message)); }
 }
 function stopMic() { micOn = false; if (rec) { rec.onend = null; try { rec.stop(); } catch {} rec = null; } setMicUI(false, tr('Tap the mic for hands-free: say “make” or “miss” after each throw.')); }
@@ -1537,6 +1558,7 @@ $('micToggle').onclick = () => micOn ? stopMic() : startMic();
 $('btnMake').onclick = () => record(true);
 $('btnMiss').onclick = () => record(false);
 $('undoBtn').onclick = undo;
+$('shapeBtn').onclick = markShape;
 $('startSession').onclick = tryStart;
 // "Same as last time": the saved target, distance and throw, straight into logging.
 $('quickStart').onclick = () => {
@@ -1570,7 +1592,8 @@ function sessionRecord(ss, endAt) {
     distance_m: session.cur.distance, target: session.cur.name, target_ratio: +session.cur.ratio.toFixed(2), difficulty: +st.diff.toFixed(3),
     attempts: st.attempts, makes: st.makes, accuracy: +st.acc.toFixed(4), best_streak: session.best,
     wind_rating: 1, wet_rating: 1, skill_score: st.score, strava_activity_id: null, team_shared: null,
-    shape: session.cur.shape || null, throw: session.throw, styles: session.styles
+    shape: session.cur.shape || null, throw: session.throw, styles: session.styles,
+    good_shape: (session.good || []).filter(i => i < session.log.length).length
   };
   const parts = (session.parts || []).map((p, i, a) => { const l = session.log.slice(p.from, i + 1 < a.length ? a[i + 1].from : undefined); return { throw: p.throw, styles: p.styles, attempts: l.length, makes: l.filter(Boolean).length }; }).filter(p => p.attempts);
   const keyOf = (p) => p.throw + '|' + [...p.styles].sort().join(',');
@@ -1614,7 +1637,7 @@ function renderResult() {
   $('rPB').textContent = prevBest == null ? tr('First session logged') : s.skill_score > prevBest ? tr('Personal best: LANZA Score {n}', { n: s.skill_score })
     : prevStreak != null && s.best_streak > prevStreak ? tr('Personal best: {n} makes in a row', { n: s.best_streak }) : tr('{d} points off your best of {b}', { d: prevBest - s.skill_score, b: prevBest });
   $('rList').innerHTML = [['Throw', throwLabel(s)], ['Makes', tr('{m} of {n}', { m: s.makes, n: s.attempts })], ['Distance', distLabel(s.distance_m)], ['Target', tr(s.target)],
-    ['Difficulty', `${levelLabel(s.difficulty * w.f * wt.f)} / 10`], ['Best streak', s.best_streak], ['Conditions', tr('{w} wind', { w: tr(w.name) })]].map(([k, v]) => `<div>${tr(k)}<b>${esc(v)}</b></div>`).join('');
+    ['Difficulty', `${levelLabel(s.difficulty * w.f * wt.f)} / 10`], ['Best streak', s.best_streak], ...(s.good_shape ? [['Good shape', tr('{m} of {n}', { m: s.good_shape, n: s.attempts })]] : []), ['Conditions', tr('{w} wind', { w: tr(w.name) })]].map(([k, v]) => `<div>${tr(k)}<b>${esc(v)}</b></div>`).join('');
   $('rHow').textContent = tr('{m}/{n} counts as {a}% (more throws, more weight) × difficulty {d}/10 = {s} ({band})', { m: s.makes, n: s.attempts, a: Math.round((s.makes + 5) / (s.attempts + 10) * 100), d: levelLabel(s.difficulty * w.f * wt.f), s: s.skill_score, band: scoreBand(s.skill_score) });
   renderName(); renderStravaBox(); renderTeamStatus();
 }
@@ -1685,6 +1708,7 @@ async function stravaDescription(s) {
     `${tr('LANZA Score {n}/100', { n: s.skill_score })} · ${scoreBand(s.skill_score)}${isPB(s) ? ' · 🏆 ' + tr('New personal best') : ''}`,
     `🥏 ${throwLabel(s)}`,
     '🎯 ' + tr('{m}/{n} makes ({p}%) · best streak {b}', { m: s.makes, n: s.attempts, p: Math.round(s.accuracy * 100), b: s.best_streak }),
+    s.good_shape ? '✨ ' + tr('{m}/{n} with good shape', { m: s.good_shape, n: s.attempts }) : null,
     '📏 ' + tr('{d} · {target} target', { d: distLabel(s.distance_m), target: lc(tr(s.target)) }),
     '💨 ' + tr('{w} wind', { w: tr(w.name) }),
     await teamRankLine(s),
@@ -2006,6 +2030,10 @@ $('postNo').onclick = () => { if (postFromDone) leaveResult(); else { $('postMod
    Strava
    ============================================================================= */
 const stravaReady = () => !!state.config.stravaClientId;
+// STRAVA_LIMITED=true (while Strava caps the app's athletes): people already connected keep Strava,
+// nobody new is offered it, and the app runs on Google sign-in, stories and photo cards.
+const stravaOpen = () => stravaReady() && !state.config.stravaLimited;
+const stravaShown = () => !!state.strava || stravaOpen();
 const STRAVA_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.4 17.9l-2.1-4.1h-3.1l5.2 10.2 5.1-10.2h-3.1zM10.2 0L3.3 13.8h4.1l2.8-5.5 2.8 5.5h4.1z"/></svg>';
 // Strava brand rules: its own orange button, "Powered by Strava" next to Strava data, "View on Strava" links.
 const POWERED = '<div class="powered"><img src="strava/powered.svg" alt="Powered by Strava" width="146" height="15"></div>';
@@ -2022,7 +2050,7 @@ function renderStravaPill() {
   f.setAttribute('aria-label', a ? a.firstname : tr('Connect Strava'));
 }
 $('profileFab').onclick = () => openAcct();
-function connectStrava() { if (!stravaReady()) { toast(tr('Strava goes live once the app is deployed')); return; } stravaAuthorize(); }
+function connectStrava() { if (!stravaOpen()) { toast(tr('Strava goes live once the app is deployed')); return; } stravaAuthorize(); }
 async function disconnectStrava() {
   const token = await stravaToken();
   if (token) api('/strava', { method: 'POST', body: JSON.stringify({ action: 'deauthorize', access_token: token }) }).catch(() => {});
@@ -2043,9 +2071,11 @@ function renderAcct() {
     $('acctAuto').onchange = (e) => LS.set('autoStrava2', e.target.checked);
     $('stravaOff').onclick = disconnectStrava;
   } else {
-    el.innerHTML = `<span class="cap">Strava</span><p class="note" style="text-align:start;margin:0">${tr(stravaReady() ? 'Connect once. Then post any session in one tap.' : 'Strava goes live once the app is deployed.')}</p>
+    if (!stravaOpen()) { el.innerHTML = stravaReady() ? `<span class="cap">Strava</span><p class="note" style="text-align:start;margin:0">${tr('Strava posting opens soon. Until then, share your sessions as a story or photo card.')}</p>` : ''; el.classList.toggle('hidden', !stravaReady()); }
+    else { el.classList.remove('hidden');
+    el.innerHTML = `<span class="cap">Strava</span><p class="note" style="text-align:start;margin:0">${tr('Connect once. Then post any session in one tap.')}</p>
       <button class="btn-connect" id="acctConnect"><img src="strava/connect.svg" alt="Connect with Strava" width="237" height="48"></button>${POWERED}`;
-    $('acctConnect').onclick = connectStrava;
+    $('acctConnect').onclick = connectStrava; }
   }
   const pro = $('acctPro'); pro.classList.toggle('hidden', !state.config.proUrl);
   if (state.config.proUrl) {
@@ -2260,6 +2290,7 @@ function renderStravaBox(msg, cls) {
     $('autoStrava').onchange = (e) => { LS.set('autoStrava2', e.target.checked); };
     return;
   }
+  if (!stravaShown()) { btn.classList.add('hidden'); st.className = 'status-line'; st.textContent = ''; return; }
   btn.classList.remove('hidden'); btn.disabled = false;
   $('stravaLabel').textContent = state.strava ? tr('Upload to Strava') : 'Strava';
   st.className = 'status-line ' + (cls || '');
@@ -2319,11 +2350,11 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
    so history and the team row follow the person to any phone or browser.
    ============================================================================= */
 const googleReady = () => !!state.config.googleClientId;
-const signInReady = () => googleReady() || stravaReady();
+const signInReady = () => googleReady() || stravaOpen();
 function openSign(forTeam) {
   $('signTitle').textContent = tr(forTeam ? 'One account, one spot on the team' : 'Your LANZA account');
   $('signText').textContent = tr('One tap keeps your history and your team spot on any phone or browser. No password.');
-  $('signGoogle').classList.toggle('hidden', !googleReady()); $('signStrava').classList.toggle('hidden', !stravaReady());
+  $('signGoogle').classList.toggle('hidden', !googleReady()); $('signStrava').classList.toggle('hidden', !stravaOpen());
   $('signModal').classList.remove('hidden');
 }
 $('signNo').onclick = () => { LS.del('afterSignIn'); $('signModal').classList.add('hidden'); };
@@ -2726,7 +2757,7 @@ function renderMembers() {
   const day = (d) => new Date(d).toLocaleDateString(fmtLocale(), { day: 'numeric', month: 'short' });
   const dots = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
   const row = (m, left) => {
-    const sub = left ? tr(m.removed ? 'Removed {d}' : 'Left {d}', { d: day(m.left_at) }) : m.captain ? '<span class="badge">' + tr('Captain') + '</span>' : m.verified ? 'Strava' : '';
+    const sub = left ? tr(m.removed ? 'Removed {d}' : 'Left {d}', { d: day(m.left_at) }) : m.captain ? '<span class="badge">' + tr('Captain') + '</span>' : m.verified ? tr('Verified') : '';
     const mine = m.key === me, open = memOpen === m.key, armed = memArm === m.key;
     const right = !cap || mine ? '' : left
       ? `<button data-a="forget" data-k="${esc(m.key)}" class="${armed ? 'warn' : ''}">${tr(armed ? 'Tap again to delete' : 'Delete')}</button>`
@@ -2771,7 +2802,7 @@ function renderBoard() {
   const att = rows.reduce((a, s) => a + s.attempts, 0), mk = rows.reduce((a, s) => a + s.makes, 0);
   $('tActive').textContent = board.length; $('tAcc').textContent = (att ? Math.round(mk / att * 100) : 0) + '%';
   $('tAvg').textContent = rows.length ? Math.round(rows.reduce((a, s) => a + s.skill_score, 0) / rows.length) : 0;
-  $('boardList').innerHTML = board.length ? board.map((r, i) => `<div class="item tap" data-k="${esc(r.key)}"><div class="t"><span class="rank ${i === 0 ? 'top' : ''}">${i + 1}</span>${esc(r.name)}${r.verified ? '<span class="tag strava">Strava ✓</span>' : ''}</div><div class="r">${Math.round(r.avg)}<small>${PB}${tr('BEST {n}', { n: r.best })}</small></div><div class="d">${Math.round(r.acc * 100)}% · ${tr(r.n === 1 ? '{n} session' : '{n} sessions', { n: r.n })} · ${tr('{n} throws', { n: r.att })}</div></div>`).join('')
+  $('boardList').innerHTML = board.length ? board.map((r, i) => `<div class="item tap" data-k="${esc(r.key)}"><div class="t"><span class="rank ${i === 0 ? 'top' : ''}">${i + 1}</span>${esc(r.name)}${r.verified ? '<span class="tag">✓</span>' : ''}</div><div class="r">${Math.round(r.avg)}<small>${PB}${tr('BEST {n}', { n: r.best })}</small></div><div class="d">${Math.round(r.acc * 100)}% · ${tr(r.n === 1 ? '{n} session' : '{n} sessions', { n: r.n })} · ${tr('{n} throws', { n: r.att })}</div></div>`).join('')
     : `<div class="empty">${tr(teamRange === 'week' ? 'No sessions this week yet.' : teamRange === 'season' ? 'No sessions this season yet.' : 'No sessions in the last 4 weeks yet.')}</div>`;
   // Accountability for the range on screen: who on the team has no session in it.
   const last = new Map(); all.forEach(s => { if (!last.has(s.athlete_key)) last.set(s.athlete_key, s); });
@@ -3129,16 +3160,17 @@ const ONB = [
   { art: 'log', title: 'Make or miss', text: 'Tap after every throw, or go hands-free and just say “make” or “miss”.' },
   { art: 'post', title: 'Share it on Strava', text: 'Post any session to Strava in one tap with your LANZA Score, and your team sees who put in the work.' }
 ];
+const ONB_SHARE = { art: 'post', title: 'Share every session', text: 'Post a story or photo card with your LANZA Score, and your team sees who put in the work.' };
 let onbI = 0;
 function openOnb() { onbI = 0; paintOnb(); $('onbModal').classList.remove('hidden'); }
 function closeOnb(then) { LS.set('onboarded', true); $('onbModal').classList.add('hidden'); then ? then() : nextIntro(); }
 function paintOnb() {
-  const o = ONB[onbI], last = onbI === ONB.length - 1;
+  const o = onbI === 2 && !stravaShown() ? ONB_SHARE : ONB[onbI], last = onbI === ONB.length - 1;
   $('onbArt').innerHTML = ART[o.art]; $('onbTitle').textContent = tr(o.title); $('onbText').textContent = tr(o.text);
   $('onbDots').innerHTML = ONB.map((_, i) => `<i class="${i === onbI ? 'on' : ''}"></i>`).join('');
   $('onbSkip').classList.toggle('hidden', last);
   $('onbActions').innerHTML = !last ? `<button class="btn primary" id="onbNext">${tr('Next')}</button>`
-    : `${stravaReady() && !state.strava ? '<button class="btn-connect" id="onbStrava"><img src="strava/connect.svg" alt="Connect with Strava" width="237" height="48"></button>' : ''}
+    : `${stravaOpen() && !state.strava ? '<button class="btn-connect" id="onbStrava"><img src="strava/connect.svg" alt="Connect with Strava" width="237" height="48"></button>' : ''}
        ${state.profile.team || inviteCode ? '' : `<button class="btn" id="onbTeam">${tr('Join your team')}</button>`}
        ${canInstall() && isMobile ? `<button class="btn" id="onbInstall">${tr('Add to Home Screen')}</button>` : ''}
        <button class="btn primary" id="onbGo">${tr('Start throwing')}</button>`;
@@ -3220,7 +3252,7 @@ let recovered = null;
 if (!session) nextIntro();
 loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimAccount(); syncAccount(); claimPendingInvite(); retryPendingShares(); retryPendingDeletes(); handleProReturn(); refreshPro(false); });
 // phrases(): the data words the language files translate (used when adding a language).
-window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, openSession, view: () => currentView, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
+window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, openSession, parseOutcomes, view: () => currentView, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
 })();
 </script>
 </body>

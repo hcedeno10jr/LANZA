@@ -40,7 +40,11 @@ window.LANZA_I18N = {
 "borrar",
 "atrás"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"buena forma",
+"forma"
+]
 }
 },
 {
@@ -71,7 +75,11 @@ window.LANZA_I18N = {
 "apagar",
 "voltar"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"boa forma",
+"forma"
+]
 }
 },
 {
@@ -102,7 +110,12 @@ window.LANZA_I18N = {
 "retour",
 "efface"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"belle forme",
+"bonne forme",
+"forme"
+]
 }
 },
 {
@@ -134,7 +147,11 @@ window.LANZA_I18N = {
 "rückgängig",
 "löschen"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"gute form",
+"form"
+]
 }
 },
 {
@@ -165,7 +182,12 @@ window.LANZA_I18N = {
 "indietro",
 "cancella"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"bella forma",
+"buona forma",
+"forma"
+]
 }
 },
 {
@@ -197,7 +219,11 @@ window.LANZA_I18N = {
 "wissen",
 "herstel"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"goede vorm",
+"vorm"
+]
 }
 },
 {
@@ -226,7 +252,11 @@ window.LANZA_I18N = {
 "戻して",
 "やり直し"
 ],
-"scan": true
+"scan": true,
+"shape": [
+"いいフォーム",
+"フォーム"
+]
 }
 },
 {
@@ -257,7 +287,11 @@ window.LANZA_I18N = {
 "取消",
 "退回"
 ],
-"scan": true
+"scan": true,
+"shape": [
+"好飞行",
+"飞得好"
+]
 }
 },
 {
@@ -291,7 +325,11 @@ window.LANZA_I18N = {
 "取消",
 "復原"
 ],
-"scan": true
+"scan": true,
+"shape": [
+"好飛行",
+"飛得好"
+]
 }
 },
 {
@@ -320,7 +358,11 @@ window.LANZA_I18N = {
 "되돌리기",
 "지워"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"좋은 폼",
+"폼"
+]
 }
 },
 {
@@ -351,7 +393,11 @@ window.LANZA_I18N = {
 "בטל",
 "חזור"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"צורה טובה",
+"צורה"
+]
 }
 },
 {
@@ -380,7 +426,10 @@ window.LANZA_I18N = {
 "हटाओ",
 "रद्द"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"अच्छी उड़ान"
+]
 }
 }
 ],
@@ -856,7 +905,15 @@ window.LANZA_I18N = {
 "Delete session": "Borrar sesión",
 "Session deleted": "Sesión borrada",
 "Session deleted. The Strava post stays on Strava.": "Sesión borrada. La publicación sigue en Strava.",
-"Follow LANZA on Instagram": "Sigue a LANZA en Instagram"
+"Follow LANZA on Instagram": "Sigue a LANZA en Instagram",
+"Good shape": "Buena forma",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "Escuchando. Di <b>dentro</b> o <b>fuera</b> después de cada lanzamiento, y <b>buena forma</b> cuando voló bien.",
+"{m}/{n} with good shape": "{m}/{n} con buena forma",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Publicar en Strava llega pronto. Mientras tanto, comparte tus sesiones como historia o tarjeta.",
+"Share every session": "Comparte cada sesión",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Publica una historia o tarjeta con tu LANZA Score, y tu equipo ve quién se esforzó.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Comparte el código solo con tu equipo. Los jugadores con sesión iniciada aparecen como verificados.",
+"Verified": "Verificado"
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1326,7 +1383,15 @@ window.LANZA_I18N = {
 "Delete session": "Apagar sessão",
 "Session deleted": "Sessão apagada",
 "Session deleted. The Strava post stays on Strava.": "Sessão apagada. A publicação continua no Strava.",
-"Follow LANZA on Instagram": "Siga o LANZA no Instagram"
+"Follow LANZA on Instagram": "Siga o LANZA no Instagram",
+"Good shape": "Boa forma",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "Ouvindo. Diga <b>dentro</b> ou <b>fora</b> depois de cada arremesso, e <b>boa forma</b> quando voar bem.",
+"{m}/{n} with good shape": "{m}/{n} com boa forma",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "A publicação no Strava chega em breve. Até lá, compartilhe suas sessões como story ou cartão.",
+"Share every session": "Compartilhe cada sessão",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Poste um story ou cartão com seu LANZA Score, e seu time vê quem treinou de verdade.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Compartilhe o código só com seu time. Jogadores conectados aparecem como verificados.",
+"Verified": "Verificado"
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1801,7 +1866,15 @@ window.LANZA_I18N = {
 "Delete session": "Supprimer la séance",
 "Session deleted": "Séance supprimée",
 "Session deleted. The Strava post stays on Strava.": "Séance supprimée. La publication reste sur Strava.",
-"Follow LANZA on Instagram": "Suis LANZA sur Instagram"
+"Follow LANZA on Instagram": "Suis LANZA sur Instagram",
+"Good shape": "Belle forme",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "J'écoute. Dis <b>dedans</b> ou <b>raté</b> après chaque lancer, et <b>belle forme</b> quand il a bien volé.",
+"{m}/{n} with good shape": "{m}/{n} avec une belle forme",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "La publication sur Strava arrive bientôt. En attendant, partage tes séances en story ou en carte.",
+"Share every session": "Partage chaque séance",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Publie une story ou une carte avec ton LANZA Score, et ton équipe voit qui a bossé.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Partage le code seulement avec ton équipe. Les joueurs connectés sont marqués comme vérifiés.",
+"Verified": "Vérifié"
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -2274,7 +2347,15 @@ window.LANZA_I18N = {
 "Delete session": "Einheit löschen",
 "Session deleted": "Einheit gelöscht",
 "Session deleted. The Strava post stays on Strava.": "Einheit gelöscht. Der Strava-Beitrag bleibt auf Strava.",
-"Follow LANZA on Instagram": "Folge LANZA auf Instagram"
+"Follow LANZA on Instagram": "Folge LANZA auf Instagram",
+"Good shape": "Gute Form",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "Ich höre zu. Sag <b>Treffer</b> oder <b>daneben</b> nach jedem Wurf, und <b>gute Form</b>, wenn er gut flog.",
+"{m}/{n} with good shape": "{m}/{n} mit guter Form",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Posten auf Strava kommt bald. Bis dahin teile deine Einheiten als Story oder Bildkarte.",
+"Share every session": "Teile jede Einheit",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Poste eine Story oder Bildkarte mit deinem LANZA Score, und dein Team sieht, wer trainiert hat.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Teile den Code nur mit deinem Team. Angemeldete Spieler sind als verifiziert markiert.",
+"Verified": "Verifiziert"
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2763,7 +2844,15 @@ window.LANZA_I18N = {
 "Delete session": "Elimina sessione",
 "Session deleted": "Sessione eliminata",
 "Session deleted. The Strava post stays on Strava.": "Sessione eliminata. Il post resta su Strava.",
-"Follow LANZA on Instagram": "Segui LANZA su Instagram"
+"Follow LANZA on Instagram": "Segui LANZA su Instagram",
+"Good shape": "Bella forma",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "In ascolto. Di' <b>dentro</b> o <b>fuori</b> dopo ogni lancio, e <b>bella forma</b> quando ha volato bene.",
+"{m}/{n} with good shape": "{m}/{n} con bella forma",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "La pubblicazione su Strava arriva presto. Nel frattempo condividi le sessioni come storia o card.",
+"Share every session": "Condividi ogni sessione",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Pubblica una storia o una card con il tuo LANZA Score, e la squadra vede chi si è allenato.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Condividi il codice solo con la squadra. I giocatori con accesso sono segnati come verificati.",
+"Verified": "Verificato"
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -3219,7 +3308,15 @@ window.LANZA_I18N = {
 "Delete session": "Sessie verwijderen",
 "Session deleted": "Sessie verwijderd",
 "Session deleted. The Strava post stays on Strava.": "Sessie verwijderd. Het bericht blijft op Strava.",
-"Follow LANZA on Instagram": "Volg LANZA op Instagram"
+"Follow LANZA on Instagram": "Volg LANZA op Instagram",
+"Good shape": "Goede vorm",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "Ik luister. Zeg <b>raak</b> of <b>mis</b> na elke worp, en <b>goede vorm</b> als hij mooi vloog.",
+"{m}/{n} with good shape": "{m}/{n} met goede vorm",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Posten op Strava komt binnenkort. Deel je sessies tot dan als story of fotokaart.",
+"Share every session": "Deel elke sessie",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Post een story of fotokaart met je LANZA Score, en je team ziet wie er hard werkte.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Deel de code alleen met je team. Ingelogde spelers zijn gemarkeerd als geverifieerd.",
+"Verified": "Geverifieerd"
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3726,7 +3823,15 @@ window.LANZA_I18N = {
 "Delete session": "セッションを削除",
 "Session deleted": "セッションを削除しました",
 "Session deleted. The Strava post stays on Strava.": "セッションを削除しました。Stravaの投稿はStravaに残ります。",
-"Follow LANZA on Instagram": "InstagramでLANZAをフォロー"
+"Follow LANZA on Instagram": "InstagramでLANZAをフォロー",
+"Good shape": "いいフォーム",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "聞いています。投げるたびに<b>メイク</b>か<b>ミス</b>、きれいに飛んだら<b>いいフォーム</b>と言ってください。",
+"{m}/{n} with good shape": "{m}/{n} いいフォーム",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Stravaへの投稿はまもなく。それまではストーリーや画像カードでシェアしよう。",
+"Share every session": "毎回シェアしよう",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "LANZA Scoreをストーリーや画像カードで投稿。チームは誰が練習したか分かります。",
+"Share the code only with your team. Signed-in players are marked as verified.": "コードはチームだけに共有してください。ログインした選手は認証済みと表示されます。",
+"Verified": "認証済み"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4228,7 +4333,15 @@ window.LANZA_I18N = {
 "Delete session": "删除训练",
 "Session deleted": "训练已删除",
 "Session deleted. The Strava post stays on Strava.": "训练已删除。Strava 上的动态仍会保留。",
-"Follow LANZA on Instagram": "在 Instagram 关注 LANZA"
+"Follow LANZA on Instagram": "在 Instagram 关注 LANZA",
+"Good shape": "好飞行",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "正在听。每次投掷后说<b>中</b>或<b>没中</b>，飞得好时说<b>好飞行</b>。",
+"{m}/{n} with good shape": "{m}/{n} 飞行良好",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "即将支持发布到 Strava。在此之前，用快拍或图片卡分享你的训练。",
+"Share every session": "分享每次训练",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "用快拍或图片卡发布你的 LANZA Score，队友能看到谁在努力。",
+"Share the code only with your team. Signed-in players are marked as verified.": "只把代码分享给队友。已登录的球员会标记为已验证。",
+"Verified": "已验证"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4730,7 +4843,15 @@ window.LANZA_I18N = {
 "Delete session": "刪除練習",
 "Session deleted": "練習已刪除",
 "Session deleted. The Strava post stays on Strava.": "練習已刪除。Strava 上的動態仍會保留。",
-"Follow LANZA on Instagram": "在 Instagram 追蹤 LANZA"
+"Follow LANZA on Instagram": "在 Instagram 追蹤 LANZA",
+"Good shape": "好飛行",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "正在聽。每次投擲後說<b>中</b>或<b>沒中</b>，飛得好時說<b>好飛行</b>。",
+"{m}/{n} with good shape": "{m}/{n} 飛行良好",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "即將支援發布到 Strava。在此之前，用限時動態或圖片卡分享你的練習。",
+"Share every session": "分享每次練習",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "用限時動態或圖片卡發布你的 LANZA Score，隊友能看到誰在努力。",
+"Share the code only with your team. Signed-in players are marked as verified.": "只把代碼分享給隊友。已登入的球員會標記為已驗證。",
+"Verified": "已驗證"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -5235,7 +5356,15 @@ window.LANZA_I18N = {
 "Delete session": "세션 삭제",
 "Session deleted": "세션을 삭제했습니다",
 "Session deleted. The Strava post stays on Strava.": "세션을 삭제했습니다. Strava 게시물은 Strava에 남아 있습니다.",
-"Follow LANZA on Instagram": "Instagram에서 LANZA 팔로우"
+"Follow LANZA on Instagram": "Instagram에서 LANZA 팔로우",
+"Good shape": "좋은 폼",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "듣고 있어요. 던질 때마다 <b>성공</b> 또는 <b>실패</b>라고 말하고, 잘 날아가면 <b>좋은 폼</b>이라고 말하세요.",
+"{m}/{n} with good shape": "{m}/{n} 좋은 폼",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Strava 게시는 곧 열려요. 그동안 스토리나 사진 카드로 세션을 공유하세요.",
+"Share every session": "모든 세션을 공유하세요",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "LANZA Score를 스토리나 사진 카드로 올리면 팀이 누가 연습했는지 볼 수 있어요.",
+"Share the code only with your team. Signed-in players are marked as verified.": "코드는 팀원에게만 공유하세요. 로그인한 선수는 인증됨으로 표시돼요.",
+"Verified": "인증됨"
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -5741,7 +5870,15 @@ window.LANZA_I18N = {
 "Delete session": "מחק אימון",
 "Session deleted": "האימון נמחק",
 "Session deleted. The Strava post stays on Strava.": "האימון נמחק. הפוסט נשאר ב-Strava.",
-"Follow LANZA on Instagram": "עקבו אחרי LANZA באינסטגרם"
+"Follow LANZA on Instagram": "עקבו אחרי LANZA באינסטגרם",
+"Good shape": "צורה טובה",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "מקשיב. אמרו <b>פגיעה</b> או <b>החטאה</b> אחרי כל זריקה, ו<b>צורה טובה</b> כשהיא עפה יפה.",
+"{m}/{n} with good shape": "{m}/{n} בצורה טובה",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "פרסום ל-Strava יגיע בקרוב. עד אז שתפו את האימונים כסטורי או ככרטיס תמונה.",
+"Share every session": "שתפו כל אימון",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "פרסמו סטורי או כרטיס עם ה-LANZA Score שלכם, והקבוצה רואה מי התאמן.",
+"Share the code only with your team. Signed-in players are marked as verified.": "שתפו את הקוד רק עם הקבוצה. שחקנים מחוברים מסומנים כמאומתים.",
+"Verified": "מאומת"
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -6214,7 +6351,15 @@ window.LANZA_I18N = {
 "Delete session": "सत्र हटाएं",
 "Session deleted": "सत्र हटा दिया गया",
 "Session deleted. The Strava post stays on Strava.": "सत्र हटा दिया गया। Strava पोस्ट Strava पर रहेगी।",
-"Follow LANZA on Instagram": "Instagram पर LANZA को फ़ॉलो करें"
+"Follow LANZA on Instagram": "Instagram पर LANZA को फ़ॉलो करें",
+"Good shape": "अच्छी उड़ान",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "सुन रहा हूँ। हर थ्रो के बाद <b>हिट</b> या <b>मिस</b> कहें, और अच्छी उड़ान पर <b>अच्छी उड़ान</b> कहें।",
+"{m}/{n} with good shape": "{m}/{n} अच्छी उड़ान",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Strava पर पोस्ट करना जल्द आ रहा है। तब तक अपने सत्र स्टोरी या फोटो कार्ड के रूप में शेयर करें।",
+"Share every session": "हर सत्र शेयर करें",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "अपने LANZA Score के साथ स्टोरी या फोटो कार्ड पोस्ट करें, और आपकी टीम देखेगी कि किसने मेहनत की।",
+"Share the code only with your team. Signed-in players are marked as verified.": "कोड सिर्फ अपनी टीम से शेयर करें। साइन इन किए खिलाड़ी सत्यापित दिखते हैं।",
+"Verified": "सत्यापित"
 }
 }
 };

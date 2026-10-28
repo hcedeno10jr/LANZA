@@ -32,6 +32,7 @@ Throwing practice for Ultimate Frisbee. Athletes can start a session in one tap.
 |---|---|
 | `STRAVA_CLIENT_ID` | From the Strava API page |
 | `STRAVA_CLIENT_SECRET` | From the Strava API page. Keep it secret. |
+| `STRAVA_LIMITED` | Optional. `true` while Strava still caps your app's athletes: people already connected keep Strava, nobody new is offered it, and the app runs on Google sign-in, stories and photo cards. Remove it once Strava approves the app. |
 | `ADS_ENABLED` | Leave unset for now. Set it to `true` to turn on the weekly ad gate. |
 | `AD_UNIT_PATH` | Optional. A Google Ad Manager rewarded ad unit, for example `/1234567/lanza_rewarded` |
 | `ADS_TEST` | Optional. `true` shows Google's sample rewarded ad, to test the flow before your own unit is approved. Remove it when `AD_UNIT_PATH` is set. |
