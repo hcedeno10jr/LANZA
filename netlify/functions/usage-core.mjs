@@ -1,4 +1,6 @@
 // Privacy-friendly usage counts: no ids, no cookies, just daily totals per event and source.
+import { isoWeek } from './team-core.mjs';
+
 export const EVENTS = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'pro', 'story', 'ad_offer', 'ad_view', 'ad_nofill'];
 const clean = (s) => String(s || 'direct').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 30) || 'direct';
 const day = (d = new Date()) => d.toISOString().slice(0, 10);
@@ -23,9 +25,38 @@ export async function people(accounts, teams) {
     const { blobs } = await teams.list({ prefix: 'members/' });
     out.teams = blobs.length;
     const regs = await Promise.all(blobs.slice(0, 2000).map((b) => teams.get(b.key, { type: 'json' }).catch(() => null)));
-    out.team_members = regs.reduce((n, r) => n + (r ? Object.keys(r).length : 0), 0);
+    out.team_members = regs.reduce((n, r) => n + (r ? Object.values(r).filter((m) => !m.removed && !m.left_at && !m.hidden).length : 0), 0);
   }
   return out;
+}
+
+// Every team on the platform, for the owner picking Founding Teams: name, members, captains and how
+// much it trains. Sessions are counted from their keys (CODE/YYYY-Www/id), so no session is read.
+export async function teamList(teams) {
+  if (!teams) return [];
+  const { blobs } = await teams.list(), by = {};
+  const t = (code) => (by[code] = by[code] || { code, sessions: 0, sessions_4w: 0, weeks: new Set() });
+  const recent = new Set([0, 1, 2, 3].map((i) => isoWeek(new Date(Date.now() - i * 7 * 864e5))));
+  for (const { key } of blobs) {
+    let m = key.match(/^(meta|members)\/([A-Z0-9-]{4,20})$/);
+    if (m) { t(m[2]); continue; }
+    m = key.match(/^([A-Z0-9-]{4,20})\/(\d{4}-W\d{2})\//);
+    if (m) { const x = t(m[1]); x.sessions++; x.weeks.add(m[2]); if (recent.has(m[2])) x.sessions_4w++; }
+  }
+  const list = Object.values(by).slice(0, 3000);
+  return Promise.all(list.map(async (x) => {
+    const [meta, reg] = await Promise.all([teams.get(`meta/${x.code}`, { type: 'json' }).catch(() => null), teams.get(`members/${x.code}`, { type: 'json' }).catch(() => null)]);
+    const ms = Object.values(reg || {}), weeks = [...x.weeks].sort();
+    const joined = ms.map((m) => m.joined_at).filter(Boolean).sort();
+    return {
+      code: x.code, name: (meta && meta.name) || null, color: (meta && meta.color) || null,
+      members: ms.filter((m) => !m.removed && !m.left_at && !m.hidden).length,
+      captains: (meta && Array.isArray(meta.captains) ? meta.captains.length : 0) || (meta && meta.cap ? 1 : 0),
+      sessions: x.sessions, sessions_4w: x.sessions_4w, active_weeks: weeks.length,
+      first_week: weeks[0] || null, last_week: weeks[weeks.length - 1] || null,
+      created_at: (meta && meta.created_at) || joined[0] || null
+    };
+  }));
 }
 
 export async function handle(req, store, adminKey, { accounts, teams } = {}) {
@@ -42,7 +73,7 @@ export async function handle(req, store, adminKey, { accounts, teams } = {}) {
     if (!adminKey || url.searchParams.get('key') !== adminKey) return [{ error: 'Wrong key' }, 403];
     const days = Math.min(90, Math.max(1, Number(url.searchParams.get('days')) || 30)), out = [];
     for (let i = 0; i < days; i++) { const k = day(new Date(Date.now() - i * 864e5)); out.push({ day: k, ...((await store.get(`day/${k}`, { type: 'json' })) || {}) }); }
-    return [{ days: out, people: await people(accounts, teams).catch(() => null), at: new Date().toISOString() }, 200];
+    return [{ days: out, people: await people(accounts, teams).catch(() => null), teams: await teamList(teams).catch(() => null), at: new Date().toISOString() }, 200];
   }
   return [{ error: 'Use GET or POST' }, 405];
 }

@@ -58,6 +58,24 @@ button.ghost{background:transparent;border-color:var(--line);box-shadow:none;col
 button:focus-visible,input:focus-visible{outline:2px solid var(--blue-hi);outline-offset:2px}
 .err{color:var(--warn);font-size:13px;margin-top:8px}
 .foot{color:var(--mute);font-size:12px;text-align:center}
+.tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.tbar input{flex:1 1 160px;padding:8px 14px}
+.pill{background:var(--card-hi);border:1px solid var(--line);color:var(--fg);box-shadow:none;padding:8px 14px;font-weight:500;font-size:13px}
+.pill[aria-pressed="true"]{background:var(--blue);border-color:var(--blue)}
+.count{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.count b{color:var(--fg);font-weight:700}
+#teams th{cursor:pointer;user-select:none}
+#teams th[aria-sort]{color:var(--fg)}
+#teams td.nm,#teams th[data-k="name"]{text-align:left}
+#teams td.nm{white-space:normal;min-width:140px}
+#teams .sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:0;background:var(--blue)}
+#teams .code{color:var(--mute);font-size:12px;margin-left:6px}
+#teams .star{background:none;border:0;box-shadow:none;padding:4px 6px;font-size:18px;color:var(--line);line-height:1}
+#teams .star.on{color:#ffcc33}
+#teams tr.quiet td{color:var(--mute)}
+.badge{display:inline-block;font-size:11px;border-radius:99px;padding:1px 8px;margin-left:6px;vertical-align:1px}
+.badge.act{background:rgba(61,220,132,.15);color:var(--good)}
+.badge.idle{background:rgba(255,255,255,.07);color:var(--mute)}
 </style></head><body><main>
 
 <div class="top"><span class="brand">LANZA</span><span class="live"><span class="dot" id="dot"></span><span id="status">Not connected</span></span></div>
@@ -90,6 +108,21 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue-hi);outlin
     <h2>Last 30 days</h2>
     <div class="legend"><span><i style="background:var(--blue)"></i>Opens</span><span><i style="background:var(--fg)"></i>Sessions</span></div>
     <svg id="chart" viewBox="0 0 640 220" role="img" aria-label="Daily opens and sessions, last 30 days"></svg>
+  </section>
+
+  <section class="card" style="margin-top:14px" id="teamsCard">
+    <h2>Teams</h2>
+    <div class="tbar">
+      <span class="count" id="tCount"></span>
+    </div>
+    <div class="tbar">
+      <input id="tq" type="search" placeholder="Search team name or code" aria-label="Search teams">
+      <button class="pill" id="tActive" aria-pressed="false">Active · 4 wks</button>
+      <button class="pill" id="tFound" aria-pressed="false">Founding only</button>
+      <button class="pill" id="tCopy">Copy list</button>
+    </div>
+    <div class="wrap"><table id="teams"></table></div>
+    <div class="foot" style="text-align:left;margin-top:8px">Tap the star to mark a Founding Team (saved on this device). Tap a column to sort.</div>
   </section>
 
   <section class="card" style="margin-top:14px">
@@ -141,6 +174,41 @@ function chart(days) {
   $('chart').innerHTML = g;
 }
 
+const TCOLS = [['star', '★'], ['name', 'Team'], ['members', 'Members'], ['sessions_4w', 'Sessions · 4 wks'], ['sessions', 'Sessions · all'], ['active_weeks', 'Weeks trained'], ['last_week', 'Last active'], ['created_at', 'Since']];
+let teams = [], tSort = { key: 'sessions_4w', dir: -1 }, tOnlyFound = false, tOnlyActive = false;
+const founding = new Set((() => { try { return JSON.parse(store.get('lanzaFounding') || '[]'); } catch { return []; } })());
+const saveFounding = () => store.set('lanzaFounding', JSON.stringify([...founding]));
+const weekLabel = (w) => { if (!w) return '—'; const [y, n] = w.split('-W').map(Number), d = new Date(Date.UTC(y, 0, 4 + (n - 1) * 7)); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() || 7) - 1)); return 'Wk of ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }); };
+const dateLabel = (s) => s ? new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }) : '—';
+
+function renderTeams() {
+  const q = $('tq').value.trim().toLowerCase();
+  const val = (t, k) => k === 'star' ? (founding.has(t.code) ? 1 : 0) : k === 'name' ? (t.name || t.code).toLowerCase() : (t[k] ?? '');
+  const rows = teams.filter((t) => (!q || (t.name || '').toLowerCase().includes(q) || t.code.toLowerCase().includes(q)) && (!tOnlyFound || founding.has(t.code)) && (!tOnlyActive || t.sessions_4w > 0))
+    .sort((a, b) => { const x = val(a, tSort.key), y = val(b, tSort.key); return (x > y ? 1 : x < y ? -1 : 0) * tSort.dir || b.sessions - a.sessions; });
+  const active = teams.filter((t) => t.sessions_4w > 0).length;
+  $('tCount').innerHTML = `<b>${fmt(teams.length)}</b> teams · <b>${fmt(active)}</b> trained in the last 4 weeks · <b>${founding.size}</b>/50 Founding`;
+  $('teams').innerHTML = '<tr>' + TCOLS.map(([k, l]) => `<th data-k="${k}"${tSort.key === k ? ` aria-sort="${tSort.dir > 0 ? 'ascending' : 'descending'}"` : ''}>${l}${tSort.key === k ? (tSort.dir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('') + '</tr>' +
+    (rows.length ? rows.map((t) => `<tr class="${t.sessions_4w ? '' : 'quiet'}"><td><button class="star${founding.has(t.code) ? ' on' : ''}" data-c="${esc(t.code)}" aria-label="Founding Team ${esc(t.name || t.code)}" aria-pressed="${founding.has(t.code)}">★</button></td>` +
+      `<td class="nm"><span class="sw" style="background:${/^#[0-9a-f]{3,8}$/i.test(t.color || '') ? t.color : 'var(--blue)'}"></span>${esc(t.name || 'Unnamed team')}<span class="code">${esc(t.code)}</span><span class="badge ${t.sessions_4w ? 'act' : 'idle'}">${t.sessions_4w ? 'Active' : 'Quiet'}</span></td>` +
+      `<td>${fmt(t.members)}</td><td>${fmt(t.sessions_4w)}</td><td>${fmt(t.sessions)}</td><td>${fmt(t.active_weeks)}</td><td>${weekLabel(t.last_week)}</td><td>${dateLabel(t.created_at)}</td></tr>`).join('')
+      : `<tr><td colspan="${TCOLS.length}" style="text-align:left;color:var(--mute)">No teams match.</td></tr>`);
+}
+$('teams').onclick = (e) => {
+  const st = e.target.closest('.star');
+  if (st) { const c = st.dataset.c; founding.has(c) ? founding.delete(c) : founding.add(c); saveFounding(); renderTeams(); return; }
+  const th = e.target.closest('th'); if (!th) return;
+  const k = th.dataset.k; tSort = { key: k, dir: tSort.key === k ? -tSort.dir : (k === 'name' ? 1 : -1) }; renderTeams();
+};
+$('tq').oninput = renderTeams;
+$('tFound').onclick = () => { tOnlyFound = !tOnlyFound; $('tFound').setAttribute('aria-pressed', tOnlyFound); renderTeams(); };
+$('tActive').onclick = () => { tOnlyActive = !tOnlyActive; $('tActive').setAttribute('aria-pressed', tOnlyActive); renderTeams(); };
+$('tCopy').onclick = async () => {
+  const list = teams.filter((t) => !tOnlyFound || founding.has(t.code)).map((t) => `${t.name || 'Unnamed team'} (${t.code}): ${t.members} members, ${t.sessions_4w} sessions in 4 weeks, ${t.sessions} total${founding.has(t.code) ? ', Founding' : ''}`).join('\n');
+  try { await navigator.clipboard.writeText(list); $('tCopy').textContent = 'Copied'; } catch { $('tCopy').textContent = 'Copy failed'; }
+  setTimeout(() => { $('tCopy').textContent = 'Copy list'; }, 1600);
+};
+
 function render(d) {
   const days = d.days || [], p = d.people;
   const tot = {}, src = {};
@@ -167,6 +235,8 @@ function render(d) {
     Object.entries(src).sort((a, b) => sum(b[1]) - sum(a[1])).map(([s, v]) => `<tr><td>${esc(s)}</td>${cols.map((e) => `<td>${fmt(v[e])}</td>`).join('')}</tr>`).join('');
   $('ev').innerHTML = '<tr><th>Event</th><th>Today</th><th>7 days</th><th>30 days</th></tr>' +
     EV.map((e) => `<tr><td>${NAMES[e]}</td><td>${fmt(sum(today[e]))}</td><td>${fmt(days.slice(0, 7).reduce((n, day) => n + sum(day[e]), 0))}</td><td>${fmt(tot[e])}</td></tr>`).join('');
+  $('teamsCard').hidden = !Array.isArray(d.teams);
+  if (Array.isArray(d.teams)) { teams = d.teams; renderTeams(); }
   $('dash').hidden = false;
 }
 
@@ -193,7 +263,10 @@ function demo() {
     const dt = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
     days.push({ day: dt, open: { direct: rnd(4, 18, i), instagram: rnd(0, 7, i + 2), strava: rnd(0, 4, i + 5) }, session: { direct: rnd(1, 9, i + 1) }, install: i % 4 ? {} : { direct: 1 }, strava_post: i % 3 ? {} : { direct: 1 }, team_join: i % 6 ? {} : { invite: 1 }, story: i % 5 ? {} : { direct: 1 } });
   }
-  render({ days, people: { accounts: 42, google: 25, strava: 21, new_today: 3, new_7d: 11, teams: 3, team_members: 29 } });
+  const wk = (n) => { const d = new Date(Date.now() - n * 7 * 864e5), t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7)); const y = t.getUTCFullYear(); return `${y}-W${String(Math.ceil(((t - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7)).padStart(2, '0')}`; };
+  const sample = [['Sample Team A', 'SAMPLE-A', '#2f6bff', 16, 34, 61, 7, 0], ['Sample Team B', 'SAMPLE-B', '#ff4d6d', 12, 18, 25, 4, 0], ['Sample Team C', 'SAMPLE-C', '#3ddc84', 9, 6, 14, 3, 1], ['Sample Team D', 'SAMPLE-D', '#ffb340', 5, 0, 4, 1, 6]];
+  render({ days, people: { accounts: 42, google: 25, strava: 21, new_today: 3, new_7d: 11, teams: 4, team_members: 42 },
+    teams: sample.map(([name, code, color, members, s4, s, w, last]) => ({ name, code, color, members, sessions_4w: s4, sessions: s, active_weeks: w, last_week: wk(last), first_week: wk(w + last), captains: 1, created_at: new Date(Date.now() - (w + last) * 7 * 864e5).toISOString() })) });
 }
 
 $('f').onsubmit = (e) => { e.preventDefault(); const k = $('k').value.trim(); if (!k) return; store.set('lanzaUsageKey', k); $('k').value = ''; load(); };
