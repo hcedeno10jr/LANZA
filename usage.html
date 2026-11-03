@@ -75,6 +75,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue-hi);outlin
 #teams tr.quiet td{color:var(--mute)}
 .badge{display:inline-block;font-size:11px;border-radius:99px;padding:1px 8px;margin-left:6px;vertical-align:1px}
 .badge.act{background:rgba(61,220,132,.15);color:var(--good)}
+.adrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.adrow>div{background:var(--card-hi);border-radius:16px;padding:10px 12px}
+.adrow b{display:block;font-size:28px;font-weight:250;font-variant-numeric:tabular-nums;line-height:1.15}
+.adrow small{color:var(--mute);font-size:12px}
+.money{border-radius:18px;padding:14px 16px;background:radial-gradient(120% 120% at 100% 0%,rgba(61,220,132,.18),transparent 60%),var(--card-hi);display:flex;flex-direction:column;gap:6px}
+.money .big2{font-size:44px;font-weight:200;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.money .math{color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
+.money label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mute);flex-wrap:wrap}
+.money input{flex:0 0 90px;padding:6px 12px}
 .badge.idle{background:rgba(255,255,255,.07);color:var(--mute)}
 </style></head><body><main>
 
@@ -108,6 +117,20 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue-hi);outlin
     <h2>Last 30 days</h2>
     <div class="legend"><span><i style="background:var(--blue)"></i>Opens</span><span><i style="background:var(--fg)"></i>Sessions</span></div>
     <svg id="chart" viewBox="0 0 640 220" role="img" aria-label="Daily opens and sessions, last 30 days"></svg>
+  </section>
+
+  <section class="card" style="margin-top:14px" id="adsCard">
+    <h2>Rewarded ads</h2>
+    <div class="adrow" id="adTiles"></div>
+    <div class="wrap" style="margin-bottom:12px"><table id="adWeeks"></table></div>
+    <div class="money">
+      <span class="label">Estimated earnings</span>
+      <div class="big2" id="adMoney">$0.00</div>
+      <div id="adPayout"></div>
+      <div class="math" id="adMath"></div>
+      <label for="ecpm">Assumed earnings per 1,000 watched ads (USD) <input id="ecpm" type="number" min="0.5" max="100" step="0.5" inputmode="decimal"></label>
+    </div>
+    <div class="foot" style="text-align:left;margin-top:8px">Watched = athlete watched the whole ad and unlocked a session. Google's real numbers are in Ad Manager and AdSense; this is a planning estimate. Ads watched while ADS_TEST is on are test ads and earn nothing.</div>
   </section>
 
   <section class="card" style="margin-top:14px" id="teamsCard">
@@ -209,8 +232,45 @@ $('tCopy').onclick = async () => {
   setTimeout(() => { $('tCopy').textContent = 'Copy list'; }, 1600);
 };
 
+const PAYOUT_MIN = 100; // AdSense pays once the balance reaches US$100
+const ecpm = () => { const v = Number(store.get('lanzaEcpm')); return v > 0 ? v : 10; };
+const usd = (n) => '$' + n.toFixed(n < 10 ? 2 : 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const isoW = (dayStr) => { const t = new Date(dayStr + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7)); const y = t.getUTCFullYear(); return `${y}-W${String(Math.ceil(((t - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7)).padStart(2, '0')}`; };
+let lastAll = [];
+
+function renderAds(all) {
+  lastAll = all;
+  const span = (a, b, e) => all.slice(a, b).reduce((n, day) => n + sum(day[e]), 0);
+  const tile = (label, e) => `<div><span class="label">${label}</span><b>${fmt(span(0, 7, e))}</b><small>${fmt(span(0, 1, e))} today · ${fmt(span(0, 30, e))} in 30 days</small></div>`;
+  const off30 = span(0, 30, 'ad_offer'), view30 = span(0, 30, 'ad_view'), nf30 = span(0, 30, 'ad_nofill');
+  $('adTiles').innerHTML = tile('Offered · 7 days', 'ad_offer') + tile('Watched · 7 days', 'ad_view') +
+    `<div><span class="label">Watch rate · 30d</span><b>${off30 ? Math.round(100 * view30 / off30) + '%' : '—'}</b><small>of offers ended in a watched ad</small></div>` +
+    `<div><span class="label">No ad available · 30d</span><b>${fmt(nf30)}</b><small>${view30 + nf30 ? Math.round(100 * view30 / (view30 + nf30)) + '% fill rate' : 'fill rate shows once ads run'}</small></div>`;
+  const weeks = {};
+  all.forEach((day) => { const w = isoW(day.day), x = weeks[w] = weeks[w] || { from: day.day, offer: 0, view: 0, nofill: 0 }; x.from = day.day < x.from ? day.day : x.from; x.offer += sum(day.ad_offer); x.view += sum(day.ad_view); x.nofill += sum(day.ad_nofill); });
+  const wl = Object.entries(weeks).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 8);
+  $('adWeeks').innerHTML = '<tr><th>Week of</th><th>Offered</th><th>Watched</th><th>No ad</th><th>Est. earned</th></tr>' +
+    wl.map(([, x]) => `<tr><td>${new Date(x.from + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })}</td><td>${fmt(x.offer)}</td><td>${fmt(x.view)}</td><td>${fmt(x.nofill)}</td><td>${usd(x.view * ecpm() / 1000)}</td></tr>`).join('');
+  const per = ecpm() / 1000, total = span(0, all.length, 'ad_view'), daily = span(0, 7, 'ad_view') / 7;
+  const earned = total * per, monthly = daily * 30 * per;
+  $('adMoney').textContent = usd(earned);
+  let payout;
+  if (earned >= PAYOUT_MIN) payout = `Past the ${usd(PAYOUT_MIN)} minimum. Google pays around the 21st of the month after it's reached.`;
+  else if (daily <= 0) payout = `No ads watched in the last 7 days, so there's no payout date yet. Google pays once you reach ${usd(PAYOUT_MIN)}.`;
+  else {
+    const days = Math.ceil((PAYOUT_MIN - earned) / (daily * per)), hit = new Date(Date.now() + days * 864e5);
+    const pay = new Date(Date.UTC(hit.getUTCFullYear(), hit.getUTCMonth() + 1, 21));
+    payout = `At this pace you reach ${usd(PAYOUT_MIN)} in about <b>${fmt(days)} days</b> (${hit.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}), so the first payment would arrive around <b>${pay.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</b>.`;
+  }
+  $('adPayout').innerHTML = `About <b>${usd(monthly)}</b> a month at this week's pace. ` + payout;
+  $('adPayout').innerHTML += ` Earning ${usd(PAYOUT_MIN)} a month takes about <b>${fmt(Math.ceil(PAYOUT_MIN / 30 / per))}</b> watched ads a day.`;
+  $('adMath').textContent = `${fmt(total)} watched ads in ${all.length} days × ${usd(ecpm())} per 1,000 = ${usd(earned)}. Pace: ${daily.toFixed(1)} watched a day × 30 × ${usd(ecpm())}/1,000 = ${usd(monthly)} a month.`;
+}
+$('ecpm').value = ecpm();
+$('ecpm').onchange = () => { const v = Number($('ecpm').value); store.set('lanzaEcpm', v > 0 ? String(v) : ''); $('ecpm').value = ecpm(); renderAds(lastAll); };
+
 function render(d) {
-  const days = d.days || [], p = d.people;
+  const all = d.days || [], days = all.slice(0, 30), p = d.people;
   const tot = {}, src = {};
   days.forEach((day) => EV.forEach((ev) => { tot[ev] = (tot[ev] || 0) + sum(day[ev]); Object.entries(day[ev] || {}).forEach(([s, n]) => { (src[s] = src[s] || {})[ev] = (src[s][ev] || 0) + n; }); }));
   const today = days[0] || {}, yday = days[1] || {};
@@ -235,6 +295,7 @@ function render(d) {
     Object.entries(src).sort((a, b) => sum(b[1]) - sum(a[1])).map(([s, v]) => `<tr><td>${esc(s)}</td>${cols.map((e) => `<td>${fmt(v[e])}</td>`).join('')}</tr>`).join('');
   $('ev').innerHTML = '<tr><th>Event</th><th>Today</th><th>7 days</th><th>30 days</th></tr>' +
     EV.map((e) => `<tr><td>${NAMES[e]}</td><td>${fmt(sum(today[e]))}</td><td>${fmt(days.slice(0, 7).reduce((n, day) => n + sum(day[e]), 0))}</td><td>${fmt(tot[e])}</td></tr>`).join('');
+  renderAds(all);
   $('teamsCard').hidden = !Array.isArray(d.teams);
   if (Array.isArray(d.teams)) { teams = d.teams; renderTeams(); }
   $('dash').hidden = false;
@@ -245,7 +306,7 @@ async function load() {
   if (!k) { $('keyCard').hidden = false; $('dash').hidden = true; return; }
   status('Updating…', 'on');
   try {
-    const r = await fetch('/.netlify/functions/usage?days=30&key=' + encodeURIComponent(k), { cache: 'no-store' });
+    const r = await fetch('/.netlify/functions/usage?days=90&key=' + encodeURIComponent(k), { cache: 'no-store' });
     const d = await r.json();
     if (r.status === 403) { store.set('lanzaUsageKey', ''); $('err').textContent = 'That key did not match USAGE_KEY in Netlify. Check it and try again.'; $('err').hidden = false; $('keyCard').hidden = false; $('dash').hidden = true; status('Not connected'); return; }
     if (!r.ok) throw new Error(d.error || 'Server error');
@@ -259,9 +320,9 @@ function demo() {
   // Shown only outside the LANZA site (for example as a preview in Claude). Clearly marked sample data.
   $('demoNote').hidden = false; status('Preview', 'demo');
   const days = [], rnd = (a, b, i) => Math.round(a + (b - a) * (0.5 + 0.5 * Math.sin(i * 1.7)) * (1 - i / 45));
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 90; i++) {
     const dt = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
-    days.push({ day: dt, open: { direct: rnd(4, 18, i), instagram: rnd(0, 7, i + 2), strava: rnd(0, 4, i + 5) }, session: { direct: rnd(1, 9, i + 1) }, install: i % 4 ? {} : { direct: 1 }, strava_post: i % 3 ? {} : { direct: 1 }, team_join: i % 6 ? {} : { invite: 1 }, story: i % 5 ? {} : { direct: 1 } });
+    days.push({ day: dt, open: { direct: rnd(4, 18, i), instagram: rnd(0, 7, i + 2), strava: rnd(0, 4, i + 5) }, session: { direct: rnd(1, 9, i + 1) }, install: i % 4 ? {} : { direct: 1 }, strava_post: i % 3 ? {} : { direct: 1 }, team_join: i % 6 ? {} : { invite: 1 }, story: i % 5 ? {} : { direct: 1 }, ...(i < 40 ? { ad_offer: { direct: rnd(3, 12, i) }, ad_view: { direct: rnd(2, 9, i) }, ad_nofill: { direct: i % 3 ? 0 : 1 } } : {}) });
   }
   const wk = (n) => { const d = new Date(Date.now() - n * 7 * 864e5), t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7)); const y = t.getUTCFullYear(); return `${y}-W${String(Math.ceil(((t - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7)).padStart(2, '0')}`; };
   const sample = [['Sample Team A', 'SAMPLE-A', '#2f6bff', 16, 34, 61, 7, 0], ['Sample Team B', 'SAMPLE-B', '#ff4d6d', 12, 18, 25, 4, 0], ['Sample Team C', 'SAMPLE-C', '#3ddc84', 9, 6, 14, 3, 1], ['Sample Team D', 'SAMPLE-D', '#ffb340', 5, 0, 4, 1, 6]];
