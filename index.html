@@ -496,7 +496,7 @@ nav.tabs button{position:relative;z-index:1}
     </div>
     <div class="streak" id="streakBar" aria-label="Throw history"></div>
     <div class="heard" id="heard">Tap the mic for hands-free: say “make” or “miss” after each throw.</div>
-    <button class="shapebtn" id="shapeBtn" disabled><span id="shapeLbl">Good shape</span> <b id="shapeN">0</b></button>
+    <button class="shapebtn hidden" id="shapeBtn" disabled><span id="shapeLbl">Good shape</span> <b id="shapeN">0</b></button>
     <div class="minor">
       <button class="btn sm" id="undoBtn">Undo</button>
       <span class="cap">Streak <b id="streakOut" style="color:#fff">0</b> · best <span id="bestStreak">0</span></span>
@@ -795,7 +795,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.32.0';
+const APP_VERSION = '2.32.1';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1563,7 +1563,9 @@ const MAKE_WORDS = new Set(['hit', 'make', 'made', 'hits', 'maid', ...(VOICE.mak
 const MISS_WORDS = new Set(['miss', 'out', 'off', 'missed', 'mist', ...(VOICE.miss || [])].map(w => w.toLowerCase()));
 const UNDO_WORDS = new Set(['undo', ...(VOICE.undo || [])].map(w => w.toLowerCase()));
 // Phrases, matched before single words so "buena forma" isn't heard as "buena" (a make word in Spanish).
-const SHAPE_PHRASES = ['good shape', 'nice shape', 'shape', ...(VOICE.shape || [])].map(w => w.toLowerCase()).sort((a, b) => b.length - a.length);
+// Off for now (GOOD_SHAPE): no button and no voice call; older sessions keep their count.
+const GOOD_SHAPE = false;
+const SHAPE_PHRASES = (GOOD_SHAPE ? ['good shape', 'nice shape', 'shape', ...(VOICE.shape || [])] : []).map(w => w.toLowerCase()).sort((a, b) => b.length - a.length);
 let rec = null, micOn = false, handled = new Map(), lastCmdAt = 0;
 // Languages written without spaces (Japanese, Chinese) are scanned for the words in order.
 function parseOutcomes(text) {
@@ -1601,7 +1603,7 @@ function startMic() {
   };
   rec.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { micOn = false; setMicUI(false, tr('Microphone blocked. Allow it for this site in your browser settings.')); } };
   rec.onend = () => { if (micOn) { handled = new Map(); try { rec.start(); } catch { setTimeout(() => micOn && rec && rec.start(), 300); } } };
-  try { rec.start(); micOn = true; setMicUI(true, tr('Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.')); }
+  try { rec.start(); micOn = true; setMicUI(true, GOOD_SHAPE ? tr('Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.') : tr('Listening. Say <b>make</b> or <b>miss</b> after each throw.')); }
   catch (err) { setMicUI(false, esc(err.message)); }
 }
 function stopMic() { micOn = false; if (rec) { rec.onend = null; try { rec.stop(); } catch {} rec = null; } setMicUI(false, tr('Tap the mic for hands-free: say “make” or “miss” after each throw.')); }
@@ -1609,7 +1611,7 @@ $('micToggle').onclick = () => micOn ? stopMic() : startMic();
 $('btnMake').onclick = () => record(true);
 $('btnMiss').onclick = () => record(false);
 $('undoBtn').onclick = undo;
-$('shapeBtn').onclick = markShape;
+$('shapeBtn').onclick = markShape; $('shapeBtn').classList.toggle('hidden', !GOOD_SHAPE);
 $('startSession').onclick = tryStart;
 // "Same as last time": the saved target, distance and throw, straight into logging.
 $('quickStart').onclick = () => {
@@ -3206,7 +3208,10 @@ function showView(v) {
   if (v === 'team') renderTeamView();
   window.scrollTo(0, 0);
 }
-document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => !tabDrag.suppress && showView(session && b.dataset.view === 'setup' ? 'practice' : b.dataset.view));
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => {
+  if (tabDrag.suppress) return; const v = session && b.dataset.view === 'setup' ? 'practice' : b.dataset.view, i = MAIN.indexOf(currentView), j = MAIN.indexOf(v);
+  if (i >= 0 && j >= 0 && i !== j) slideTo(v, j > i ? 1 : -1); else showView(v);
+});
 // Slidable dock: press anywhere on the tab bar and slide; a glass lens follows the
 // finger, each tab crossed gives a haptic tick, and releasing opens that tab.
 // iOS Safari has no navigator.vibrate, so toggling a hidden switch input gives the tick there.
@@ -3259,6 +3264,41 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => setInterval(() => r.update(), 30 * 60e3)).catch(() => {}));
 }
 window.addEventListener('online', () => { loadConfig().then(retryPendingShares); });
+/* Swipe left or right to move between Home, Stats and Team. The screen follows the finger,
+   then slides out while the next one slides in from the other side. Tab taps slide the same way. */
+const MAIN = ['setup', 'stats', 'team'];
+let sliding = false;
+function slideTo(v, dir, from = 0) {
+  const cur = $('view-' + currentView), W = innerWidth;
+  if (sliding || v === currentView) return; sliding = true;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { cur.style.transform = ''; showView(v); sliding = false; return; }
+  cur.style.transition = 'transform .18s ease-in, opacity .18s'; cur.style.transform = `translateX(${-dir * W}px)`; cur.style.opacity = '.4';
+  setTimeout(() => {
+    cur.style.transition = cur.style.transform = cur.style.opacity = '';
+    showView(v); const nx = $('view-' + v);
+    nx.style.transition = 'none'; nx.style.transform = `translateX(${dir * W * .35}px)`; nx.style.opacity = '.4'; void nx.offsetWidth;
+    nx.style.transition = 'transform .26s cubic-bezier(.2,.8,.2,1), opacity .26s'; nx.style.transform = ''; nx.style.opacity = '';
+    setTimeout(() => { nx.style.transition = ''; sliding = false; }, 280);
+  }, from ? 120 : 170);
+}
+(() => {
+  let x0 = null, y0 = 0, t0 = 0, dx = 0, lock = null;
+  const ok = (t) => MAIN.includes(currentView) && !session && !sliding && !document.querySelector('.modal-bg:not(.hidden)') && !(t && t.closest && t.closest('canvas,input,textarea,select,.seg,.namechips,.teamtabs,.chart,#tabs,.swatches'));
+  document.addEventListener('touchstart', (e) => { if (e.touches.length !== 1 || !ok(e.target)) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); dx = 0; lock = null; }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (x0 == null) return; const ddx = e.touches[0].clientX - x0, ddy = e.touches[0].clientY - y0;
+    if (!lock && Math.hypot(ddx, ddy) > 10) lock = Math.abs(ddx) > Math.abs(ddy) * 1.3 ? 'x' : 'y';
+    if (lock !== 'x') return;
+    const i = MAIN.indexOf(currentView), edge = (ddx > 0 && i === 0) || (ddx < 0 && i === MAIN.length - 1);
+    dx = edge ? ddx * .25 : ddx; $('view-' + currentView).style.transform = `translateX(${dx}px)`;
+  }, { passive: true });
+  document.addEventListener('touchend', () => {
+    if (x0 == null) return; x0 = null; if (lock !== 'x') return;
+    const cur = $('view-' + currentView), i = MAIN.indexOf(currentView), dir = dx < 0 ? 1 : -1, j = i + dir, fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > .5;
+    if (j >= 0 && j < MAIN.length && (Math.abs(dx) > innerWidth * .22 || (fast && Math.abs(dx) > 30))) { hapticTick(); slideTo(MAIN[j], dir, 1); return; }
+    cur.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)'; cur.style.transform = ''; setTimeout(() => { cur.style.transition = ''; }, 240);
+  });
+})();
 /* Pull down at the top of Home, Stats or Team to refresh (also checks for a new app version). */
 (() => {
   const el = $('ptr'), txt = $('ptrText'), MAX = 90, GO = 64; let y0 = null, d = 0, busy = false;
