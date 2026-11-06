@@ -62,7 +62,8 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
     const old = await store.get(from, { type: 'json' });
     if (old && old.sessions && old.sessions.length) {
       const cur = (await store.get(key, { type: 'json' })) || { sessions: [] };
-      await store.setJSON(key, { sessions: merge(old.sessions, cur.sessions || []), profile: cur.profile || old.profile || null, updated_at: new Date().toISOString() });
+      const deleted = [...new Set([...(cur.deleted || []), ...(old.deleted || [])])].slice(-2000), gone = new Set(deleted);
+      await store.setJSON(key, { sessions: merge(old.sessions, cur.sessions || []).filter((x) => !gone.has(x.id)), deleted, profile: cur.profile || old.profile || null, updated_at: new Date().toISOString() });
       await store.setJSON(from, { ...old, sessions: [], moved_to: key });
     }
   }
@@ -75,7 +76,10 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
     if (!Array.isArray(body.sessions)) return [{ error: 'sessions must be a list' }, 400];
     const incoming = body.sessions.slice(-MAX_SESSIONS).map(cleanSession).filter((s) => s.id);
     const prev = (await store.get(key, { type: 'json' })) || { sessions: [] };
-    const d = { sessions: merge(prev.sessions || [], incoming), profile: cleanProfile(body.profile), updated_at: new Date().toISOString() };
+    // Sessions the athlete deleted stay deleted, even when another phone still has a copy.
+    const deleted = [...new Set([...(prev.deleted || []), ...(Array.isArray(body.deleted) ? body.deleted : []).map((x) => str(x, 64))])].filter(Boolean).slice(-2000);
+    const gone = new Set(deleted);
+    const d = { sessions: merge(prev.sessions || [], incoming).filter((x) => !gone.has(x.id)), deleted, profile: cleanProfile(body.profile), updated_at: new Date().toISOString() };
     await store.setJSON(key, d);
     return [{ ok: true, count: d.sessions.length, updated_at: d.updated_at }, 200];
   }

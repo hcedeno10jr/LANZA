@@ -40,7 +40,11 @@ window.LANZA_I18N = {
 "borrar",
 "atrás"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"buena forma",
+"forma"
+]
 }
 },
 {
@@ -71,7 +75,11 @@ window.LANZA_I18N = {
 "apagar",
 "voltar"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"boa forma",
+"forma"
+]
 }
 },
 {
@@ -102,7 +110,12 @@ window.LANZA_I18N = {
 "retour",
 "efface"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"belle forme",
+"bonne forme",
+"forme"
+]
 }
 },
 {
@@ -134,7 +147,11 @@ window.LANZA_I18N = {
 "rückgängig",
 "löschen"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"gute form",
+"form"
+]
 }
 },
 {
@@ -165,7 +182,12 @@ window.LANZA_I18N = {
 "indietro",
 "cancella"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"bella forma",
+"buona forma",
+"forma"
+]
 }
 },
 {
@@ -197,7 +219,11 @@ window.LANZA_I18N = {
 "wissen",
 "herstel"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"goede vorm",
+"vorm"
+]
 }
 },
 {
@@ -226,7 +252,11 @@ window.LANZA_I18N = {
 "戻して",
 "やり直し"
 ],
-"scan": true
+"scan": true,
+"shape": [
+"いいフォーム",
+"フォーム"
+]
 }
 },
 {
@@ -257,7 +287,11 @@ window.LANZA_I18N = {
 "取消",
 "退回"
 ],
-"scan": true
+"scan": true,
+"shape": [
+"好飞行",
+"飞得好"
+]
 }
 },
 {
@@ -291,7 +325,11 @@ window.LANZA_I18N = {
 "取消",
 "復原"
 ],
-"scan": true
+"scan": true,
+"shape": [
+"好飛行",
+"飛得好"
+]
 }
 },
 {
@@ -320,7 +358,11 @@ window.LANZA_I18N = {
 "되돌리기",
 "지워"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"좋은 폼",
+"폼"
+]
 }
 },
 {
@@ -351,7 +393,11 @@ window.LANZA_I18N = {
 "בטל",
 "חזור"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"צורה טובה",
+"צורה"
+]
 }
 },
 {
@@ -380,7 +426,10 @@ window.LANZA_I18N = {
 "हटाओ",
 "रद्द"
 ],
-"scan": false
+"scan": false,
+"shape": [
+"अच्छी उड़ान"
+]
 }
 }
 ],
@@ -852,7 +901,34 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Inicio de sesión cancelado",
 "Signed in": "Sesión iniciada",
 "Signed out. Your sessions stay on this phone.": "Sesión cerrada. Tus sesiones siguen en este teléfono.",
-"Your LANZA account": "Tu cuenta LANZA"
+"Your LANZA account": "Tu cuenta LANZA",
+"Delete session": "Borrar sesión",
+"Session deleted": "Sesión borrada",
+"Session deleted. The Strava post stays on Strava.": "Sesión borrada. La publicación sigue en Strava.",
+"Follow LANZA on Instagram": "Sigue a LANZA en Instagram",
+"Good shape": "Buena forma",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "Escuchando. Di <b>dentro</b> o <b>fuera</b> después de cada lanzamiento, y <b>buena forma</b> cuando voló bien.",
+"{m}/{n} with good shape": "{m}/{n} con buena forma",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Publicar en Strava llega pronto. Mientras tanto, comparte tus sesiones como historia o tarjeta.",
+"Share every session": "Comparte cada sesión",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Publica una historia o tarjeta con tu LANZA Score, y tu equipo ve quién se esforzó.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Comparte el código solo con tu equipo. Los jugadores con sesión iniciada aparecen como verificados.",
+"Verified": "Verificado",
+"Your account": "Tu cuenta",
+"Pause": "Pausar",
+"Paused session": "Sesión en pausa",
+"Finish": "Terminar",
+"Resume": "Seguir",
+"Session paused. Resume it from Home.": "Sesión en pausa. Síguela desde Inicio.",
+"Session resumed.": "Sesión reanudada.",
+"Your paused session was saved: LANZA Score {n}": "Tu sesión en pausa se guardó: LANZA Score {n}",
+"Share to your story": "Comparte en tu historia",
+"Sticker": "Sticker",
+"Co-op": "Co-op",
+"Co-op with {name}": "Co-op con {name}",
+"Together": "Juntos",
+"Co-op session": "Sesión co-op",
+"makes together · {m}/{n} · {d}": "aciertos juntos · {m}/{n} · {d}"
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1318,7 +1394,33 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Login cancelado",
 "Signed in": "Conectado",
 "Signed out. Your sessions stay on this phone.": "Você saiu. Suas sessões continuam neste celular.",
-"Your LANZA account": "Sua conta LANZA"
+"Your LANZA account": "Sua conta LANZA",
+"Delete session": "Apagar sessão",
+"Session deleted": "Sessão apagada",
+"Session deleted. The Strava post stays on Strava.": "Sessão apagada. A publicação continua no Strava.",
+"Follow LANZA on Instagram": "Siga o LANZA no Instagram",
+"Good shape": "Boa forma",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "Ouvindo. Diga <b>dentro</b> ou <b>fora</b> depois de cada arremesso, e <b>boa forma</b> quando voar bem.",
+"{m}/{n} with good shape": "{m}/{n} com boa forma",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "A publicação no Strava chega em breve. Até lá, compartilhe suas sessões como story ou cartão.",
+"Share every session": "Compartilhe cada sessão",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Poste um story ou cartão com seu LANZA Score, e seu time vê quem treinou de verdade.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Compartilhe o código só com seu time. Jogadores conectados aparecem como verificados.",
+"Verified": "Verificado",
+"Your account": "Sua conta",
+"Pause": "Pausar",
+"Paused session": "Sessão pausada",
+"Finish": "Finalizar",
+"Resume": "Continuar",
+"Session paused. Resume it from Home.": "Sessão pausada. Continue pela tela inicial.",
+"Session resumed.": "Sessão retomada.",
+"Your paused session was saved: LANZA Score {n}": "Sua sessão pausada foi salva: LANZA Score {n}",
+"Share to your story": "Compartilhe no seu story",
+"Co-op": "Co-op",
+"Co-op with {name}": "Co-op com {name}",
+"Together": "Juntos",
+"Co-op session": "Sessão co-op",
+"makes together · {m}/{n} · {d}": "acertos juntos · {m}/{n} · {d}"
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1789,7 +1891,34 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Connexion annulée",
 "Signed in": "Connecté",
 "Signed out. Your sessions stay on this phone.": "Déconnecté. Tes séances restent sur ce téléphone.",
-"Your LANZA account": "Ton compte LANZA"
+"Your LANZA account": "Ton compte LANZA",
+"Delete session": "Supprimer la séance",
+"Session deleted": "Séance supprimée",
+"Session deleted. The Strava post stays on Strava.": "Séance supprimée. La publication reste sur Strava.",
+"Follow LANZA on Instagram": "Suis LANZA sur Instagram",
+"Good shape": "Belle forme",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "J'écoute. Dis <b>dedans</b> ou <b>raté</b> après chaque lancer, et <b>belle forme</b> quand il a bien volé.",
+"{m}/{n} with good shape": "{m}/{n} avec une belle forme",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "La publication sur Strava arrive bientôt. En attendant, partage tes séances en story ou en carte.",
+"Share every session": "Partage chaque séance",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Publie une story ou une carte avec ton LANZA Score, et ton équipe voit qui a bossé.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Partage le code seulement avec ton équipe. Les joueurs connectés sont marqués comme vérifiés.",
+"Verified": "Vérifié",
+"Your account": "Ton compte",
+"Pause": "Pause",
+"Paused session": "Séance en pause",
+"Finish": "Terminer",
+"Resume": "Reprendre",
+"Session paused. Resume it from Home.": "Séance en pause. Reprends-la depuis l'accueil.",
+"Session resumed.": "Séance reprise.",
+"Your paused session was saved: LANZA Score {n}": "Ta séance en pause a été enregistrée : LANZA Score {n}",
+"Share to your story": "Partage dans ta story",
+"Sticker": "Sticker",
+"Co-op": "Co-op",
+"Co-op with {name}": "Co-op avec {name}",
+"Together": "Ensemble",
+"Co-op session": "Séance co-op",
+"makes together · {m}/{n} · {d}": "réussis ensemble · {m}/{n} · {d}"
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -2258,7 +2387,34 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Anmeldung abgebrochen",
 "Signed in": "Angemeldet",
 "Signed out. Your sessions stay on this phone.": "Abgemeldet. Deine Einheiten bleiben auf diesem Handy.",
-"Your LANZA account": "Dein LANZA-Konto"
+"Your LANZA account": "Dein LANZA-Konto",
+"Delete session": "Einheit löschen",
+"Session deleted": "Einheit gelöscht",
+"Session deleted. The Strava post stays on Strava.": "Einheit gelöscht. Der Strava-Beitrag bleibt auf Strava.",
+"Follow LANZA on Instagram": "Folge LANZA auf Instagram",
+"Good shape": "Gute Form",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "Ich höre zu. Sag <b>Treffer</b> oder <b>daneben</b> nach jedem Wurf, und <b>gute Form</b>, wenn er gut flog.",
+"{m}/{n} with good shape": "{m}/{n} mit guter Form",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Posten auf Strava kommt bald. Bis dahin teile deine Einheiten als Story oder Bildkarte.",
+"Share every session": "Teile jede Einheit",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Poste eine Story oder Bildkarte mit deinem LANZA Score, und dein Team sieht, wer trainiert hat.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Teile den Code nur mit deinem Team. Angemeldete Spieler sind als verifiziert markiert.",
+"Verified": "Verifiziert",
+"Your account": "Dein Konto",
+"Pause": "Pause",
+"Paused session": "Pausierte Session",
+"Finish": "Beenden",
+"Resume": "Fortsetzen",
+"Session paused. Resume it from Home.": "Session pausiert. Setze sie auf der Startseite fort.",
+"Session resumed.": "Session fortgesetzt.",
+"Your paused session was saved: LANZA Score {n}": "Deine pausierte Session wurde gespeichert: LANZA Score {n}",
+"Share to your story": "In deiner Story teilen",
+"Sticker": "Sticker",
+"Co-op": "Co-op",
+"Co-op with {name}": "Co-op mit {name}",
+"Together": "Zusammen",
+"Co-op session": "Co-op-Session",
+"makes together · {m}/{n} · {d}": "Treffer zusammen · {m}/{n} · {d}"
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2743,7 +2899,34 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Accesso annullato",
 "Signed in": "Accesso effettuato",
 "Signed out. Your sessions stay on this phone.": "Sei uscito. Le tue sessioni restano su questo telefono.",
-"Your LANZA account": "Il tuo account LANZA"
+"Your LANZA account": "Il tuo account LANZA",
+"Delete session": "Elimina sessione",
+"Session deleted": "Sessione eliminata",
+"Session deleted. The Strava post stays on Strava.": "Sessione eliminata. Il post resta su Strava.",
+"Follow LANZA on Instagram": "Segui LANZA su Instagram",
+"Good shape": "Bella forma",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "In ascolto. Di' <b>dentro</b> o <b>fuori</b> dopo ogni lancio, e <b>bella forma</b> quando ha volato bene.",
+"{m}/{n} with good shape": "{m}/{n} con bella forma",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "La pubblicazione su Strava arriva presto. Nel frattempo condividi le sessioni come storia o card.",
+"Share every session": "Condividi ogni sessione",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Pubblica una storia o una card con il tuo LANZA Score, e la squadra vede chi si è allenato.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Condividi il codice solo con la squadra. I giocatori con accesso sono segnati come verificati.",
+"Verified": "Verificato",
+"Your account": "Il tuo account",
+"Pause": "Pausa",
+"Paused session": "Sessione in pausa",
+"Finish": "Termina",
+"Resume": "Riprendi",
+"Session paused. Resume it from Home.": "Sessione in pausa. Riprendila dalla Home.",
+"Session resumed.": "Sessione ripresa.",
+"Your paused session was saved: LANZA Score {n}": "La sessione in pausa è stata salvata: LANZA Score {n}",
+"Share to your story": "Condividi nella tua storia",
+"Sticker": "Sticker",
+"Co-op": "Co-op",
+"Co-op with {name}": "Co-op con {name}",
+"Together": "Insieme",
+"Co-op session": "Sessione co-op",
+"makes together · {m}/{n} · {d}": "centri insieme · {m}/{n} · {d}"
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -3195,7 +3378,34 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "Inloggen geannuleerd",
 "Signed in": "Ingelogd",
 "Signed out. Your sessions stay on this phone.": "Uitgelogd. Je sessies blijven op deze telefoon.",
-"Your LANZA account": "Je LANZA-account"
+"Your LANZA account": "Je LANZA-account",
+"Delete session": "Sessie verwijderen",
+"Session deleted": "Sessie verwijderd",
+"Session deleted. The Strava post stays on Strava.": "Sessie verwijderd. Het bericht blijft op Strava.",
+"Follow LANZA on Instagram": "Volg LANZA op Instagram",
+"Good shape": "Goede vorm",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "Ik luister. Zeg <b>raak</b> of <b>mis</b> na elke worp, en <b>goede vorm</b> als hij mooi vloog.",
+"{m}/{n} with good shape": "{m}/{n} met goede vorm",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Posten op Strava komt binnenkort. Deel je sessies tot dan als story of fotokaart.",
+"Share every session": "Deel elke sessie",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "Post een story of fotokaart met je LANZA Score, en je team ziet wie er hard werkte.",
+"Share the code only with your team. Signed-in players are marked as verified.": "Deel de code alleen met je team. Ingelogde spelers zijn gemarkeerd als geverifieerd.",
+"Verified": "Geverifieerd",
+"Your account": "Je account",
+"Pause": "Pauze",
+"Paused session": "Gepauzeerde sessie",
+"Finish": "Afronden",
+"Resume": "Hervatten",
+"Session paused. Resume it from Home.": "Sessie gepauzeerd. Hervat hem op Home.",
+"Session resumed.": "Sessie hervat.",
+"Your paused session was saved: LANZA Score {n}": "Je gepauzeerde sessie is opgeslagen: LANZA Score {n}",
+"Share to your story": "Deel in je story",
+"Sticker": "Sticker",
+"Co-op": "Co-op",
+"Co-op with {name}": "Co-op met {name}",
+"Together": "Samen",
+"Co-op session": "Co-op-sessie",
+"makes together · {m}/{n} · {d}": "raak samen · {m}/{n} · {d}"
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3698,7 +3908,33 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "ログインをキャンセルしました",
 "Signed in": "ログインしました",
 "Signed out. Your sessions stay on this phone.": "ログアウトしました。セッションはこのスマホに残ります。",
-"Your LANZA account": "あなたのLANZAアカウント"
+"Your LANZA account": "あなたのLANZAアカウント",
+"Delete session": "セッションを削除",
+"Session deleted": "セッションを削除しました",
+"Session deleted. The Strava post stays on Strava.": "セッションを削除しました。Stravaの投稿はStravaに残ります。",
+"Follow LANZA on Instagram": "InstagramでLANZAをフォロー",
+"Good shape": "いいフォーム",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "聞いています。投げるたびに<b>メイク</b>か<b>ミス</b>、きれいに飛んだら<b>いいフォーム</b>と言ってください。",
+"{m}/{n} with good shape": "{m}/{n} いいフォーム",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Stravaへの投稿はまもなく。それまではストーリーや画像カードでシェアしよう。",
+"Share every session": "毎回シェアしよう",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "LANZA Scoreをストーリーや画像カードで投稿。チームは誰が練習したか分かります。",
+"Share the code only with your team. Signed-in players are marked as verified.": "コードはチームだけに共有してください。ログインした選手は認証済みと表示されます。",
+"Verified": "認証済み",
+"Your account": "アカウント",
+"Pause": "一時停止",
+"Paused session": "一時停止中のセッション",
+"Finish": "終了",
+"Resume": "再開",
+"Session paused. Resume it from Home.": "一時停止しました。ホームから再開できます。",
+"Session resumed.": "セッションを再開しました。",
+"Your paused session was saved: LANZA Score {n}": "一時停止中のセッションを保存しました：LANZA Score {n}",
+"Share to your story": "ストーリーでシェア",
+"Co-op": "Co-op",
+"Co-op with {name}": "{name}とCo-op",
+"Together": "合計",
+"Co-op session": "Co-opセッション",
+"makes together · {m}/{n} · {d}": "合計成功 · {m}/{n} · {d}"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4196,7 +4432,33 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "已取消登录",
 "Signed in": "已登录",
 "Signed out. Your sessions stay on this phone.": "已退出。你的训练仍保存在这部手机上。",
-"Your LANZA account": "你的 LANZA 账户"
+"Your LANZA account": "你的 LANZA 账户",
+"Delete session": "删除训练",
+"Session deleted": "训练已删除",
+"Session deleted. The Strava post stays on Strava.": "训练已删除。Strava 上的动态仍会保留。",
+"Follow LANZA on Instagram": "在 Instagram 关注 LANZA",
+"Good shape": "好飞行",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "正在听。每次投掷后说<b>中</b>或<b>没中</b>，飞得好时说<b>好飞行</b>。",
+"{m}/{n} with good shape": "{m}/{n} 飞行良好",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "即将支持发布到 Strava。在此之前，用快拍或图片卡分享你的训练。",
+"Share every session": "分享每次训练",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "用快拍或图片卡发布你的 LANZA Score，队友能看到谁在努力。",
+"Share the code only with your team. Signed-in players are marked as verified.": "只把代码分享给队友。已登录的球员会标记为已验证。",
+"Verified": "已验证",
+"Your account": "你的账户",
+"Pause": "暂停",
+"Paused session": "已暂停的训练",
+"Finish": "结束",
+"Resume": "继续",
+"Session paused. Resume it from Home.": "已暂停。可在首页继续。",
+"Session resumed.": "训练已继续。",
+"Your paused session was saved: LANZA Score {n}": "已保存暂停的训练：LANZA Score {n}",
+"Share to your story": "分享到快拍",
+"Co-op": "合练",
+"Co-op with {name}": "与{name}合练",
+"Together": "合计",
+"Co-op session": "合练",
+"makes together · {m}/{n} · {d}": "合计命中 · {m}/{n} · {d}"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4583,7 +4845,7 @@ window.LANZA_I18N = {
 "Share your session": "分享你的訓練",
 "Pick Instagram, then Stories. Add a link sticker so teammates can join.": "選擇 Instagram，再選限時動態。加上連結貼圖，讓隊友加入。",
 "Share to Stories": "分享到限時動態",
-"Sticker": "貼圖",
+"Sticker": "貼紙",
 "Story": "限時動態",
 "Copy sticker": "複製貼圖",
 "Copy it, open your Instagram story with your photo or video, then paste. Move and resize it wherever you like.": "複製後，用你的照片或影片開啟 Instagram 限時動態並貼上。可隨意移動和縮放。",
@@ -4694,7 +4956,33 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "已取消登入",
 "Signed in": "已登入",
 "Signed out. Your sessions stay on this phone.": "已登出。你的練習仍保存在這支手機上。",
-"Your LANZA account": "你的 LANZA 帳戶"
+"Your LANZA account": "你的 LANZA 帳戶",
+"Delete session": "刪除練習",
+"Session deleted": "練習已刪除",
+"Session deleted. The Strava post stays on Strava.": "練習已刪除。Strava 上的動態仍會保留。",
+"Follow LANZA on Instagram": "在 Instagram 追蹤 LANZA",
+"Good shape": "好飛行",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "正在聽。每次投擲後說<b>中</b>或<b>沒中</b>，飛得好時說<b>好飛行</b>。",
+"{m}/{n} with good shape": "{m}/{n} 飛行良好",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "即將支援發布到 Strava。在此之前，用限時動態或圖片卡分享你的練習。",
+"Share every session": "分享每次練習",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "用限時動態或圖片卡發布你的 LANZA Score，隊友能看到誰在努力。",
+"Share the code only with your team. Signed-in players are marked as verified.": "只把代碼分享給隊友。已登入的球員會標記為已驗證。",
+"Verified": "已驗證",
+"Your account": "你的帳戶",
+"Pause": "暫停",
+"Paused session": "已暫停的訓練",
+"Finish": "結束",
+"Resume": "繼續",
+"Session paused. Resume it from Home.": "已暫停。可在首頁繼續。",
+"Session resumed.": "訓練已繼續。",
+"Your paused session was saved: LANZA Score {n}": "已儲存暫停的訓練：LANZA Score {n}",
+"Share to your story": "分享到限時動態",
+"Co-op": "合練",
+"Co-op with {name}": "與{name}合練",
+"Together": "合計",
+"Co-op session": "合練",
+"makes together · {m}/{n} · {d}": "合計命中 · {m}/{n} · {d}"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -5195,7 +5483,33 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "로그인이 취소되었습니다",
 "Signed in": "로그인됨",
 "Signed out. Your sessions stay on this phone.": "로그아웃했습니다. 세션은 이 폰에 남아 있습니다.",
-"Your LANZA account": "내 LANZA 계정"
+"Your LANZA account": "내 LANZA 계정",
+"Delete session": "세션 삭제",
+"Session deleted": "세션을 삭제했습니다",
+"Session deleted. The Strava post stays on Strava.": "세션을 삭제했습니다. Strava 게시물은 Strava에 남아 있습니다.",
+"Follow LANZA on Instagram": "Instagram에서 LANZA 팔로우",
+"Good shape": "좋은 폼",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "듣고 있어요. 던질 때마다 <b>성공</b> 또는 <b>실패</b>라고 말하고, 잘 날아가면 <b>좋은 폼</b>이라고 말하세요.",
+"{m}/{n} with good shape": "{m}/{n} 좋은 폼",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Strava 게시는 곧 열려요. 그동안 스토리나 사진 카드로 세션을 공유하세요.",
+"Share every session": "모든 세션을 공유하세요",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "LANZA Score를 스토리나 사진 카드로 올리면 팀이 누가 연습했는지 볼 수 있어요.",
+"Share the code only with your team. Signed-in players are marked as verified.": "코드는 팀원에게만 공유하세요. 로그인한 선수는 인증됨으로 표시돼요.",
+"Verified": "인증됨",
+"Your account": "내 계정",
+"Pause": "일시정지",
+"Paused session": "일시정지된 세션",
+"Finish": "종료",
+"Resume": "계속",
+"Session paused. Resume it from Home.": "일시정지됨. 홈에서 계속하세요.",
+"Session resumed.": "세션을 다시 시작했습니다.",
+"Your paused session was saved: LANZA Score {n}": "일시정지된 세션을 저장했습니다: LANZA Score {n}",
+"Share to your story": "스토리에 공유",
+"Co-op": "Co-op",
+"Co-op with {name}": "{name}와 Co-op",
+"Together": "함께",
+"Co-op session": "Co-op 세션",
+"makes together · {m}/{n} · {d}": "함께 성공 · {m}/{n} · {d}"
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -5586,7 +5900,7 @@ window.LANZA_I18N = {
 "Share your session": "שתף את האימון",
 "Pick Instagram, then Stories. Add a link sticker so teammates can join.": "בחר באינסטגרם ואז בסטורי. הוסף סטיקר קישור כדי שהקבוצה תצטרף.",
 "Share to Stories": "שתף בסטורי",
-"Sticker": "סטיקר",
+"Sticker": "מדבקה",
 "Story": "סטורי",
 "Copy sticker": "העתק סטיקר",
 "Copy it, open your Instagram story with your photo or video, then paste. Move and resize it wherever you like.": "העתק, פתח את הסטורי באינסטגרם עם התמונה או הסרטון שלך והדבק. הזז ושנה גודל איפה שתרצה.",
@@ -5697,7 +6011,33 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "ההתחברות בוטלה",
 "Signed in": "מחובר",
 "Signed out. Your sessions stay on this phone.": "התנתקת. האימונים שלך נשארים בטלפון הזה.",
-"Your LANZA account": "חשבון LANZA שלך"
+"Your LANZA account": "חשבון LANZA שלך",
+"Delete session": "מחק אימון",
+"Session deleted": "האימון נמחק",
+"Session deleted. The Strava post stays on Strava.": "האימון נמחק. הפוסט נשאר ב-Strava.",
+"Follow LANZA on Instagram": "עקבו אחרי LANZA באינסטגרם",
+"Good shape": "צורה טובה",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "מקשיב. אמרו <b>פגיעה</b> או <b>החטאה</b> אחרי כל זריקה, ו<b>צורה טובה</b> כשהיא עפה יפה.",
+"{m}/{n} with good shape": "{m}/{n} בצורה טובה",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "פרסום ל-Strava יגיע בקרוב. עד אז שתפו את האימונים כסטורי או ככרטיס תמונה.",
+"Share every session": "שתפו כל אימון",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "פרסמו סטורי או כרטיס עם ה-LANZA Score שלכם, והקבוצה רואה מי התאמן.",
+"Share the code only with your team. Signed-in players are marked as verified.": "שתפו את הקוד רק עם הקבוצה. שחקנים מחוברים מסומנים כמאומתים.",
+"Verified": "מאומת",
+"Your account": "החשבון שלך",
+"Pause": "השהה",
+"Paused session": "אימון מושהה",
+"Finish": "סיים",
+"Resume": "המשך",
+"Session paused. Resume it from Home.": "האימון הושהה. אפשר להמשיך מהבית.",
+"Session resumed.": "האימון ממשיך.",
+"Your paused session was saved: LANZA Score {n}": "האימון המושהה נשמר: LANZA Score {n}",
+"Share to your story": "שתף בסטורי",
+"Co-op": "Co-op",
+"Co-op with {name}": "Co-op עם {name}",
+"Together": "ביחד",
+"Co-op session": "אימון Co-op",
+"makes together · {m}/{n} · {d}": "פגיעות ביחד · {m}/{n} · {d}"
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -6166,7 +6506,33 @@ window.LANZA_I18N = {
 "Sign-in was cancelled": "साइन इन रद्द हुआ",
 "Signed in": "साइन इन हो गया",
 "Signed out. Your sessions stay on this phone.": "साइन आउट हो गया। आपके सत्र इसी फ़ोन पर रहेंगे।",
-"Your LANZA account": "आपका LANZA खाता"
+"Your LANZA account": "आपका LANZA खाता",
+"Delete session": "सत्र हटाएं",
+"Session deleted": "सत्र हटा दिया गया",
+"Session deleted. The Strava post stays on Strava.": "सत्र हटा दिया गया। Strava पोस्ट Strava पर रहेगी।",
+"Follow LANZA on Instagram": "Instagram पर LANZA को फ़ॉलो करें",
+"Good shape": "अच्छी उड़ान",
+"Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.": "सुन रहा हूँ। हर थ्रो के बाद <b>हिट</b> या <b>मिस</b> कहें, और अच्छी उड़ान पर <b>अच्छी उड़ान</b> कहें।",
+"{m}/{n} with good shape": "{m}/{n} अच्छी उड़ान",
+"Strava posting opens soon. Until then, share your sessions as a story or photo card.": "Strava पर पोस्ट करना जल्द आ रहा है। तब तक अपने सत्र स्टोरी या फोटो कार्ड के रूप में शेयर करें।",
+"Share every session": "हर सत्र शेयर करें",
+"Post a story or photo card with your LANZA Score, and your team sees who put in the work.": "अपने LANZA Score के साथ स्टोरी या फोटो कार्ड पोस्ट करें, और आपकी टीम देखेगी कि किसने मेहनत की।",
+"Share the code only with your team. Signed-in players are marked as verified.": "कोड सिर्फ अपनी टीम से शेयर करें। साइन इन किए खिलाड़ी सत्यापित दिखते हैं।",
+"Verified": "सत्यापित",
+"Your account": "आपका खाता",
+"Pause": "रोकें",
+"Paused session": "रुका हुआ सत्र",
+"Finish": "समाप्त",
+"Resume": "जारी रखें",
+"Session paused. Resume it from Home.": "सत्र रुका। होम से जारी रखें।",
+"Session resumed.": "सत्र फिर शुरू।",
+"Your paused session was saved: LANZA Score {n}": "रुका सत्र सहेजा गया: LANZA Score {n}",
+"Share to your story": "अपनी स्टोरी में शेयर करें",
+"Co-op": "Co-op",
+"Co-op with {name}": "{name} के साथ Co-op",
+"Together": "साथ में",
+"Co-op session": "Co-op सत्र",
+"makes together · {m}/{n} · {d}": "साथ में सफल · {m}/{n} · {d}"
 }
 }
 };
