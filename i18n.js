@@ -928,7 +928,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "Co-op con {name}",
 "Together": "Juntos",
 "Co-op session": "Sesión co-op",
-"makes together · {m}/{n} · {d}": "aciertos juntos · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "aciertos juntos · {m}/{n} · {d}",
+"None": "Ninguno",
+"New challenge": "Nuevo reto",
+"Team on the sticker": "Equipo en el sticker",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "El reto de este mes sigue en curso. Podrás poner uno nuevo cuando se complete."
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1420,7 +1424,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "Co-op com {name}",
 "Together": "Juntos",
 "Co-op session": "Sessão co-op",
-"makes together · {m}/{n} · {d}": "acertos juntos · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "acertos juntos · {m}/{n} · {d}",
+"None": "Nenhum",
+"New challenge": "Novo desafio",
+"Team on the sticker": "Time na figurinha",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "O desafio deste mês ainda está valendo. Você pode criar outro quando ele for concluído."
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -1918,7 +1926,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "Co-op avec {name}",
 "Together": "Ensemble",
 "Co-op session": "Séance co-op",
-"makes together · {m}/{n} · {d}": "réussis ensemble · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "réussis ensemble · {m}/{n} · {d}",
+"None": "Aucune",
+"New challenge": "Nouveau défi",
+"Team on the sticker": "Équipe sur le sticker",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "Le défi du mois est encore en cours. Tu pourras en lancer un nouveau une fois terminé."
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -2414,7 +2426,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "Co-op mit {name}",
 "Together": "Zusammen",
 "Co-op session": "Co-op-Session",
-"makes together · {m}/{n} · {d}": "Treffer zusammen · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "Treffer zusammen · {m}/{n} · {d}",
+"None": "Keins",
+"New challenge": "Neue Challenge",
+"Team on the sticker": "Team auf dem Sticker",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "Die Challenge dieses Monats läuft noch. Eine neue geht erst, wenn sie geschafft ist."
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -2926,7 +2942,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "Co-op con {name}",
 "Together": "Insieme",
 "Co-op session": "Sessione co-op",
-"makes together · {m}/{n} · {d}": "centri insieme · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "centri insieme · {m}/{n} · {d}",
+"None": "Nessuna",
+"New challenge": "Nuova sfida",
+"Team on the sticker": "Squadra sullo sticker",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "La sfida di questo mese è ancora in corso. Potrai impostarne una nuova quando sarà completata."
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -3405,7 +3425,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "Co-op met {name}",
 "Together": "Samen",
 "Co-op session": "Co-op-sessie",
-"makes together · {m}/{n} · {d}": "raak samen · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "raak samen · {m}/{n} · {d}",
+"None": "Geen",
+"New challenge": "Nieuwe challenge",
+"Team on the sticker": "Team op de sticker",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "De challenge van deze maand loopt nog. Je kunt een nieuwe instellen zodra hij gehaald is."
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -3934,7 +3958,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "{name}とCo-op",
 "Together": "合計",
 "Co-op session": "Co-opセッション",
-"makes together · {m}/{n} · {d}": "合計成功 · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "合計成功 · {m}/{n} · {d}",
+"None": "なし",
+"New challenge": "新しいチャレンジ",
+"Team on the sticker": "ステッカーのチーム",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "今月のチャレンジはまだ進行中です。達成後に新しいチャレンジを設定できます。"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4458,7 +4486,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "与{name}合练",
 "Together": "合计",
 "Co-op session": "合练",
-"makes together · {m}/{n} · {d}": "合计命中 · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "合计命中 · {m}/{n} · {d}",
+"None": "无",
+"New challenge": "新挑战",
+"Team on the sticker": "贴纸上的队伍",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "本月挑战仍在进行中，完成后才能设置新挑战。"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4982,7 +5014,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "與{name}合練",
 "Together": "合計",
 "Co-op session": "合練",
-"makes together · {m}/{n} · {d}": "合計命中 · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "合計命中 · {m}/{n} · {d}",
+"None": "無",
+"New challenge": "新挑戰",
+"Team on the sticker": "貼紙上的隊伍",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "本月挑戰仍在進行中，完成後才能設定新挑戰。"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -5509,7 +5545,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "{name}와 Co-op",
 "Together": "함께",
 "Co-op session": "Co-op 세션",
-"makes together · {m}/{n} · {d}": "함께 성공 · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "함께 성공 · {m}/{n} · {d}",
+"None": "없음",
+"New challenge": "새 챌린지",
+"Team on the sticker": "스티커에 표시할 팀",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "이번 달 챌린지가 아직 진행 중입니다. 완료되면 새 챌린지를 설정할 수 있어요."
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -6037,7 +6077,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "Co-op עם {name}",
 "Together": "ביחד",
 "Co-op session": "אימון Co-op",
-"makes together · {m}/{n} · {d}": "פגיעות ביחד · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "פגיעות ביחד · {m}/{n} · {d}",
+"None": "ללא",
+"New challenge": "אתגר חדש",
+"Team on the sticker": "הקבוצה במדבקה",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "האתגר של החודש עדיין פעיל. אפשר לקבוע חדש אחרי שהוא יושלם."
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -6532,7 +6576,11 @@ window.LANZA_I18N = {
 "Co-op with {name}": "{name} के साथ Co-op",
 "Together": "साथ में",
 "Co-op session": "Co-op सत्र",
-"makes together · {m}/{n} · {d}": "साथ में सफल · {m}/{n} · {d}"
+"makes together · {m}/{n} · {d}": "साथ में सफल · {m}/{n} · {d}",
+"None": "कोई नहीं",
+"New challenge": "नई चुनौती",
+"Team on the sticker": "स्टिकर पर टीम",
+"This month’s challenge is still running. You can set a new one once it’s complete.": "इस महीने की चुनौती अभी चल रही है। पूरी होने के बाद नई सेट कर सकते हैं।"
 }
 }
 };

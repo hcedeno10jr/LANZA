@@ -356,6 +356,7 @@ label.f{display:grid;gap:6px}
 .bestbig .u{font-size:14px;color:var(--muted);font-weight:600;letter-spacing:.12em;text-transform:uppercase}
 .bestnudge{display:grid;gap:4px;font-size:14px;color:var(--muted)}
 .bestnudge b{color:#fff;font-size:16px}
+.dotc{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:1px}
 .pausedcard{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:start}.pausedcard .t{font-weight:700;font-size:16px}.pausedcard .row{display:flex;gap:8px;flex:none}
 .brank{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line);text-align:start}
 .brank:last-child{border-bottom:0}
@@ -693,7 +694,7 @@ nav.tabs button{position:relative;z-index:1}
     <div class="seg" id="shareKind"><button data-k="sticker" class="on">Sticker</button><button data-k="story">Story</button></div>
     <div class="stickwrap" id="stickWrap"><img id="stickImg" alt=""></div>
     <label class="toggle hidden" id="coopRow" style="justify-content:center"><input type="checkbox" id="coopOn"> <span id="coopLbl"></span></label>
-    <label class="toggle hidden" id="stickTeamRow" style="justify-content:center"><input type="checkbox" id="stickTeam"> <span id="stickTeamLbl"></span></label>
+    <div class="hidden" id="stickTeamRow"><span class="cap">Team on the sticker</span><div class="namechips" id="stickTeams" style="margin-top:8px;justify-content:center"></div></div>
     <img id="storyImg" class="storyimg hidden" alt="">
     <p class="note" style="margin:0" id="shareHow"></p>
     <button class="btn primary" id="storyShare">Share to Stories</button>
@@ -795,7 +796,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.32.1';
+const APP_VERSION = '2.33.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -821,7 +822,10 @@ const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
 const PB = '<svg class="pbm" viewBox="0 0 32 44" aria-label="Personal best"><polygon points="16,1 31,23 16,43 1,23" style="fill:var(--accent)"/><polygon points="16,7 27,23 16,37 5,23" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.4"/></svg>';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const AC = () => ({ a: css('--accent'), hi: css('--accent-hi'), rgb: css('--accent-rgb'), deep: css('--accent-deep'), tint: css('--accent-tint') });
+// acOverride: a team's color while drawing its sticker; otherwise the app color.
+let acOverride = null;
+const acFrom = (h) => { const [r, g, b] = hexRgb(h); return { a: h, hi: mixHex(h, [255, 255, 255], .28), rgb: `${r},${g},${b}`, deep: mixHex(h, [0, 0, 0], .5), tint: mixHex(h, [255, 255, 255], .78) }; };
+const AC = () => acOverride || ({ a: css('--accent'), hi: css('--accent-hi'), rgb: css('--accent-rgb'), deep: css('--accent-deep'), tint: css('--accent-tint') });
 /* ---------- languages ----------
    English text in the code is the key; i18n.js holds the other languages
    (LANZA_I18N.strings[code][english] = translation). {name} marks a value. */
@@ -2050,30 +2054,47 @@ function renderShareKind() {
   const st = shareKind === 'sticker', co = !!(coopP && coopOn());
   $('stickWrap').classList.toggle('hidden', !st); $('storyImg').classList.toggle('hidden', st);
   $('coopRow').classList.toggle('hidden', !coopP); $('coopOn').checked = co;
-  $('stickTeamRow').classList.toggle('hidden', !st || co || !state.profile.team);
+  $('stickTeamRow').classList.toggle('hidden', !st || !teamsList().length);
   $('stickImg').src = co ? coopUrl : stickUrl; $('storyImg').src = co ? coopStoryUrl : storyUrl;
   $('shareHow').textContent = tr(st ? 'Copy it, open your Instagram story with your photo or video, then paste. Move and resize it wherever you like.' : 'Pick Instagram, then Stories. Add a link sticker so teammates can join.');
   $('storyShare').textContent = tr(st ? 'Copy sticker' : 'Share to Stories');
 }
-$('stickTeam').onchange = async (e) => {
-  LS.set('stickerTeam', e.target.checked);
-  const b = drawSticker(current, e.target.checked ? teamLabel() : ''); stickUrl = b.toDataURL('image/png'); $('stickImg').src = stickUrl;
-  stickBlob = await new Promise(r => b.toBlob(r, 'image/png'));
+/* Team on the sticker: pick any of your teams ("{team} trains on LANZA", target in that team's
+   color) or None (no header, the app color). Remembered for next time. */
+function stickerTeam() {
+  const pick = LS.get('stickerTeamCode', null), ts = teamsList();
+  if (pick === '') return null;
+  return ts.find(t => t.code === pick) || (LS.get('stickerTeam', true) ? activeTeam() || ts[0] : null) || null;
+}
+function drawStickerFor(s, t, coop = null) {
+  acOverride = t && isHex(t.color) ? acFrom(t.color) : null;
+  try { return drawSticker(s, coop ? '' : t ? teamName(t) : '', coop); } finally { acOverride = null; }
+}
+function renderStickTeams() {
+  const cur = stickerTeam(), ts = teamsList();
+  $('stickTeams').innerHTML = [`<button data-c="" class="${cur ? '' : 'on'}">${tr('None')}</button>`, ...ts.map(t => `<button data-c="${esc(t.code)}" class="${cur && cur.code === t.code ? 'on' : ''}">${isHex(t.color) ? `<i class="dotc" style="background:${t.color}"></i>` : ''}${esc(teamName(t))}</button>`)].join('');
+}
+$('stickTeams').onclick = async (e) => {
+  const b = e.target.closest('button'); if (!b || !current) return;
+  LS.set('stickerTeamCode', b.dataset.c); renderStickTeams();
+  const c = drawStickerFor(current, stickerTeam()); stickUrl = c.toDataURL('image/png');
+  stickBlob = await new Promise(r => c.toBlob(r, 'image/png'));
+  if (coopP) { const k = drawStickerFor(current, stickerTeam(), coopP); coopUrl = k.toDataURL('image/png'); coopBlob = await new Promise(r => k.toBlob(r, 'image/png')); }
+  renderShareKind();
 };
 document.querySelectorAll('#shareKind button').forEach(b => b.onclick = () => { shareKind = b.dataset.k; renderShareKind(); });
 $('shareResult').onclick = async () => {
   if (!current) return;
   try { await document.fonts.ready; } catch {}
-  const team = state.profile.team && LS.get('stickerTeam', true) ? teamLabel() : '';
-  $('stickTeam').checked = !!team; $('stickTeamLbl').textContent = tr('Show "{team} trains on {app}"', { team: teamLabel(), app: BRAND.name });
-  const a = drawStory(current), b = drawSticker(current, team);
+  renderStickTeams();
+  const a = drawStory(current), b = drawStickerFor(current, stickerTeam());
   storyUrl = a.toDataURL('image/png'); stickUrl = b.toDataURL('image/png');
   [storyBlob, stickBlob] = await Promise.all([a, b].map(c => new Promise(r => c.toBlob(r, 'image/png'))));
   coopP = null; coopBlob = coopStoryBlob = null;
   renderShareKind(); $('shareModal').classList.remove('hidden');
   const s = current, p = state.config.online ? await findPartner(s) : null;
   if (!p || s !== current) return;
-  const k = drawSticker(s, '', p), k2 = drawStory(s, p); coopUrl = k.toDataURL('image/png'); coopStoryUrl = k2.toDataURL('image/png');
+  const k = drawStickerFor(s, stickerTeam(), p), k2 = drawStory(s, p); coopUrl = k.toDataURL('image/png'); coopStoryUrl = k2.toDataURL('image/png');
   [coopBlob, coopStoryBlob] = await Promise.all([k, k2].map(c => new Promise(r => c.toBlob(r, 'image/png'))));
   coopP = p; $('coopLbl').textContent = tr('Co-op with {name}', { name: (p.name || '').split(/\s+/)[0] }); renderShareKind();
 };
@@ -2998,15 +3019,16 @@ function chSuggest(kind) {
 const chHint = (k) => tr({ sessions: 'Suggested: about one session a week per player.', throws: 'Suggested: about 160 throws a month per player.', makes: 'Suggested: about 90 makes a month per player.' }[k]);
 function renderChallenge() {
   const el = $('challengeCard'), c = teamData && teamData.challenge, m = new Date().toISOString().slice(0, 7);
-  const month = teamData.sessions.filter(s => s.created_at.slice(0, 7) === m);
+  const month = teamData.sessions.filter(s => s.created_at.slice(0, 7) === m && !(c && c.since && s.created_at < c.since));
   const end = new Date(); end.setMonth(end.getMonth() + 1, 1); end.setHours(0, 0, 0, 0); const daysLeft = Math.ceil((end - Date.now()) / 864e5);
   if (c && c.month === m && !renderChallenge.editing) {
     const done = c.kind === 'sessions' ? month.length : month.reduce((a, s) => a + (c.kind === 'makes' ? s.makes : s.attempts), 0), f = Math.min(1, done / c.target);
-    el.innerHTML = `<div class="label-row"><span class="cap">${tr('Monthly challenge')}</span><a href="#" class="cap" id="chEdit">${tr('Change')}</a></div>
+    // Locked while it runs: a new challenge can be set only once this one is complete.
+    el.innerHTML = `<div class="label-row"><span class="cap">${tr('Monthly challenge')}</span>${f >= 1 ? `<a href="#" class="cap" id="chEdit">${tr('New challenge')}</a>` : ''}</div>
       <div class="chal"><b>${done.toLocaleString(fmtLocale())}</b> / ${c.target.toLocaleString(fmtLocale())} <span>${lc(tr(CH_KINDS[c.kind]))}</span></div>
       <div class="track"><div class="fill" style="width:${(f * 100).toFixed(1)}%"></div></div>
       <div class="cap" style="margin-top:8px">${f >= 1 ? tr('Challenge complete. Great work, team!') : tr(daysLeft === 1 ? '1 day left' : '{n} days left', { n: daysLeft })}${c.by ? ' · ' + tr('set by {name}', { name: esc(c.by) }) : ''}</div>`;
-    $('chEdit').onclick = (e) => { e.preventDefault(); renderChallenge.editing = true; renderChallenge(); };
+    if ($('chEdit')) $('chEdit').onclick = (e) => { e.preventDefault(); renderChallenge.editing = true; renderChallenge(); };
     return;
   }
   const kind = (c && c.kind) || 'throws';
@@ -3023,7 +3045,10 @@ function renderChallenge() {
     const k = $('chKind').querySelector('.on').dataset.k, target = Math.round(+$('chTarget').value);
     if (!(target > 0)) return;
     try { const d = await api('/team', { method: 'POST', body: JSON.stringify({ action: 'challenge', code: state.profile.team, kind: k, target, name: state.profile.name }) }); teamData.challenge = d.challenge; }
-    catch { teamData.challenge = { kind: k, target, by: state.profile.name, month: new Date().toISOString().slice(0, 7) }; }
+    catch (e) {
+      if (e.status === 409) { if (e.data && e.data.challenge) teamData.challenge = e.data.challenge; renderChallenge.editing = false; renderChallenge(); toast(tr('This month’s challenge is still running. You can set a new one once it’s complete.')); return; }
+      teamData.challenge = { kind: k, target, by: state.profile.name, month: new Date().toISOString().slice(0, 7) };
+    }
     renderChallenge.editing = false; renderChallenge(); toast(tr('Challenge set'));
   };
 }

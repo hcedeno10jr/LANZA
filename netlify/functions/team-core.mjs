@@ -56,6 +56,23 @@ export function sanitize(s) {
   };
 }
 
+// How far the team is on a challenge: this month's sessions (from `since` when it replaced a completed one).
+export async function challengeProgress(store, code, c) {
+  const [y, m] = c.month.split('-').map(Number), start = new Date(Date.UTC(y, m - 1, 1)), end = new Date(Date.UTC(y, m, 1)), weeks = new Set();
+  for (let t = start.getTime(); t < end.getTime(); t += 864e5) weeks.add(isoWeek(new Date(t)));
+  const reg = (await store.get(`members/${code}`, { type: 'json' })) || {}, gone = new Set(Object.keys(reg).filter((k) => reg[k].removed));
+  let done = 0;
+  for (const w of weeks) {
+    const { blobs } = await store.list({ prefix: `${code}/${w}/` });
+    for (const { key } of blobs) {
+      const r = await store.get(key, { type: 'json' });
+      if (!r || gone.has(r.athlete_key) || r.created_at.slice(0, 7) !== c.month || (c.since && r.created_at < c.since)) continue;
+      done += c.kind === 'sessions' ? 1 : c.kind === 'makes' ? r.makes : r.attempts;
+    }
+  }
+  return done;
+}
+
 export async function handle(req, store, fetchImpl = fetch, accounts = null) {
   const url = new URL(req.url);
   // Rows this person left under older keys (their name, or Strava id before accounts) move to their account.
@@ -228,7 +245,14 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
       const kind = CHALLENGE_KINDS.includes(body.kind) ? body.kind : 'throws';
       const target = Math.round(num(body.target, 1, 1e6, 0));
       if (!target) return [{ error: 'Set a number' }, 400];
-      const c = { kind, target, by: String(body.name || '').trim().slice(0, 40), month: monthKey(), set_at: new Date().toISOString() };
+      const now = new Date(), c = { kind, target, by: String(body.name || '').trim().slice(0, 40), month: monthKey(now), set_at: now.toISOString() };
+      // A running challenge can't be changed until the team completes it; the next one counts from then.
+      const prev = await store.get(`challenge/${code}/${c.month}`, { type: 'json' });
+      if (prev) {
+        const done = await challengeProgress(store, code, prev);
+        if (done < prev.target) return [{ error: 'This month’s challenge is still running. You can set a new one once it’s complete.', challenge: prev, done }, 409];
+        c.since = c.set_at;
+      }
       await store.setJSON(`challenge/${code}/${c.month}`, c);
       return [{ ok: true, challenge: c }, 200];
     }
