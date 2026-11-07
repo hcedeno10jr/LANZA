@@ -47,6 +47,8 @@
 html{overscroll-behavior-y:none}
 html,body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--text);font:15px/1.45 var(--font);-webkit-font-smoothing:antialiased}
 body{min-height:100vh;padding-bottom:calc(84px + var(--safe-b))}
+/* clip (not hidden) so body isn't a scroll box and the sticky Start button works */
+body{overflow-x:clip}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none}
 button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent-hi);outline-offset:2px}
@@ -200,6 +202,9 @@ details.custom summary::-webkit-details-marker{display:none}
 .stylerow{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
 .act[disabled]{opacity:.5;pointer-events:none}
 .sticky-cta{margin-top:20px}
+/* Start stays on screen: it rides just above the tab bar until you scroll down to its place. */
+.startbar{position:sticky;bottom:calc(78px + var(--safe-b));z-index:15}
+.startbar .btn{width:100%;box-shadow:0 10px 30px rgba(0,0,0,.55),0 0 26px rgba(var(--accent-rgb),.35)}
 #view-setup .hero{height:min(44vh,380px)}
 /* ---------- target flow (full screen, no tab bar) ---------- */
 body.flow-mode{padding-bottom:0}
@@ -468,7 +473,8 @@ nav.tabs button{position:relative;z-index:1}
       <div class="card best" id="bestCard" role="button" tabindex="0"><div class="ct"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18l6-6 4 4 6-8"/></svg></span>Best score<span class="dot ok" id="bestDot"></span></div><div class="cv" id="bestOut">0</div><div class="cap" style="margin-top:6px">Personal best</div></div>
     </div>
     <div class="statusrow" id="weekBox"></div>
-    <div class="sticky-cta"><button class="btn primary" id="startSession">Start practice</button><button class="quicklink hidden" id="quickStart">Same as last time</button><button class="quicklink" id="remindLink">Not at the field? Remind me</button></div>
+    <div class="sticky-cta startbar"><button class="btn primary" id="startSession">Start practice</button></div>
+    <div><button class="quicklink hidden" id="quickStart">Same as last time</button><button class="quicklink" id="remindLink">Not at the field? Remind me</button></div>
   </div>
 </section>
 
