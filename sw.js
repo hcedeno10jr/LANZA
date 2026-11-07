@@ -1,7 +1,7 @@
 // LANZA service worker: offline app shell + automatic updates.
 // Bump VERSION on every release (the deploy checklist in README.md says so).
 // The page reloads into the new version on its own, but never during a practice.
-const VERSION = 'lanza-2.33.0';
+const VERSION = 'lanza-2.34.0';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './icon-180.png', './i18n.js', './privacy.html', './strava/connect.svg', './strava/powered.svg'];
 
 self.addEventListener('install', (e) => {
@@ -24,7 +24,7 @@ self.addEventListener('fetch', (e) => {
   // Pages: network first so updates land at once; cached copy when offline.
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req)
-      .then((res) => { const copy = res.clone(); caches.open(VERSION).then((c) => c.put('./index.html', copy)); return res; })
+      .then((res) => { if (res.ok && (url.pathname === '/' || url.pathname === '/index.html')) { const copy = res.clone(); caches.open(VERSION).then((c) => c.put('./index.html', copy)); } return res; })
       .catch(() => caches.match('./index.html')));
     return;
   }

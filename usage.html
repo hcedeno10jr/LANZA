@@ -58,6 +58,17 @@ button.ghost{background:transparent;border-color:var(--line);box-shadow:none;col
 button:focus-visible,input:focus-visible{outline:2px solid var(--blue-hi);outline-offset:2px}
 .err{color:var(--warn);font-size:13px;margin-top:8px}
 .foot{color:var(--mute);font-size:12px;text-align:center}
+.fun{display:grid;gap:10px}
+.fun .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:baseline}
+.fun .row span{font-size:14px}
+.fun .row b{font-weight:600;font-variant-numeric:tabular-nums}
+.fun .row b small{color:var(--mute);font-weight:400;margin-left:6px}
+.fun .bar{grid-column:1/-1;height:8px;border-radius:99px;background:var(--card-hi);overflow:hidden}
+.fun .bar i{display:block;height:100%;border-radius:99px;background:var(--blue);box-shadow:0 0 12px var(--glow)}
+.fun .bar.alt i{background:var(--good);box-shadow:none}
+.fseg{display:flex;gap:6px;margin-bottom:12px}
+.fseg button{padding:6px 12px;font-size:13px;box-shadow:none;background:transparent;border-color:var(--line);color:var(--mute)}
+.fseg button.on{background:var(--blue);border-color:var(--blue);color:#fff}
 .tbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .tbar input{flex:1 1 160px;padding:8px 14px}
 .pill{background:var(--card-hi);border:1px solid var(--line);color:var(--fg);box-shadow:none;padding:8px 14px;font-weight:500;font-size:13px}
@@ -119,6 +130,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue-hi);outlin
     <svg id="chart" viewBox="0 0 640 220" role="img" aria-label="Daily opens and sessions, last 30 days"></svg>
   </section>
 
+  <section class="card" style="margin-top:14px" id="funCard">
+    <h2>From open to practice</h2>
+    <div class="fseg"><button id="f7" class="on">7 days</button><button id="f30">30 days</button></div>
+    <div class="fun" id="fun"></div>
+    <div class="foot" style="text-align:left;margin-top:10px">Each step counts phones, once per day for opens and once per tap for the rest. Counting started with v2.34, so older days show 0.</div>
+  </section>
+
   <section class="card" style="margin-top:14px" id="adsCard">
     <h2>Rewarded ads</h2>
     <div class="adrow" id="adTiles"></div>
@@ -166,8 +184,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue-hi);outlin
 <div class="foot">Counts only. No names, no ids. Opens and sessions are counted per app launch and per finished practice.</div>
 </main>
 <script>
-const EV = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'story', 'ad_offer', 'ad_view', 'ad_nofill'];
-const NAMES = { open: 'Opens', install: 'Installs', session: 'Sessions', strava_post: 'Strava posts', team_join: 'Team joins', invite_open: 'Invite opens', story: 'Story shares', ad_offer: 'Ad offers', ad_view: 'Ads watched', ad_nofill: 'No ad available' };
+const EV = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'story', 'ad_offer', 'ad_view', 'ad_nofill', 'first_open', 'start', 'target', 'throw1', 'first_session', 'return', 'remind', 'nudge'];
+const FUN = [['open', 'Opened the app'], ['start', 'Tapped Start'], ['target', 'Picked a target'], ['throw1', 'Logged a throw'], ['session', 'Finished a session']];
+const FUN2 = [['first_open', 'New phones (first open)'], ['first_session', 'First ever session'], ['return', 'Came back on a later day'], ['remind', 'Added a reminder'], ['nudge', 'Captain nudges sent']];
+let funDays = 7, funAll = [];
+function renderFunnel(all) {
+  funAll = all;
+  const n = (e) => all.slice(0, funDays).reduce((a, day) => a + sum(day[e]), 0);
+  const row = (label, v, of, max, alt) => `<div class="row"><span>${label}</span><b>${fmt(v)}${of != null ? `<small>${of ? Math.round(100 * v / of) + '%' : '—'}</small>` : ''}</b><div class="bar${alt ? ' alt' : ''}"><i style="width:${max ? Math.max(2, 100 * v / max) : 0}%"></i></div></div>`;
+  const a = FUN.map(([e]) => n(e)), b = FUN2.map(([e]) => n(e));
+  $('fun').innerHTML = FUN.map(([, l], i) => row(l, a[i], i ? a[i - 1] : null, a[0])).join('') +
+    '<div style="height:6px"></div>' + FUN2.map(([, l], i) => row(l, b[i], i === 1 ? b[0] : null, Math.max(...b, 1), true)).join('');
+}
+const NAMES = { open: 'Opens', install: 'Installs', session: 'Sessions', strava_post: 'Strava posts', team_join: 'Team joins', invite_open: 'Invite opens', story: 'Story shares', ad_offer: 'Ad offers', ad_view: 'Ads watched', ad_nofill: 'No ad available', first_open: 'New phones', start: 'Start taps', target: 'Targets picked', throw1: 'First throws', first_session: 'First sessions', return: 'Returns', remind: 'Reminders', nudge: 'Captain nudges' };
 const ON_SITE = /(^|\.|--)lanzaapp\.netlify\.app$|^localhost$|^127\./.test(location.hostname);
 const $ = (id) => document.getElementById(id);
 const sum = (o) => Object.values(o || {}).reduce((a, n) => a + n, 0);
@@ -295,7 +324,7 @@ function render(d) {
     Object.entries(src).sort((a, b) => sum(b[1]) - sum(a[1])).map(([s, v]) => `<tr><td>${esc(s)}</td>${cols.map((e) => `<td>${fmt(v[e])}</td>`).join('')}</tr>`).join('');
   $('ev').innerHTML = '<tr><th>Event</th><th>Today</th><th>7 days</th><th>30 days</th></tr>' +
     EV.map((e) => `<tr><td>${NAMES[e]}</td><td>${fmt(sum(today[e]))}</td><td>${fmt(days.slice(0, 7).reduce((n, day) => n + sum(day[e]), 0))}</td><td>${fmt(tot[e])}</td></tr>`).join('');
-  renderAds(all);
+  renderAds(all); renderFunnel(all);
   $('teamsCard').hidden = !Array.isArray(d.teams);
   if (Array.isArray(d.teams)) { teams = d.teams; renderTeams(); }
   $('dash').hidden = false;
@@ -322,7 +351,7 @@ function demo() {
   const days = [], rnd = (a, b, i) => Math.round(a + (b - a) * (0.5 + 0.5 * Math.sin(i * 1.7)) * (1 - i / 45));
   for (let i = 0; i < 90; i++) {
     const dt = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
-    days.push({ day: dt, open: { direct: rnd(4, 18, i), instagram: rnd(0, 7, i + 2), strava: rnd(0, 4, i + 5) }, session: { direct: rnd(1, 9, i + 1) }, install: i % 4 ? {} : { direct: 1 }, strava_post: i % 3 ? {} : { direct: 1 }, team_join: i % 6 ? {} : { invite: 1 }, story: i % 5 ? {} : { direct: 1 }, ...(i < 40 ? { ad_offer: { direct: rnd(3, 12, i) }, ad_view: { direct: rnd(2, 9, i) }, ad_nofill: { direct: i % 3 ? 0 : 1 } } : {}) });
+    days.push({ day: dt, open: { direct: rnd(4, 18, i), instagram: rnd(0, 7, i + 2), strava: rnd(0, 4, i + 5) }, session: { direct: rnd(1, 9, i + 1) }, install: i % 4 ? {} : { direct: 1 }, strava_post: i % 3 ? {} : { direct: 1 }, team_join: i % 6 ? {} : { invite: 1 }, story: i % 5 ? {} : { direct: 1 }, start: { direct: rnd(3, 14, i) }, target: { direct: rnd(2, 12, i) }, throw1: { direct: rnd(2, 10, i + 1) }, first_open: { instagram: rnd(1, 6, i + 2) }, first_session: { direct: rnd(0, 3, i + 3) }, return: { direct: rnd(0, 4, i + 4) }, remind: i % 3 ? {} : { direct: 1 }, nudge: i % 7 ? {} : { direct: 1 }, ...(i < 40 ? { ad_offer: { direct: rnd(3, 12, i) }, ad_view: { direct: rnd(2, 9, i) }, ad_nofill: { direct: i % 3 ? 0 : 1 } } : {}) });
   }
   const wk = (n) => { const d = new Date(Date.now() - n * 7 * 864e5), t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7)); const y = t.getUTCFullYear(); return `${y}-W${String(Math.ceil(((t - Date.UTC(y, 0, 1)) / 864e5 + 1) / 7)).padStart(2, '0')}`; };
   const sample = [['Sample Team A', 'SAMPLE-A', '#2f6bff', 16, 34, 61, 7, 0], ['Sample Team B', 'SAMPLE-B', '#ff4d6d', 12, 18, 25, 4, 0], ['Sample Team C', 'SAMPLE-C', '#3ddc84', 9, 6, 14, 3, 1], ['Sample Team D', 'SAMPLE-D', '#ffb340', 5, 0, 4, 1, 6]];
@@ -335,5 +364,7 @@ $('refresh').onclick = load;
 $('forget').onclick = () => { store.set('lanzaUsageKey', ''); $('dash').hidden = true; $('keyCard').hidden = false; status('Not connected'); };
 document.addEventListener('visibilitychange', () => { if (!document.hidden && ON_SITE) load(); });
 
+$('f7').onclick = () => { funDays = 7; $('f7').classList.add('on'); $('f30').classList.remove('on'); renderFunnel(funAll); };
+$('f30').onclick = () => { funDays = 30; $('f30').classList.add('on'); $('f7').classList.remove('on'); renderFunnel(funAll); };
 if (ON_SITE) { load(); setInterval(() => { if (!document.hidden) load(); }, 60e3); } else demo();
 </script></body></html>
