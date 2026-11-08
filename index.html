@@ -843,7 +843,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.34.0';
+const APP_VERSION = '2.35.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1536,11 +1536,17 @@ function tone(freq, t0, dur, type = 'sine', gain = 0.25, slideTo) {
 const chimeMake = () => { tone(1046.5, 0, 0.14, 'sine', 0.28); tone(1568, 0.09, 0.22, 'sine', 0.24); };
 const chimeMiss = () => tone(220, 0, 0.32, 'triangle', 0.32, 140);
 const chimeFanfare = () => [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.08, 0.18, 'sine', 0.2));
-let speaking = false;
+let speaking = false, sayId = 0;
+// While the app talks, the mic steps aside (see micPauseForSpeech): on iPhone, speaking while
+// listening can silently cut the mic off, and the mic would also hear the app's own voice.
 function say(text) {
   if (!$('voiceFeedback').checked || !('speechSynthesis' in window)) return;
-  const u = new SpeechSynthesisUtterance(text); u.rate = 1.05; u.lang = langInfo().speech || fmtLocale();
-  u.onstart = () => { speaking = true; }; u.onend = u.onerror = () => setTimeout(() => speaking = false, 250);
+  const u = new SpeechSynthesisUtterance(text), id = ++sayId;
+  u.rate = 1.05; u.lang = langInfo().speech || fmtLocale();
+  setTimeout(() => { if (id === sayId) speaking = false; }, 8000); // some phones never report the end
+  u.onstart = () => { speaking = true; };
+  u.onend = u.onerror = () => { if (id !== sayId) return; setTimeout(() => { if (id === sayId) speaking = false; }, 250); micResumeAfterSpeech(id); };
+  micPauseForSpeech(id);
   speechSynthesis.cancel(); speechSynthesis.speak(u);
 }
 
@@ -1657,7 +1663,7 @@ const UNDO_WORDS = new Set(['undo', ...(VOICE.undo || [])].map(w => w.toLowerCas
 // Off for now (GOOD_SHAPE): no button and no voice call; older sessions keep their count.
 const GOOD_SHAPE = false;
 const SHAPE_PHRASES = (GOOD_SHAPE ? ['good shape', 'nice shape', 'shape', ...(VOICE.shape || [])] : []).map(w => w.toLowerCase()).sort((a, b) => b.length - a.length);
-let rec = null, micOn = false, handled = new Map(), lastCmdAt = 0;
+let rec = null, micOn = false, lastCmdAt = 0;
 // Languages written without spaces (Japanese, Chinese) are scanned for the words in order.
 function parseOutcomes(text) {
   text = text.toLowerCase();
@@ -1672,32 +1678,95 @@ function parseOutcomes(text) {
   return out;
 }
 function setMicUI(live, sub) { $('micToggle').classList.toggle('live', live); if (sub != null) $('heard').innerHTML = sub; }
-function startMic() {
-  if (!SR) { setMicUI(false, tr('Voice isn’t available in this browser. Use Chrome on Android or Safari on iPhone, or tap the buttons.')); return; }
-  audio();
-  rec = new SR();
-  rec.lang = langInfo().speech || fmtLocale();
-  rec.continuous = true; rec.interimResults = true;
-  handled = new Map();
-  rec.onresult = (e) => {
+/* Hands-free has to last the whole practice. Browsers (iPhone Safari above all) end the mic after
+   a while, or quietly stop hearing while it still looks on, and one long transcript keeps growing
+   until old words get re-read. So the mic listens in short rounds: each round takes one call
+   ("make", "miss", "undo"), then a fresh round starts a moment later. Any end, error or long
+   silence also starts a fresh round, and the watchdog catches a mic that froze without saying so.
+   Android keeps one long round (each start can beep there) and only restarts when Chrome ends it. */
+const MIC = { gen: 0, heardAt: 0, cmdAt: 0, idx: -1, handled: new Map(), fails: 0, ok: false, speech: 0, timer: null, dog: null, safety: null };
+const MIC_ROUNDS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const MIC_QUIET_MS = 700, MIC_STALE_MS = MIC_ROUNDS ? 10000 : 30000;
+function micDetach() {
+  clearTimeout(MIC.timer); MIC.timer = null; MIC.gen++;
+  if (rec) { const r = rec; rec = null; r.onresult = r.onerror = r.onend = r.onstart = r.onaudiostart = null; try { r.abort(); } catch {} }
+}
+function micRound(delay = 0) {
+  micDetach();
+  if (!micOn || MIC.speech || document.hidden) return;
+  MIC.timer = setTimeout(micListen, delay);
+}
+function micListen() {
+  MIC.timer = null;
+  if (!micOn || MIC.speech || document.hidden) return;
+  const r = new SR(), g = ++MIC.gen; rec = r;
+  r.lang = langInfo().speech || fmtLocale();
+  r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+  MIC.idx = -1; MIC.handled = new Map(); MIC.cmdAt = 0; MIC.heardAt = Date.now();
+  const live = () => g === MIC.gen && micOn;
+  r.onstart = r.onaudiostart = () => { if (!live()) return; MIC.heardAt = Date.now(); MIC.ok = true; };
+  r.onresult = (e) => {
+    if (!live()) return;
+    MIC.heardAt = Date.now(); MIC.fails = 0;
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      const text = e.results[i][0].transcript, outs = parseOutcomes(text), done = handled.get(i) || 0;
-      // Interim results react instantly; `handled` stops the final result counting the same words twice.
-      if (outs.length > done && !speaking) for (const o of outs.slice(done)) {
+      // One round follows one result: iPhone can repeat earlier words in a new result, so other results are ignored once a call is taken.
+      if (MIC_ROUNDS && MIC.idx >= 0 && i !== MIC.idx) continue;
+      const text = e.results[i][0].transcript, outs = parseOutcomes(text), done = MIC.handled.get(i) || 0;
+      if (!outs.length) continue;
+      $('heard').innerHTML = tr('Heard {x}', { x: `<b>“${esc(text.trim().split(/\s+/).slice(-4).join(' '))}”</b>` });
+      // Interim results react instantly; MIC.handled stops the final result counting the same word twice.
+      if (!speaking) for (const o of outs.slice(done)) {
         if (o === 'shape') { markShape(); continue; }
         const now = Date.now(); if (now - lastCmdAt < 350) continue; lastCmdAt = now;
         o === 'undo' ? undo() : record(o === 'make');
       }
-      handled.set(i, Math.max(done, outs.length));
-      $('heard').innerHTML = tr('Heard {x}', { x: `<b>“${esc(text.trim())}”</b>` });
+      MIC.handled.set(i, Math.max(done, outs.length)); MIC.idx = i; MIC.cmdAt = Date.now();
     }
   };
-  rec.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { micOn = false; setMicUI(false, tr('Microphone blocked. Allow it for this site in your browser settings.')); } };
-  rec.onend = () => { if (micOn) { handled = new Map(); try { rec.start(); } catch { setTimeout(() => micOn && rec && rec.start(), 300); } } };
-  try { rec.start(); micOn = true; setMicUI(true, GOOD_SHAPE ? tr('Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.') : tr('Listening. Say <b>make</b> or <b>miss</b> after each throw.')); }
-  catch (err) { setMicUI(false, esc(err.message)); }
+  r.onerror = (e) => {
+    if (!live()) return;
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      // Never got going: the browser blocks the mic. Already worked: retry a few times before giving up.
+      if (!MIC.ok || ++MIC.fails > 3) { const blocked = !MIC.ok; stopMic(); setMicUI(false, blocked ? tr('Microphone blocked. Allow it for this site in your browser settings.') : tr('The mic stopped. Tap it to keep listening.')); }
+      return;
+    }
+    if (e.error !== 'no-speech' && e.error !== 'aborted') MIC.fails++;
+  };
+  r.onend = () => { if (live()) micRound(Math.min(3000, 120 * 2 ** Math.min(MIC.fails, 5))); };
+  try { r.start(); }
+  catch { MIC.fails++; micRound(400); }
 }
-function stopMic() { micOn = false; if (rec) { rec.onend = null; try { rec.stop(); } catch {} rec = null; } setMicUI(false, tr('Tap the mic for hands-free: say “make” or “miss” after each throw.')); }
+// Watchdog: start the next round once a call has gone quiet, and revive a mic that froze.
+function micTick() {
+  if (!micOn || MIC.speech || document.hidden) return;
+  const now = Date.now();
+  if (MIC_ROUNDS && MIC.cmdAt && now - MIC.cmdAt > MIC_QUIET_MS && now - MIC.heardAt > MIC_QUIET_MS - 100) micRound(80);
+  else if (!MIC.timer && now - MIC.heardAt > MIC_STALE_MS) micRound(0);
+}
+function micPauseForSpeech(id) {
+  if (!micOn) return;
+  MIC.speech = id; micDetach();
+  clearTimeout(MIC.safety); MIC.safety = setTimeout(() => micResumeAfterSpeech(id), 7000);
+}
+function micResumeAfterSpeech(id) {
+  if (MIC.speech !== id) return;
+  MIC.speech = 0; clearTimeout(MIC.safety);
+  if (micOn) micRound(250);
+}
+document.addEventListener('visibilitychange', () => { if (!micOn) return; if (document.hidden) micDetach(); else micRound(200); });
+function startMic() {
+  if (!SR) { setMicUI(false, tr('Voice isn’t available in this browser. Use Chrome on Android or Safari on iPhone, or tap the buttons.')); return; }
+  audio();
+  micOn = true; MIC.fails = 0; MIC.ok = false; MIC.speech = 0;
+  clearInterval(MIC.dog); MIC.dog = setInterval(micTick, 500);
+  setMicUI(true, GOOD_SHAPE ? tr('Listening. Say <b>make</b> or <b>miss</b> after each throw, and <b>good shape</b> when it flew well.') : tr('Listening. Say <b>make</b> or <b>miss</b> after each throw.'));
+  // The first start runs inside the tap, which iPhone needs before it allows the mic.
+  micListen();
+}
+function stopMic() {
+  micOn = false; clearInterval(MIC.dog); MIC.dog = null; clearTimeout(MIC.safety); MIC.speech = 0; micDetach();
+  setMicUI(false, tr('Tap the mic for hands-free: say “make” or “miss” after each throw.'));
+}
 $('micToggle').onclick = () => micOn ? stopMic() : startMic();
 $('btnMake').onclick = () => record(true);
 $('btnMiss').onclick = () => record(false);
