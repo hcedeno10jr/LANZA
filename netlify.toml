@@ -16,3 +16,14 @@
   from = "/s"
   to = "/?src=strava"
   status = 302
+
+# Short links for Instagram (bio link and DMs), so usage counts know where a visit came from.
+[[redirects]]
+  from = "/ig"
+  to = "/?src=ig"
+  status = 302
+
+[[redirects]]
+  from = "/dm"
+  to = "/?src=dm"
+  status = 302

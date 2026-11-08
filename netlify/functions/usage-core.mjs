@@ -1,7 +1,9 @@
 // Privacy-friendly usage counts: no ids, no cookies, just daily totals per event and source.
 import { isoWeek } from './team-core.mjs';
 
-export const EVENTS = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'pro', 'story', 'ad_offer', 'ad_view', 'ad_nofill'];
+export const EVENTS = ['open', 'install', 'session', 'strava_post', 'team_join', 'invite_open', 'pro', 'story', 'ad_offer', 'ad_view', 'ad_nofill',
+  // the path to a session (v2.34): first ever open, Start, target set, first throw, first session, a return on a later day, reminders, captain nudges
+  'first_open', 'start', 'target', 'throw1', 'first_session', 'return', 'remind', 'nudge'];
 const clean = (s) => String(s || 'direct').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 30) || 'direct';
 const day = (d = new Date()) => d.toISOString().slice(0, 10);
 

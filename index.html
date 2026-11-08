@@ -47,6 +47,8 @@
 html{overscroll-behavior-y:none}
 html,body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--text);font:15px/1.45 var(--font);-webkit-font-smoothing:antialiased}
 body{min-height:100vh;padding-bottom:calc(84px + var(--safe-b))}
+/* clip (not hidden) so body isn't a scroll box and the sticky Start button works */
+body{overflow-x:clip}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none}
 button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent-hi);outline-offset:2px}
@@ -200,6 +202,9 @@ details.custom summary::-webkit-details-marker{display:none}
 .stylerow{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6}
 .act[disabled]{opacity:.5;pointer-events:none}
 .sticky-cta{margin-top:20px}
+/* Start stays on screen: it rides just above the tab bar until you scroll down to its place. */
+.startbar{position:sticky;bottom:calc(78px + var(--safe-b));z-index:15}
+.startbar .btn{width:100%;box-shadow:0 10px 30px rgba(0,0,0,.55),0 0 26px rgba(var(--accent-rgb),.35)}
 #view-setup .hero{height:min(44vh,380px)}
 /* ---------- target flow (full screen, no tab bar) ---------- */
 body.flow-mode{padding-bottom:0}
@@ -209,6 +214,28 @@ body.flow-mode nav.tabs{display:none}
 .round{width:44px;height:44px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-size:22px;font-weight:500;flex:none}
 .title.fl{font-size:40px;text-align:center}
 .flow .note{margin:-4px 0 0}
+.presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:2px}
+.presets button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 9px;border-radius:16px;background:var(--card2);color:#fff;font:600 12.5px/1.15 var(--font);text-align:center}
+.presets button.on{background:var(--accent);color:var(--on-accent)}
+.presets i{display:block;border-radius:50%;border:2px solid currentColor;opacity:.85}
+.presets small{display:block;color:var(--muted);font-weight:500;font-size:10.5px;line-height:1.2}
+.presets button.on small{color:inherit;opacity:.8}
+.distchips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.distchips button{padding:9px 4px;border-radius:14px;background:var(--card2);color:var(--muted);font:600 13px/1.2 var(--font)}
+.distchips button b{display:block;color:#fff;font-size:15px}
+.distchips button small{display:block;font-weight:500;font-size:10.5px}
+.distchips button.on{background:#fff;color:#000}.distchips button.on b{color:#000}
+.goal20{display:grid;gap:6px;text-align:center}
+.goal20 .bar{height:8px;border-radius:99px;background:var(--card2);overflow:hidden}
+.goal20 .bar i{display:block;height:100%;width:0;border-radius:99px;background:var(--accent);transition:width .3s}
+.goal20.done .bar i{box-shadow:0 0 14px var(--accent)}
+.firstcard .t{font-weight:700;font-size:16px}
+.soft{font-size:13.5px;line-height:1.4;color:var(--muted)}
+.chipsel{display:flex;flex-wrap:wrap;gap:8px}
+.chipsel button{font-size:13.5px;font-weight:600;padding:9px 14px;border-radius:999px;background:var(--card2);color:var(--muted)}
+.chipsel button.on{background:#fff;color:#000}
+.teampulse{font-size:14px;color:var(--muted);text-align:center}
+.teampulse b{color:#fff}
 .draw-wrap{position:relative;flex:1;min-height:340px;border-radius:var(--r-card);overflow:hidden;background:#050507;touch-action:none}
 #drawCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
 .draw-pill{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);backdrop-filter:blur(8px);padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap;pointer-events:none}
@@ -438,21 +465,25 @@ nav.tabs button{position:relative;z-index:1}
   <div class="body">
     <div class="card install hidden" id="installCard"><img src="icon-180.png" alt=""><div><div class="t">Install LANZA on your phone</div><div class="d" id="installHow"></div><button class="btn sm primary hidden" id="installBtn" style="margin-top:8px">Install</button></div><button class="x" id="installX" aria-label="Close">&times;</button></div>
     <div class="card pausedcard hidden" id="pausedCard"><div><div class="t">Paused session</div><div class="cap" id="pausedInfo"></div></div><div class="row"><button class="btn sm" id="pausedFinish">Finish</button><button class="btn sm primary" id="pausedResume">Resume</button></div></div>
+    <div class="card firstcard hidden" id="firstCard"><div class="t">Your first session</div><div class="soft" style="margin-top:4px">Pick a target, step back, throw 20. Tap make or miss, or just say it.</div></div>
+    <div class="teampulse hidden" id="teamPulse"></div>
     <div class="cards">
       <button class="card goal" id="goalCard"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle cx="29" cy="29" r="25" stroke="#26262a"/><circle id="goalArc" cx="29" cy="29" r="25" stroke="var(--accent)" stroke-linecap="round" transform="rotate(-90 29 29)" stroke-dasharray="0 158"/></svg>
         <div><div class="ct">Weekly goal</div><div class="gv" id="goalVal">0/3</div><div class="cap" id="goalStreak" style="margin-top:4px"></div></div></button>
       <div class="card best" id="bestCard" role="button" tabindex="0"><div class="ct"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18l6-6 4 4 6-8"/></svg></span>Best score<span class="dot ok" id="bestDot"></span></div><div class="cv" id="bestOut">0</div><div class="cap" style="margin-top:6px">Personal best</div></div>
     </div>
     <div class="statusrow" id="weekBox"></div>
-    <div class="sticky-cta"><button class="btn primary" id="startSession">Start practice</button><button class="quicklink hidden" id="quickStart">Same as last time</button></div>
+    <div class="sticky-cta startbar"><button class="btn primary" id="startSession">Start practice</button></div>
+    <div><button class="quicklink hidden" id="quickStart">Same as last time</button><button class="quicklink" id="remindLink">Not at the field? Remind me</button></div>
   </div>
 </section>
 
 <!-- ================= DRAW TARGET ================= -->
 <section id="view-target" class="screen hidden flow">
   <div class="flow-top"><button class="round" id="targetBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span class="cap">Step 1 of 2</span><span style="width:44px"></span></div>
-  <h1 class="title fl">Draw your target</h1>
-  <p class="note">Trace it with your finger. The person, net, bike, hoop and tree are to scale.</p>
+  <h1 class="title fl">Pick your target</h1>
+  <div class="presets" id="presetRow"></div>
+  <p class="note">Or trace your own with your finger. The person, net, bike, hoop and tree are to scale.</p>
   <div class="draw-wrap"><canvas id="drawCanvas" aria-label="Draw your target"></canvas><div class="draw-pill" id="drawPill"></div></div>
   <div class="flow-bar"><button class="btn" id="clearDraw">Clear</button><button class="btn primary" id="toDistance">Next</button></div>
 </section>
@@ -465,6 +496,7 @@ nav.tabs button{position:relative;z-index:1}
   <div class="dview"><canvas id="distThumb" class="dthumb" aria-hidden="true"></canvas><div class="draw-pill" id="distPill">How it looks from 20 m</div></div>
   <div class="big"><span class="n" id="distVal">20</span><span class="u">metres</span></div>
   <div class="stepper"><button class="round" id="distMinus" aria-label="Closer">&minus;</button><input type="range" id="distRange" min="2" max="60" step="1" aria-label="Distance in metres"><button class="round" id="distPlus" aria-label="Farther">+</button></div>
+  <div class="distchips" id="distChips"></div>
   <div class="throwpick" id="throwPick">
     <span class="cap">What are you throwing?</span>
     <div class="namechips" id="throwChips"></div>
@@ -495,6 +527,7 @@ nav.tabs button{position:relative;z-index:1}
       <button class="outcome make" id="btnMake"><span class="n" id="makeN">0</span>Make<span class="cap">hit · make · made</span></button>
       <button class="outcome miss" id="btnMiss"><span class="n" id="missN">0</span>Miss<span class="cap">miss · out · off</span></button>
     </div>
+    <div class="goal20 hidden" id="goal20"><div class="bar"><i id="goal20Bar"></i></div><div class="soft" id="goal20Txt"></div></div>
     <div class="streak" id="streakBar" aria-label="Throw history"></div>
     <div class="heard" id="heard">Tap the mic for hands-free: say “make” or “miss” after each throw.</div>
     <button class="shapebtn hidden" id="shapeBtn" disabled><span id="shapeLbl">Good shape</span> <b id="shapeN">0</b></button>
@@ -605,7 +638,7 @@ nav.tabs button{position:relative;z-index:1}
       </div>
       <div class="card" id="challengeCard"></div>
       <div class="card"><div class="label-row"><span class="cap">Leaderboard</span><span class="cap">Avg score</span></div><div class="list" id="boardList"></div><div class="powered hidden" id="boardPowered" style="margin-top:12px"><img src="strava/powered.svg" alt="Powered by Strava" width="146" height="15"></div></div>
-      <div class="card"><div class="label-row"><span class="cap" id="missingTitle">Not practiced this week</span></div><div class="chips-missing" id="missingList"></div></div>
+      <div class="card"><div class="label-row"><span class="cap" id="missingTitle">Not practiced this week</span></div><div class="chips-missing" id="missingList"></div><button class="btn primary hidden" id="nudgeTeam" style="margin-top:12px;width:100%">Send the weekly 20</button></div>
       <div class="card"><div class="label-row"><span class="cap">Recent sessions</span></div><div class="list" id="teamRecent"></div></div>
       <div class="card" style="text-align:center"><div class="cap">Team code</div><div class="code" id="teamCodeOut"></div>
         <button class="btn primary" id="inviteTeam" style="margin-top:12px">Invite teammates</button>
@@ -633,6 +666,20 @@ nav.tabs button{position:relative;z-index:1}
       <button class="btn outline hidden" id="adPro">Go Pro · no ads</button>
       <button class="btn" id="closeAd">Not now</button>
     </div>
+  </div>
+</div>
+
+<!-- Reminder: add the next session to the calendar -->
+<div class="modal-bg hidden" id="remindModal">
+  <div class="modal" style="display:grid;gap:14px">
+    <h2>When will you throw?</h2>
+    <p class="note" style="font-size:14px;margin:0">We'll add it to your calendar with a link that opens a ready session.</p>
+    <div class="chipsel" id="remindDays"></div>
+    <label class="f"><span class="cap">Time</span><input type="time" id="remindTime" value="17:00"></label>
+    <label class="toggle"><input type="checkbox" id="remindWeekly" checked> Every week</label>
+    <button class="btn primary" id="remindApple">Add to Apple Calendar</button>
+    <button class="btn" id="remindGoogle">Add to Google Calendar</button>
+    <button class="btn" id="remindClose">Not now</button>
   </div>
 </div>
 
@@ -796,7 +843,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.33.0';
+const APP_VERSION = '2.34.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -1111,6 +1158,7 @@ function renderSetup() {
   $('greet').textContent = tr(h < 12 ? 'Good morning,' : h < 18 ? 'Good afternoon,' : 'Good evening,');
   $('homeName').textContent = (state.strava?.athlete?.firstname) || state.profile.name.split(' ')[0] || tr('Athlete');
   renderWeek(); renderGoal(); renderQuick(); renderInstall(); renderPaused();
+  $('firstCard').classList.toggle('hidden', !!state.sessions.length); renderTeamPulse();
 }
 function renderWeek() {
   const n = sessionsThisWeek(), s = state.strava;
@@ -1376,6 +1424,29 @@ function blobFrom(p) {
   let q = Array.from({ length: n }, (_, i) => { const th = i / n * Math.PI * 2, r = 1 + 0.07 * Math.sin(2 * th + k1) + 0.05 * Math.sin(3 * th + k2); return [Math.cos(th) * r * e, Math.sin(th) * r / e]; });
   const s = Math.sqrt(a / polyArea(q)); return q.map(([x, y]) => [+(mx + x * s).toFixed(3), +(my + y * s).toFixed(3)]);
 }
+/* Ready-made targets: one tap instead of drawing. Each is a soft hand-drawn-looking shape of a
+   real size on the to-scale scene, so it scores exactly like a drawn target of that size. */
+const QUICK_TARGETS = [
+  { id: 'pinpoint', ratio: 2, hint: 'Hands or a cone', at: [REF.personX, 1.22], e: 1.05, dot: 10 },
+  { id: 'chest', ratio: 5, hint: 'A teammate’s chest', at: [REF.personX, 1.22], e: 0.82, dot: 14 },
+  { id: 'catch', ratio: 12, hint: 'Teammate, arms out', at: [REF.personX + 0.05, 1.28], e: 1.1, dot: 19 },
+  { id: 'endzone', ratio: 25, hint: 'Net or a big gap', at: [REF.netX, REF.netY + REF.netH / 2], e: 1.15, dot: 24 }
+];
+function quickShape(q) {
+  const n = 40, k1 = q.ratio * 1.3, k2 = q.ratio * 0.7;
+  const raw = Array.from({ length: n }, (_, i) => { const th = i / n * Math.PI * 2, r = 1 + 0.06 * Math.sin(2 * th + k1) + 0.04 * Math.sin(3 * th + k2); return [Math.cos(th) * r * q.e, Math.sin(th) * r / q.e]; });
+  const sc = Math.sqrt(q.ratio * DISC_AREA / polyArea(raw));
+  return { type: 'path', preset: q.id, pts: raw.map(([x, y]) => [+(q.at[0] + x * sc).toFixed(3), +(q.at[1] + y * sc).toFixed(3)]) };
+}
+function renderPresets() {
+  const on = setup.shape && setup.shape.preset;
+  $('presetRow').innerHTML = QUICK_TARGETS.map(q => { const t = sizeTier(q.ratio);
+    return `<button type="button" data-q="${q.id}" class="${on === q.id ? 'on' : ''}"><i style="width:${q.dot}px;height:${q.dot}px"></i>${tr(t.name)}<small>${tr(q.hint)}</small></button>`; }).join('');
+  $('presetRow').querySelectorAll('button').forEach(b => b.onclick = () => {
+    const q = QUICK_TARGETS.find(x => x.id === b.dataset.q); setup.shape = quickShape(q); LS.set('shape', setup.shape);
+    hapticTick(); renderPresets(); requestDraw(); setTimeout(() => { if (currentView === 'target') $('toDistance').click(); }, 280);
+  });
+}
 function endFinger(e) {
   fingers.delete(e.pointerId);
   if (pinch) { if (fingers.size < 2) pinch = null; return; }
@@ -1385,18 +1456,18 @@ function endFinger(e) {
     if (looksObscene(pts)) pts = blobFrom(pts);
     const stride = Math.ceil(pts.length / 160);
     setup.shape = { type: 'path', pts: pts.filter((_, k) => k % stride === 0).map(([x, y]) => [+x.toFixed(3), +y.toFixed(3)]) };
-    LS.set('shape', setup.shape);
+    LS.set('shape', setup.shape); renderPresets();
   } else if (pts.length > 1) toast(tr('Draw a closed shape around your target'));
   requestDraw();
 }
 dc.addEventListener('pointerup', endFinger); dc.addEventListener('pointercancel', endFinger);
 dc.addEventListener('wheel', (e) => { if (!dv) return; e.preventDefault(); applyCam(); const p = local(e), w = toWorldPx(p); cam.z *= Math.exp(-e.deltaY * 0.0015); pinTo(w, p); requestDraw(); }, { passive: false });
-$('clearDraw').onclick = () => { setup.shape = null; LS.del('shape'); requestDraw(); };
+$('clearDraw').onclick = () => { setup.shape = null; LS.del('shape'); renderPresets(); requestDraw(); };
 
 /* ---------- step 2: distance ---------- */
 function setDistance(m) { setup.distance = clamp(Math.round(m), 2, 60); LS.set('distance', setup.distance); renderDistance(); }
 function renderThrowPick() {
-  const show = setup.mode === 'new';
+  const show = setup.mode === 'new' && state.sessions.length > 0;
   $('throwPick').classList.toggle('hidden', !show); if (!show) return;
   // Optional: no chip picked means a mixed session, and tapping the picked one clears it.
   $('throwChips').innerHTML = THROWS.filter(t => t.id !== 'mixed').map(t => `<button type="button" data-t="${t.id}" class="${t.id === setup.throw ? 'on' : ''}">${tr(t.name)}</button>`).join('');
@@ -1407,8 +1478,14 @@ function renderThrowPick() {
     LS.set('styles', setup.styles); b.classList.toggle('on');
   });
 }
+// Distance by steps: one adult walking step is about 0.75 m.
+const DIST_CHIPS = [{ n: 'Near', m: 5 }, { n: 'Short', m: 10 }, { n: 'Mid', m: 20 }, { n: 'Long', m: 35 }];
+function renderDistChips() {
+  $('distChips').innerHTML = DIST_CHIPS.map(c => `<button type="button" data-m="${c.m}" class="${c.m === setup.distance ? 'on' : ''}"><b>${c.m} m</b>${tr(c.n)}<small>${tr('about {n} steps', { n: Math.round(c.m / 0.75) })}</small></button>`).join('');
+  $('distChips').querySelectorAll('button').forEach(b => b.onclick = () => { setDistance(+b.dataset.m); hapticTick(); });
+}
 function renderDistance() {
-  renderThrowPick();
+  renderThrowPick(); renderDistChips();
   $('distVal').textContent = setup.distance; $('distRange').value = setup.distance;
   $('confirmTarget').textContent = tr(setup.mode === 'change' ? 'Back to practice' : 'Start practice');
   $('distPill').textContent = tr('How it looks from {n} m', { n: setup.distance });
@@ -1435,7 +1512,7 @@ $('distMinus').onclick = () => setDistance(setup.distance - 1);
 $('distPlus').onclick = () => setDistance(setup.distance + 1);
 
 /* ---------- flow ---------- */
-function openTarget(mode) { setup.mode = mode; setup.distOnly = false; resetCam(); showView('target'); requestAnimationFrame(layoutDraw); }
+function openTarget(mode) { setup.mode = mode; setup.distOnly = false; resetCam(); renderPresets(); showView('target'); requestAnimationFrame(layoutDraw); }
 $('toDistance').onclick = () => { if (!setup.shape) { toast(tr('Draw your target first')); return; } if (setup.mode === 'new') setup.distance = 5; zoom.cur = null; showView('distance'); requestAnimationFrame(renderDistance); };
 $('targetBack').onclick = () => showView(setup.mode === 'change' && session ? 'practice' : 'setup');
 $('distBack').onclick = () => setup.distOnly && session ? showView('practice') : openTarget(setup.mode);
@@ -1477,10 +1554,11 @@ const stats = (s) => {
   const diff = s.diffs.length ? s.diffs.reduce((a, d) => a + d, 0) / s.diffs.length : s.cur.difficulty;
   return { makes, misses: attempts - makes, attempts, acc, diff, score: scoreOf(makes, attempts, diff) };
 };
-function tryStart() { finishPaused(true); setup.quick = false; if (needsAd()) { openAdGate(); return; } openTarget('new'); }
+function tryStart() { track('start'); finishPaused(true); setup.quick = false; if (needsAd()) { openAdGate(); return; } openTarget('new'); }
 function startSession() {
   audio();
-  session = { id: uuid(), startedAt: Date.now(), log: [], diffs: [], streak: 0, best: 0, targets: 0, cur: null, throw: setup.throw, styles: [...setup.styles], parts: [{ throw: setup.throw, styles: [...setup.styles], from: 0 }] };
+  track('target');
+  session = { id: uuid(), first: !state.sessions.length, startedAt: Date.now(), log: [], diffs: [], streak: 0, best: 0, targets: 0, cur: null, throw: setup.throw, styles: [...setup.styles], parts: [{ throw: setup.throw, styles: [...setup.styles], from: 0 }] };
   applyTarget(); timerId = setInterval(tickTimer, 1000); tickTimer(); requestWakeLock();
   showView('practice'); say(tr('Session started.')); persistLive();
 }
@@ -1524,6 +1602,7 @@ document.addEventListener('visibilitychange', () => { if (session && document.vi
 function record(made) {
   if (!session) return;
   session.log.push(made); session.diffs.push(session.cur.difficulty); session.lastAt = Date.now(); persistLive();
+  if (session.log.length === 1) track('throw1');
   if (made) { session.streak++; session.best = Math.max(session.best, session.streak); chimeMake(); } else { session.streak = 0; chimeMiss(); }
   const btn = made ? $('btnMake') : $('btnMiss');
   btn.classList.remove('flash-make', 'flash-miss'); void btn.offsetWidth; btn.classList.add(made ? 'flash-make' : 'flash-miss');
@@ -1531,7 +1610,8 @@ function record(made) {
   renderSession();
   const st = stats(session);
   // Spoken phrases avoid the trigger words so the mic can't hear itself.
-  if (made && [5, 10, 15, 20].includes(session.streak)) { chimeFanfare(); say(tr('{n} in a row!', { n: session.streak })); }
+  if (session.first && st.attempts === GOAL_FIRST) { chimeFanfare(); say(tr('Twenty throws. Finish to see your score.')); toast(tr('20 throws! Tap Finish to see your LANZA Score')); }
+  else if (made && [5, 10, 15, 20].includes(session.streak)) { chimeFanfare(); say(tr('{n} in a row!', { n: session.streak })); }
   else if (st.attempts % 10 === 0) say(tr('{n} throws. {p} percent.', { n: st.attempts, p: Math.round(st.acc * 100) }));
 }
 /* "Good shape": the throw flew the way it should (nice flight, right release), make or miss.
@@ -1549,8 +1629,15 @@ function undo() {
   let st = 0, best = 0; for (const m of session.log) { st = m ? st + 1 : 0; best = Math.max(best, st); }
   session.streak = st; session.best = best; persistLive(); renderSession(); tone(600, 0, 0.08, 'square', 0.08); toast(tr('Last throw removed'));
 }
+const GOAL_FIRST = 20;   // the first session has one clear goal
 function renderSession() {
   const st = stats(session);
+  $('goal20').classList.toggle('hidden', !session.first);
+  if (session.first) {
+    const n = Math.min(st.attempts, GOAL_FIRST), done = st.attempts >= GOAL_FIRST;
+    $('goal20Bar').style.width = (100 * n / GOAL_FIRST) + '%'; $('goal20').classList.toggle('done', done);
+    $('goal20Txt').textContent = done ? tr('Goal done. Keep going or finish to see your score.') : tr('{n} of {m} throws to your first LANZA Score', { n: st.attempts, m: GOAL_FIRST });
+  }
   $('accOut').textContent = Math.round(st.acc * 100) + '%'; $('attOut').textContent = st.attempts;
   $('scoreLive').textContent = st.score; $('streakOut').textContent = session.streak; $('bestStreak').textContent = session.best;
   $('makeN').textContent = st.makes; $('missN').textContent = st.misses;
@@ -1620,7 +1707,7 @@ $('startSession').onclick = tryStart;
 // "Same as last time": the saved target, distance and throw, straight into logging.
 $('quickStart').onclick = () => {
   if (!setup.shape) return tryStart();
-  finishPaused(true);
+  track('start'); finishPaused(true);
   if (needsAd()) { setup.quick = true; openAdGate(); return; }
   setup.mode = 'new'; startSession();
 };
@@ -1654,7 +1741,7 @@ function resumePaused() {
 function finishPaused(quiet) {
   const p = pausedSession(); if (!p) return; LS.del('paused');
   if (state.sessions.some(x => x.id === p.id)) return;
-  const rec = sessionRecord(p, p.pausedAt); state.sessions.unshift(rec); saveSessions(); shareToTeam(rec); track('session');
+  const rec = sessionRecord(p, p.pausedAt); state.sessions.unshift(rec); saveSessions(); shareToTeam(rec); trackSession();
   if (quiet) { toast(tr('Your paused session was saved: LANZA Score {n}', { n: rec.skill_score })); renderSetup(); return; }
   current = rec; resultFresh = true; resultBack = null; renderResult(); showView('result');
 }
@@ -1696,7 +1783,7 @@ $('endSession').onclick = () => {
   current = sessionRecord(session, Date.now());
   state.sessions.unshift(current); saveSessions();
   endPractice(); resultFresh = true; resultBack = null; renderResult(); showView('result');
-  shareToTeam(current); autoPostStrava(); track('session');
+  shareToTeam(current); autoPostStrava(); trackSession();
   if (thisWeek().length === goalN()) setTimeout(() => { chimeFanfare(); toast(tr('Weekly goal reached!')); }, 2600);
   say(tr('Saved. LANZA Score {n}.', { n: current.skill_score }));
 };
@@ -2269,6 +2356,13 @@ $('acctInstall').onclick = () => { $('acctModal').classList.add('hidden'); doIns
 /* ---------- usage counts: daily totals only, no ids (see netlify/functions/usage-core.mjs) ---------- */
 // Where this phone first came from: ?src=strava (Strava post link), ?src=invite, or another site.
 (() => { if (LS.get('src', null)) return; const q = new URLSearchParams(location.search).get('src'); let r = ''; try { r = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : ''; } catch {} LS.set('src', q || (r && r !== location.hostname ? r : 'direct')); })();
+// A finished session, plus whether it was this phone's first ever or a return on a later day.
+function trackSession() {
+  track('session');
+  const days = new Set(state.sessions.map(x => (x.created_at || '').slice(0, 10)));
+  if (state.sessions.length === 1) track('first_session');
+  else { const today = isoDay(new Date()); if (LS.get('returnDay', '') !== today && [...days].some(d => d && d < today)) { LS.set('returnDay', today); track('return'); } }
+}
 function track(e) { if (!/^https?:/.test(location.protocol)) return; try { fetch(`${API}/usage`, { method: 'POST', body: JSON.stringify({ e, src: LS.get('src', 'direct') }), keepalive: true }).catch(() => {}); } catch {} }
 
 /* ---------- LANZA Pro (Stripe Payment Link, unlocked per Strava athlete) ---------- */
@@ -2985,6 +3079,7 @@ function renderBoard() {
   $('missingTitle').textContent = tr(R3[0]);
   $('missingList').innerHTML = missing.length ? missing.map(([k, n]) => `<span>${esc(n)} · ${last.has(k) ? tr('last {d}', { d: dateStr(last.get(k).created_at) }) : tr('no sessions yet')}</span>`).join('') : `<span style="color:var(--ok)">${tr(R3[1])}</span>`;
   $('boardList').querySelectorAll('[data-k]').forEach(el => el.onclick = () => openPlayer(el.dataset.k));
+  $('nudgeTeam').classList.toggle('hidden', !isOwner() || teamRange !== 'week');
   renderChallenge();
   $('teamRecent').innerHTML = rows.length ? rows.slice(0, 12).map(s => tapItem(s, teamBest().has(s))).join('') : `<div class="empty">${tr('Nothing yet.')}</div>`;
   wireItems($('teamRecent'), () => showView('team'));
@@ -3228,7 +3323,7 @@ function showView(v) {
   document.body.classList.toggle('flow-mode', v === 'target' || v === 'distance');
   const tab = ['practice', 'result', 'target', 'distance'].includes(v) ? 'setup' : v;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.view === tab));
-  if (v === 'setup') renderSetup();
+  if (v === 'setup') { renderSetup(); if (state.sessions.length && !LS.get('onboarded', false) && !session) setTimeout(() => { if (currentView === 'setup' && !document.querySelector('.modal-bg:not(.hidden)')) openOnb(); }, 500); }
   if (v === 'stats') renderStats();
   if (v === 'team') renderTeamView();
   window.scrollTo(0, 0);
@@ -3363,6 +3458,69 @@ function openLang(first) {
   $('langGo').onclick = () => { LS.set('lang', pick); window.name = 'lanza-lang:' + pick; $('langModal').classList.add('hidden'); if (pick !== LANG) location.reload(); else if (first) nextIntro(); };
 }
 
+/* ---------- "Not at the field?": put the next session in the calendar ---------- */
+// No notifications needed: the calendar alerts 15 minutes before, and its link opens a ready session.
+let remindDay = 1;
+function openRemind() {
+  const days = Array.from({ length: 7 }, (_, i) => new Date(Date.now() + i * 864e5));
+  const name = (d, i) => i === 0 ? tr('Today') : i === 1 ? tr('Tomorrow') : d.toLocaleDateString(fmtLocale(), { weekday: 'short' });
+  const paint = () => { $('remindDays').innerHTML = days.map((d, i) => `<button type="button" data-i="${i}" class="${i === remindDay ? 'on' : ''}">${esc(name(d, i))}</button>`).join('');
+    $('remindDays').querySelectorAll('button').forEach(b => b.onclick = () => { remindDay = +b.dataset.i; paint(); hapticTick(); }); };
+  $('remindTime').value = LS.get('remindTime', '17:00'); paint(); $('remindModal').classList.remove('hidden');
+}
+function remindParts() {
+  const d = new Date(Date.now() + remindDay * 864e5), [hh, mm] = ($('remindTime').value || '17:00').split(':');
+  const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  LS.set('remindTime', `${hh}:${mm}`);
+  return { ymd, hm: `${hh}${mm}`, weekly: $('remindWeekly').checked, title: tr('Throwing practice · LANZA'), desc: tr('Throw your 20. Open LANZA, pick a target, go.') };
+}
+$('remindLink').onclick = openRemind;
+$('remindClose').onclick = () => $('remindModal').classList.add('hidden');
+$('remindApple').onclick = () => {
+  const r = remindParts(), u = `${API}/remind?` + new URLSearchParams({ d: r.ymd, t: r.hm, w: r.weekly ? '1' : '0', title: r.title, desc: r.desc });
+  track('remind'); $('remindModal').classList.add('hidden');
+  if (standalone()) window.open(u, '_blank'); else location.href = u;
+};
+$('remindGoogle').onclick = () => {
+  const r = remindParts(), app = `${location.origin}/?src=remind&go=1`;
+  const end = new Date(+r.ymd.slice(0, 4), +r.ymd.slice(4, 6) - 1, +r.ymd.slice(6), +r.hm.slice(0, 2), +r.hm.slice(2) + 30);
+  const e = `${end.getFullYear()}${String(end.getMonth() + 1).padStart(2, '0')}${String(end.getDate()).padStart(2, '0')}T${String(end.getHours()).padStart(2, '0')}${String(end.getMinutes()).padStart(2, '0')}00`;
+  const q = new URLSearchParams({ action: 'TEMPLATE', text: r.title, dates: `${r.ymd}T${r.hm}00/${e}`, details: `${r.desc}\n${app}` });
+  if (r.weekly) q.set('recur', 'RRULE:FREQ=WEEKLY');
+  track('remind'); $('remindModal').classList.add('hidden');
+  window.open('https://calendar.google.com/calendar/render?' + q, '_blank');
+};
+// The calendar link (?go=1) opens straight into a session: same as last time, or pick a target.
+const goParam = new URLSearchParams(location.search).get('go') === '1';
+if (goParam) { const q = new URLSearchParams(location.search); q.delete('go'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '')); }
+
+/* ---------- team pulse on Home, and the captain's weekly nudge ---------- */
+// A teammate who hasn't thrown this week sees how many teammates already did (checked at most every 30 min).
+function renderTeamPulse() {
+  try {
+    const el = $('teamPulse'), code = state.profile.team;
+    if (!code || thisWeek().length) { el.classList.add('hidden'); return; }
+    const c = LS.get('teamPulse', null), wk = weekKey();
+    const show = (x) => { const ok = x && x.code === code && x.wk === wk && x.n > 0; el.classList.toggle('hidden', !ok);
+      if (ok) el.innerHTML = tr(x.n === 1 ? '<b>1 teammate</b> threw this week. Your turn.' : '<b>{n} teammates</b> threw this week. Your turn.', { n: x.n }); };
+    show(c);
+    if (c && c.code === code && Date.now() - c.at < 30 * 60e3) return;
+    api(`/team?code=${encodeURIComponent(code)}&weeks=1`).then(d => {
+      const me = myKey(), ks = new Set((d.sessions || []).filter(x => weekKey(new Date(x.created_at)) === wk && x.athlete_key !== me).map(x => x.athlete_key));
+      const x = { code, wk, n: ks.size, at: Date.now() }; LS.set('teamPulse', x); if (currentView === 'setup') show(x);
+    }).catch(() => {});
+  } catch {}
+}
+$('nudgeTeam').onclick = async () => {
+  if (!teamData) return;
+  const wk = weekKey(), done = new Set((teamData.sessions || []).filter(x => weekKey(new Date(x.created_at)) === wk).map(x => x.athlete_key));
+  const m = Math.max(memberRows().inn.length, done.size);
+  const text = tr('{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}', { team: teamLabel(), n: done.size, m, link: `${location.origin}/?src=nudge` });
+  track('nudge');
+  if (navigator.share) { try { await navigator.share({ text }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(text); toast(tr('Message copied. Paste it in your team chat.')); } catch { toast(text); }
+};
+
 /* ---------- first launch: language → three intro screens → team invite ---------- */
 const ART = {
   draw: '<svg viewBox="0 0 320 190"><path d="M0 150H320" stroke="#2c2c34" stroke-width="2"/><g fill="#20233a"><circle cx="70" cy="70" r="11"/><path d="M60 84h20l4 40h-6l-2 26h-14l-2-26h-6z"/></g><path d="M150 60q40-28 88-6q34 18 18 56q-16 40-66 34q-52-6-40-84z" fill="rgba(108,117,255,.18)" stroke="#fff" stroke-width="3" stroke-dasharray="9 7"/><circle cx="262" cy="104" r="9" fill="#fff"/><path d="M262 104l14 22" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>',
@@ -3431,7 +3589,8 @@ function openInvite(code) {
 const intro = [];
 function nextIntro() { const f = intro.shift(); if (f) f(); }
 if (LS0('lang') == null && !/^lanza-lang:/.test(window.name) && LANGS.length > 1) intro.push(() => openLang(true));
-if (!LS.get('onboarded', false)) { if (state.sessions.length) LS.set('onboarded', true); else intro.push(openOnb); }
+// New players go straight to Home and throw; the intro screens come after their first session.
+if (!LS.get('onboarded', false) && state.sessions.length) LS.set('onboarded', true);
 if (inviteCode) intro.push(() => openInvite(inviteCode));
 // The home-screen app checks for an invite parked from Safari (see openInvite).
 async function claimPendingInvite() {
@@ -3443,7 +3602,7 @@ async function claimPendingInvite() {
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') claimPendingInvite(); });
 if (state.strava || state.account) backupSoon(8000);
-{ const today = new Date().toISOString().slice(0, 10); if (LS.get('seenDay', '') !== today) { LS.set('seenDay', today); track('open'); } }
+{ const today = new Date().toISOString().slice(0, 10); if (LS.get('seenDay', '') !== today) { if (!LS.get('seenDay', '') && !state.sessions.length) track('first_open'); LS.set('seenDay', today); track('open'); } }
 if (standalone() && !LS.get('installSeen', false)) { LS.set('installSeen', true); track('install'); }
 if (inviteCode) track('invite_open');
 let recovered = null;
@@ -3453,12 +3612,13 @@ let recovered = null;
       enterLive(L); toast(tr('Picking up where you left off'));
     } else {
       recovered = sessionRecord(L, L.lastAt || Date.now());
-      state.sessions.unshift(recovered); saveSessions(); LS.del('live'); track('session');
+      state.sessions.unshift(recovered); saveSessions(); LS.del('live'); trackSession();
       toast(tr('Your last session was saved: LANZA Score {n}', { n: recovered.skill_score }));
     }
   } else LS.del('live');
 }
 if (!session) nextIntro();
+if (goParam && !session) setTimeout(() => { if (session || document.querySelector('.modal-bg:not(.hidden)')) return; setup.shape && state.sessions.length ? $('quickStart').click() : tryStart(); }, 700);
 loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimAccount(); syncAccount(); claimPendingInvite(); retryPendingShares(); resyncWind(); retryPendingDeletes(); handleProReturn(); refreshPro(false); });
 // phrases(): the data words the language files translate (used when adding a language).
 window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, openSession, parseOutcomes, view: () => currentView, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };

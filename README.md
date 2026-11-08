@@ -15,6 +15,7 @@ Throwing practice for Ultimate Frisbee. Athletes can start a session in one tap.
 | `netlify/functions/backup.mjs`, `backup-core.mjs` | History backup, tied to each athlete's Strava account |
 | `netlify/functions/pro.mjs`, `stripe-webhook.mjs`, `pro-core.mjs` | LANZA Pro subscription (Stripe) |
 | `netlify/functions/usage.mjs`, `usage-core.mjs`, `usage.html` | Anonymous daily usage counts and the owner's usage page |
+| `netlify/functions/remind.mjs`, `remind-core.mjs` | "Remind me" calendar file (.ics) for the next practice. Nothing is stored. |
 | `i18n.js` | All languages |
 | `privacy.html` | Privacy policy (Strava requires one) |
 | `netlify.toml`, `package.json` | Netlify build settings |
@@ -152,3 +153,8 @@ To add a language: add an entry to `languages` (code, native name, locale, speec
 - Anyone with a team code can read that team's board and post to it. Sessions posted with a connected Strava account are marked "Strava ✓".
 - Voice tracking needs HTTPS and Chrome on Android or Safari on iPhone.
 - The weekly session count is stored on each phone, so clearing the browser's data resets it.
+
+## Short links
+
+- `/ig` for the Instagram bio and `/dm` for DMs. They open the app with `?src=ig` or `?src=dm`, so the usage page's source table shows where people came from.
+- `/s` is printed at the end of Strava posts (`?src=strava`).
