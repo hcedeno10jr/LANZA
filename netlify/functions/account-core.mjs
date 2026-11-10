@@ -5,6 +5,8 @@
 //   link/google:<sub>     → id        link/strava:<athleteId> → id
 // Kept separate from Netlify Blobs so it can be tested with any store.
 
+import { stravaAthlete } from './_shared.mjs';
+
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 // Sign-ins started from the iPhone home-screen app finish in Safari; the result waits here for the app.
 export const HANDOFF_RE = /^gh\.[0-9a-f-]{20,60}$/i;
@@ -126,8 +128,7 @@ export async function handle(req, store, { env = () => '', fetchImpl = fetch, ha
   if (action === 'strava') {
     let a = null;
     try {
-      const r = await fetchImpl('https://www.strava.com/api/v3/athlete', { headers: { authorization: `Bearer ${body.access_token}` } });
-      if (r.ok) a = await r.json();
+      a = await stravaAthlete(body.access_token, fetchImpl);
     } catch { /* handled below */ }
     if (!a || !a.id) return [{ error: 'Strava sign-in expired. Connect again.' }, 401];
     return [await upsert(store, 'strava', a.id, { name: shortName(a.firstname, a.lastname), picture: a.profile_medium || a.profile }, body.token), 200];

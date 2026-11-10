@@ -1,5 +1,6 @@
 // LANZA Pro: a Stripe subscription tied to the athlete's Strava id.
 // Checkout is a Stripe Payment Link (no code); Stripe's webhook tells us who paid.
+import { stravaAthlete } from './_shared.mjs';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
 const ACTIVE = ['active', 'trialing', 'past_due'];
@@ -17,7 +18,7 @@ export function verifyStripe(payload, header, secret, now = Date.now()) {
 
 export async function athleteId(token, fetchImpl = fetch) {
   if (!token) return null;
-  try { const r = await fetchImpl('https://www.strava.com/api/v3/athlete', { headers: { authorization: `Bearer ${token}` } }); return r.ok ? (await r.json()).id : null; }
+  try { const a = await stravaAthlete(token, fetchImpl); return a ? a.id : null; }
   catch { return null; }
 }
 

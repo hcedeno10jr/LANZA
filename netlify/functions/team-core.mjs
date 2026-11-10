@@ -1,4 +1,5 @@
 // Team board logic, kept separate from Netlify Blobs so it can be tested with any store.
+import { stravaAthlete } from './_shared.mjs';
 import { accountOf } from './account-core.mjs';
 const CODE_RE = /^[A-Z0-9-]{4,20}$/;
 const num = (v, lo, hi, d = 0) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
@@ -108,8 +109,8 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
     let a = { name: String(body.name || 'Athlete').trim().slice(0, 40) || 'Athlete', strava_id: null, verified: false };
     if (body.access_token) {
       try {
-        const r = await fetchImpl('https://www.strava.com/api/v3/athlete', { headers: { authorization: `Bearer ${body.access_token}` } });
-        if (r.ok) { const x = await r.json(); a = { name: `${x.firstname || ''} ${(x.lastname || '').slice(0, 1)}${x.lastname ? '.' : ''}`.trim() || a.name, strava_id: x.id, verified: true }; }
+        const x = await stravaAthlete(body.access_token, fetchImpl);
+        if (x) { a = { name: `${x.firstname || ''} ${(x.lastname || '').slice(0, 1)}${x.lastname ? '.' : ''}`.trim() || a.name, strava_id: x.id, verified: true }; }
       } catch { /* keep the unverified name */ }
     }
     return { ...a, key: a.strava_id ? `strava:${a.strava_id}` : `name:${a.name.toLowerCase()}`, acct: null };
