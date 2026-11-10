@@ -3514,7 +3514,8 @@ const tabDrag = { id: null, cur: null, moved: false, x0: 0, suppress: false };
     if (!cancel && tabDrag.cur) {
       const v = tabDrag.cur.dataset.view;
       tabDrag.suppress = true; setTimeout(() => { tabDrag.suppress = false; }, 350);
-      showView(session && v === 'setup' ? 'practice' : v);
+      const t = session && v === 'setup' ? 'practice' : v, i = MAIN.indexOf(currentView), j = MAIN.indexOf(t);
+      if (i >= 0 && j >= 0 && i !== j) slideTo(t, j > i ? 1 : -1); else showView(t);
     }
   };
   nav.addEventListener('pointerup', (e) => end(e, false));
@@ -3541,18 +3542,40 @@ window.addEventListener('online', () => { loadConfig().then(retryPendingShares);
    then slides out while the next one slides in from the other side. Tab taps slide the same way. */
 const MAIN = ['setup', 'stats', 'team'];
 let sliding = false;
-function slideTo(v, dir, from = 0) {
-  const cur = $('view-' + currentView), W = innerWidth;
-  if (sliding || v === currentView) return; sliding = true;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { cur.style.transform = ''; showView(v); sliding = false; return; }
-  cur.style.transition = 'transform .18s ease-in, opacity .18s'; cur.style.transform = `translateX(${-dir * W}px)`; cur.style.opacity = '.4';
+// Home, Stats and Team sit side by side like one strip: while you drag, the next page
+// rides in right next to the current one, and letting go finishes (or undoes) the move.
+// The incoming page is shown fixed at the top during the move, then handed to showView.
+const peek = { v: null, dir: 0 };
+const RENDER = { setup: () => renderSetup(), stats: () => renderStats(), team: () => renderTeamView() };
+function peekShow(v, dir) {
+  if (peek.v === v && peek.dir === dir) return; peekHide();
+  const el = $('view-' + v); peek.v = v; peek.dir = dir;
+  el.classList.remove('hidden');
+  Object.assign(el.style, { position: 'fixed', top: '0', left: '0', right: '0', height: '100vh', overflow: 'hidden', zIndex: '5', background: 'var(--bg)', pointerEvents: 'none', transform: `translateX(${dir * innerWidth}px)` });
+  try { RENDER[v] && RENDER[v](); } catch (_) {}
+}
+function peekHide() { if (!peek.v) return; const el = $('view-' + peek.v); el.classList.add('hidden'); el.style.cssText = ''; peek.v = null; }
+function stripAt(dx) {
+  $('view-' + currentView).style.transform = `translateX(${dx}px)`;
+  if (peek.v) $('view-' + peek.v).style.transform = `translateX(${dx + peek.dir * innerWidth}px)`;
+}
+function stripGo(commit, ms = 340) {
+  const cur = $('view-' + currentView), nx = peek.v && $('view-' + peek.v), W = innerWidth, ease = `transform ${ms}ms cubic-bezier(.22,.9,.24,1)`;
+  sliding = true; cur.style.transition = ease; if (nx) nx.style.transition = ease;
+  void cur.offsetWidth;
+  if (commit && nx) { cur.style.transform = `translateX(${-peek.dir * W}px)`; nx.style.transform = 'translateX(0)'; }
+  else { cur.style.transform = ''; if (nx) nx.style.transform = `translateX(${peek.dir * W}px)`; }
   setTimeout(() => {
-    cur.style.transition = cur.style.transform = cur.style.opacity = '';
-    showView(v); const nx = $('view-' + v);
-    nx.style.transition = 'none'; nx.style.transform = `translateX(${dir * W * .35}px)`; nx.style.opacity = '.4'; void nx.offsetWidth;
-    nx.style.transition = 'transform .26s cubic-bezier(.2,.8,.2,1), opacity .26s'; nx.style.transform = ''; nx.style.opacity = '';
-    setTimeout(() => { nx.style.transition = ''; sliding = false; }, 280);
-  }, from ? 120 : 170);
+    cur.style.transition = cur.style.transform = '';
+    if (commit && nx) { const v = peek.v; nx.style.cssText = ''; peek.v = null; showView(v); }
+    else peekHide();
+    sliding = false;
+  }, ms + 20);
+}
+function slideTo(v, dir) {
+  if (sliding || v === currentView) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { showView(v); return; }
+  peekShow(v, dir); stripGo(true);
 }
 (() => {
   let x0 = null, y0 = 0, t0 = 0, dx = 0, lock = null;
@@ -3562,15 +3585,18 @@ function slideTo(v, dir, from = 0) {
     if (x0 == null) return; const ddx = e.touches[0].clientX - x0, ddy = e.touches[0].clientY - y0;
     if (!lock && Math.hypot(ddx, ddy) > 10) lock = Math.abs(ddx) > Math.abs(ddy) * 1.3 ? 'x' : 'y';
     if (lock !== 'x') return;
-    const i = MAIN.indexOf(currentView), edge = (ddx > 0 && i === 0) || (ddx < 0 && i === MAIN.length - 1);
-    dx = edge ? ddx * .25 : ddx; $('view-' + currentView).style.transform = `translateX(${dx}px)`;
+    const i = MAIN.indexOf(currentView), dir = ddx < 0 ? 1 : -1, j = i + dir;
+    if (j >= 0 && j < MAIN.length) { peekShow(MAIN[j], dir); dx = ddx; } else { peekHide(); dx = ddx * .25; }
+    stripAt(dx);
   }, { passive: true });
-  document.addEventListener('touchend', () => {
+  const end = () => {
     if (x0 == null) return; x0 = null; if (lock !== 'x') return;
-    const cur = $('view-' + currentView), i = MAIN.indexOf(currentView), dir = dx < 0 ? 1 : -1, j = i + dir, fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > .5;
-    if (j >= 0 && j < MAIN.length && (Math.abs(dx) > innerWidth * .22 || (fast && Math.abs(dx) > 30))) { hapticTick(); slideTo(MAIN[j], dir, 1); return; }
-    cur.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)'; cur.style.transform = ''; setTimeout(() => { cur.style.transition = ''; }, 240);
-  });
+    const fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > .5, go = !!peek.v && (Math.abs(dx) > innerWidth * .22 || (fast && Math.abs(dx) > 30));
+    if (go) hapticTick();
+    stripGo(go, go ? 300 : 240);
+  };
+  document.addEventListener('touchend', end);
+  document.addEventListener('touchcancel', end);
 })();
 /* Pull down at the top of Home, Stats or Team to refresh (also checks for a new app version). */
 (() => {
@@ -3751,7 +3777,8 @@ function calm() { return matchMedia('(prefers-reduced-motion: reduce)').matches;
 var enterTimer = 0;
 function motionEnter(v, slid) {
   const el = $('view-' + v); if (!el) return;
-  if (!calm() && !slid) {
+  if (slid) return;
+  if (!calm()) {
     el.classList.remove('enter'); void el.offsetWidth;
     [el, el.querySelector(':scope > .head'), el.querySelector(':scope > .body')].forEach(p => p && [...p.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 9))));
     el.classList.add('enter'); clearTimeout(enterTimer); enterTimer = setTimeout(() => el.classList.remove('enter'), 1500);
