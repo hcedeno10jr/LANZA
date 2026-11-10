@@ -160,13 +160,17 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
     try { body = await req.json(); } catch { return [{ error: 'Invalid JSON' }, 400]; }
     const code = String(body.code || '').toUpperCase();
     if (!CODE_RE.test(code)) return [{ error: 'Invalid team code' }, 400];
-    // Team name. Anyone on the team can set or change it.
+    // Team name and colour. Only captains can change them. A team with no captain yet (older
+    // teams) can still be named; the first name save on a brand-new team makes its key the captain key.
     if (body.action === 'name') {
       const name = String(body.team_name || '').replace(/\s+/g, ' ').trim().slice(0, 30);
       if (!name) return [{ error: 'Add a team name' }, 400];
       const color = /^#[0-9a-f]{6}$/i.test(body.team_color || '') ? body.team_color.toLowerCase() : '';
       const prev = (await store.get(`meta/${code}`, { type: 'json' })) || {};
-      const meta = { ...prev, name, color, by: String(body.name || '').trim().slice(0, 40), set_at: new Date().toISOString() };
+      const noCaptain = !prev.cap && !(prev.captains || []).length, cap = String(body.cap || '');
+      if (!noCaptain && !(await isCaptain(prev, body))) return [{ error: 'Only captains can do that' }, 403];
+      const claim = noCaptain && !prev.name && /^[A-Za-z0-9-]{8,64}$/.test(cap);
+      const meta = { ...prev, name, color, cap: prev.cap || (claim ? cap : undefined), by: String(body.name || '').trim().slice(0, 40), set_at: new Date().toISOString() };
       await store.setJSON(`meta/${code}`, meta);
       return [{ ok: true, name, color }, 200];
     }

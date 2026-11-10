@@ -441,6 +441,53 @@ nav.tabs.dragging .lens{opacity:1;transition:opacity .18s}
 nav.tabs button.hover{color:#fff}
 nav.tabs button{position:relative;z-index:1}
 .haptic-sw{position:fixed;left:-100px;top:0;opacity:0;pointer-events:none}
+/* ---------- motion: page entrances, taps, sheets and the hero art ----------
+   One easing family everywhere so it feels like one product. Everything here is
+   switched off by the prefers-reduced-motion rule below. */
+:root{--ease-out:cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.34,1.5,.64,1)}
+@keyframes m-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes m-fade{from{opacity:0}to{opacity:1}}
+@keyframes m-art{from{opacity:.2;transform:scale(1.1)}to{opacity:1;transform:none}}
+@keyframes m-title{from{opacity:0;transform:translateY(26px);letter-spacing:.02em}to{opacity:1;transform:none}}
+.screen.enter .hero .art{animation:m-art 1.1s var(--ease-out) both}
+.screen.enter .hero .brandmark,.screen.enter .hero .fab{animation:m-fade .6s .15s both}
+.screen.enter .head>*{animation:m-rise .7s var(--ease-out) both;animation-delay:calc(.06s + var(--i,0) * .06s)}
+.screen.enter .head .title{animation-name:m-title}
+.screen.enter .body>*{animation:m-rise .65s var(--ease-out) both;animation-delay:calc(.2s + var(--i,0) * .055s)}
+.screen.flow.enter>*{animation:m-rise .6s var(--ease-out) both;animation-delay:calc(.04s + var(--i,0) * .05s)}
+.screen.flow.enter>.draw-wrap,.screen.flow.enter>.dview{animation-name:m-fade}
+/* taps: quick press, springy release, and a soft light where the finger landed */
+.btn,.outcome,.card.best,.card.goal,.fab,.seg button,.pill,.chip,.namechips button,.goalchips button,.langgrid button{transition:transform .5s var(--ease-spring),filter .15s,background-color .2s,color .2s,box-shadow .25s}
+.btn:active,.fab:active,.seg button:active,.goalchips button:active,.langgrid button:active{transform:scale(.955);transition-duration:.09s}
+.card.goal:active{transform:scale(.97);transition-duration:.09s}
+.outcome:active{transform:scale(.94);transition-duration:.08s}
+.btn{position:relative;overflow:hidden;isolation:isolate}
+.btn.primary{box-shadow:0 10px 30px -8px rgba(var(--accent-rgb),.65)}
+.btn.primary:active{box-shadow:0 4px 14px -6px rgba(var(--accent-rgb),.8)}
+.rip{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;pointer-events:none;z-index:-1;background:radial-gradient(circle,rgba(255,255,255,.45),rgba(255,255,255,0) 70%);animation:m-rip .6s var(--ease-out) forwards}
+@keyframes m-rip{from{transform:scale(1);opacity:1}to{transform:scale(var(--s,30));opacity:0}}
+/* sheets slide up on open and settle back down on close */
+@keyframes m-sheet{from{opacity:0;transform:translateY(60px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes m-sheet-out{to{opacity:0;transform:translateY(46px) scale(.97)}}
+@keyframes m-bg-out{to{opacity:0}}
+.modal-bg:not(.hidden){animation:m-fade .28s ease-out}
+.modal-bg:not(.hidden)>.modal{animation:m-sheet .55s var(--ease-out)}
+.modal-bg.ghost{pointer-events:none;animation:m-bg-out .26s ease-in forwards;z-index:49}
+.modal-bg.ghost>.modal{animation:m-sheet-out .26s ease-in forwards}
+/* tab bar: the chosen icon pops */
+@keyframes m-pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:none}}
+nav.tabs button.on svg{animation:m-pop .45s var(--ease-spring)}
+#goalArc{transition:stroke-dasharray 1s var(--ease-out) .25s}
+/* hero art idles: the disc floats, its glint and the flight line breathe, the lights hum */
+.hero.pano::after{display:none}
+.hx-float{animation:hx-float 5.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes hx-float{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(4px,-7px) rotate(-1.5deg)}}
+.hx-glint{animation:hx-glint 3.4s ease-in-out infinite}
+@keyframes hx-glint{0%,100%{opacity:.85}50%{opacity:.35}}
+.hx-trail{animation:hx-trail 5.5s ease-in-out infinite}
+@keyframes hx-trail{0%,100%{opacity:1}50%{opacity:.55}}
+.hx-beam{animation:hx-beam 7s ease-in-out infinite}
+@keyframes hx-beam{0%,100%{opacity:1}45%{opacity:.7}55%{opacity:.95}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -543,7 +590,7 @@ nav.tabs button{position:relative;z-index:1}
 
 <!-- ================= RESULT ================= -->
 <section id="view-result" class="screen hidden">
-  <div class="hero"><div class="art" data-art="thrower"></div><button class="fab" id="resultX" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="hero"><div class="art" data-art="catch"></div><button class="fab" id="resultX" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="head">
     <div class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h1 class="title" style="font-size:42px" id="resultTitle">Session complete</h1>
@@ -829,7 +876,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.36.0';
+const APP_VERSION = '2.37.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -915,47 +962,203 @@ async function api(path, opts) {
   return d;
 }
 
-/* ---------- hero artwork (inline SVG, no image files needed) ---------- */
-function heroArt(kind) {
-  const A = css('--accent'), H = css('--accent-hi');
-  const sky = `<defs>
-    <radialGradient id="g1" cx="50%" cy="18%" r="75%"><stop offset="0" stop-color="${H}" stop-opacity=".95"/><stop offset=".35" stop-color="${A}" stop-opacity=".75"/><stop offset=".75" stop-color="#05062a" stop-opacity=".6"/><stop offset="1" stop-color="#000"/></radialGradient>
-    <linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${css('--accent-deep')}"/><stop offset="1" stop-color="#05061a"/></linearGradient>
-    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="${css('--accent-tint')}" stop-opacity=".9"/></linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
-    <filter id="soft"><feGaussianBlur stdDeviation="1.4"/></filter>
-  </defs>
-  <rect width="400" height="430" fill="#000"/><rect width="400" height="430" fill="url(#g1)"/>
-  <path d="M0 270 L60 215 L110 245 L170 185 L230 240 L290 200 L340 236 L400 205 L400 430 L0 430Z" fill="url(#mt)" opacity=".9"/>
-  <path d="M0 300 L80 262 L150 290 L230 255 L320 285 L400 260 L400 430 L0 430Z" fill="#03040f"/>`;
-  // Thrower silhouette: limbs as tapered strokes, rim-lit in blue from the upper left.
-  const limbs = [
-    ['M196 292 L166 344 L142 398', 26, 18], ['M208 292 L240 340 L264 398', 26, 18],
-    ['M206 210 L176 240 L160 270', 15, 12], ['M222 208 L266 230 L308 220', 15, 12]
-  ];
-  const body = (dx, dy, color, extra = '') => `<g transform="translate(${dx} ${dy})" ${extra} stroke="${color}" fill="${color}" stroke-linecap="round" stroke-linejoin="round">
-    ${limbs.map(([d, w1]) => `<path d="${d}" fill="none" stroke-width="${w1}"/>`).join('')}
-    <path d="M188 296 C182 260 196 222 214 200 L232 206 C236 236 226 268 214 298 Z"/>
-    <circle cx="232" cy="184" r="13"/><path d="M226 196 L222 206" stroke-width="9"/>
-    <ellipse cx="148" cy="400" rx="16" ry="5"/><ellipse cx="270" cy="400" rx="16" ry="5"/></g>`;
-  const thrower = `${body(-3, -3, H, 'filter="url(#soft)" opacity=".95"')}${body(0, 0, '#05060b')}
-    <path d="M80 150 C170 110 250 150 326 214" fill="none" stroke="url(#trail)" stroke-width="3" opacity=".8"/>
-    <ellipse cx="332" cy="214" rx="24" ry="6.5" fill="${H}" filter="url(#glow)" opacity=".9"/>
-    <ellipse cx="332" cy="214" rx="22" ry="5.5" fill="#e9ebff" transform="rotate(-8 332 214)"/>`;
-  const disc = `<g transform="rotate(-14 210 200)">
-    <ellipse cx="210" cy="205" rx="150" ry="40" fill="${A}" filter="url(#glow)" opacity=".7"/>
-    <ellipse cx="210" cy="200" rx="140" ry="36" fill="#0b0c18"/>
-    <ellipse cx="210" cy="196" rx="140" ry="34" fill="none" stroke="${H}" stroke-width="3"/>
-    <ellipse cx="210" cy="194" rx="100" ry="22" fill="none" stroke="${css('--accent-deep')}" stroke-width="1.5"/>
-    <ellipse cx="170" cy="186" rx="60" ry="8" fill="#fff" opacity=".08"/></g>
-    ${[0, 1, 2, 3].map(i => `<path d="M${-20 + i * 6} ${150 + i * 22} C 30 ${150 + i * 20} 60 ${170 + i * 14} ${80 + i * 4} ${185 + i * 10}" stroke="${css('--accent-tint')}" stroke-opacity="${.5 - i * .1}" stroke-width="${2 - i * .3}" fill="none"/>`).join('')}`;
-  const field = `<g stroke="${H}" stroke-opacity=".35" stroke-width="1.5" fill="none">
-    <path d="M-40 430 L150 260 L250 260 L440 430"/><path d="M70 330 L330 330"/><path d="M200 260 L200 430" stroke-dasharray="6 8"/></g>
-    ${[[120, 300, .8], [270, 292, .7], [205, 270, .55]].map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})" fill="#05060b" stroke="${H}" stroke-opacity=".7" stroke-width="2">
-      <circle cx="0" cy="-118" r="12"/><path d="M-12 -100 L12 -100 L10 -50 L-10 -50Z"/><path d="M-6 -50 L-14 0 M6 -50 L14 0 M-12 -98 L-28 -130 M12 -98 L26 -128" stroke-width="9" stroke-linecap="round" stroke="#05060b"/></g>`).join('')}
-    <path d="M60 140 C150 90 250 110 290 180" fill="none" stroke="url(#trail)" stroke-width="2.5"/>
-    <ellipse cx="294" cy="186" rx="15" ry="4.5" fill="#e9ebff" transform="rotate(10 294 186)"/>`;
-  return `<svg viewBox="0 0 400 430" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${sky}${kind === 'disc' ? disc : kind === 'field' ? field : thrower}</svg>`;
+/* ---------- hero artwork: one continuous scene across Home, Stats and Team ----------
+   The three main pages are three windows onto one wide mountain scene (400 units each).
+   A single number, the scene position p (0 = Home, 1 = Stats, 2 = Team), drives it:
+   the thrower winds up and releases, the disc flies to the middle page and grows, then
+   flies on to the catcher, who jumps for it while two teammates run in. Swiping moves p,
+   so swiping back rewinds everything. Athletes are drawn from jointed poses, so every
+   in-between position exists. All colours come from the theme variables. */
+const PANO_PAGE = { thrower: 0, disc: 1, field: 2, catch: 2 };
+const clamp01 = (t) => Math.max(0, Math.min(1, t));
+const smooth = (t) => { t = clamp01(t); return t * t * (3 - 2 * t); };
+const mix = (a, b, t) => a + (b - a) * t;
+// The ground climbs from Home up to Team.
+const groundY = (x) => 258 - 52 * smooth((x - 330) / 430);
+
+/* --- athletes: bones + width profiles, posed by angles (0 = right, 90 = down) --- */
+const WID = {
+  thigh: [[0, 27], [.35, 24], [.8, 16], [1, 14]], shin: [[0, 14], [.25, 17], [.45, 15], [.85, 9], [1, 8.5]],
+  foot: [[0, 12], [.45, 11], [1, 7]], torso: [[0, 30], [.3, 27], [.72, 36], [1, 31]], shorts: [[0, 33], [1, 26]],
+  neck: [[0, 15], [1, 12]], uarm: [[0, 15], [.4, 13.5], [1, 9.5]], farm: [[0, 10], [.25, 11.5], [1, 6.5]], hand: [[0, 8], [.5, 10], [1, 6]]
+};
+const wAt = (ws, t) => { for (let i = 1; i < ws.length; i++) if (t <= ws[i][0]) { const u = (t - ws[i - 1][0]) / (ws[i][0] - ws[i - 1][0] || 1); return mix(ws[i - 1][1], ws[i][1], (1 - Math.cos(Math.PI * u)) / 2); } return ws[ws.length - 1][1]; };
+const stepTo = (p, a, l) => [p[0] + Math.cos(a * Math.PI / 180) * l, p[1] + Math.sin(a * Math.PI / 180) * l];
+// Every outline is wound the same way, so overlapping parts fuse into one silhouette.
+function ring(pts) {
+  let a = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; }
+  if (a < 0) pts.reverse();
+  return 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L') + 'Z';
+}
+const blobD = (c, rx, ry, rot = 0) => { const r = rot * Math.PI / 180, pts = []; for (let i = 0; i < 12; i++) { const a = i / 12 * 2 * Math.PI, x = Math.cos(a) * rx, y = Math.sin(a) * ry; pts.push([c[0] + x * Math.cos(r) - y * Math.sin(r), c[1] + x * Math.sin(r) + y * Math.cos(r)]); } return ring(pts); };
+function limbD(a, b, ws, bulge = 0) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, N = 8, l = [], r = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, w = wAt(ws, t) / 2, s = bulge * Math.sin(Math.PI * Math.pow(t, .7)), cx = a[0] + dx * t, cy = a[1] + dy * t;
+    l.push([cx + nx * w * (1 + s), cy + ny * w * (1 + s)]); r.push([cx - nx * w * (1 - s), cy - ny * w * (1 - s)]);
+  }
+  return ring(l.concat(r.reverse())) + blobD(a, ws[0][1] / 2, ws[0][1] / 2) + blobD(b, ws[ws.length - 1][1] / 2, ws[ws.length - 1][1] / 2);
+}
+// A pose: t torso, h head tilt, ll/rl legs [thigh, shin, foot], la/ra arms [upper, fore], lift off the ground, dx hip shift.
+function figure(P) {
+  const hip = [P.dx || 0, 0], sh = stepTo(hip, P.t, 86), ha = P.t + (P.h || 0), nk = stepTo(sh, ha, 14), hd = stepTo(sh, ha, 31);
+  let d = '', low = -1e9; const J = { hd };
+  [['ll', -5], ['rl', 6]].forEach(([k, o]) => {
+    const A = P[k], h0 = [hip[0] + o, 1], kn = stepTo(h0, A[0], 61), an = stepTo(kn, A[1], 63), toe = stepTo(an, A[2], 23), heel = stepTo(an, A[2] + 180, 7);
+    d += limbD(h0, kn, WID.thigh, -.12) + limbD(h0, [mix(h0[0], kn[0], .5), mix(h0[1], kn[1], .5)], WID.shorts) + limbD(kn, an, WID.shin, .3) + limbD(heel, toe, WID.foot);
+    low = Math.max(low, toe[1] + 4, heel[1] + 6);
+  });
+  d += limbD(hip, sh, WID.torso) + blobD([hip[0], hip[1] + 2], 17, 15) + limbD(sh, nk, WID.neck) + blobD(hd, 12, 14.5, ha + 90);
+  [['la', -5], ['ra', 5]].forEach(([k, o]) => {
+    const A = P[k], s0 = [sh[0] + o, sh[1] + 3], el = stepTo(s0, A[0], 44), wr = stepTo(el, A[1], 41), hn = stepTo(wr, A[1], 15);
+    d += blobD(s0, 9.5, 9) + limbD(s0, el, WID.uarm, .12) + limbD(el, wr, WID.farm, .1) + limbD(wr, hn, WID.hand);
+    J[k] = hn; J[k + 'a'] = A[1];
+  });
+  return { d, J, low: low + (P.lift || 0) };
+}
+const poseMix = (A, B, t) => { const o = {}; for (const k in A) o[k] = Array.isArray(A[k]) ? A[k].map((v, i) => mix(v, B[k][i], t)) : mix(A[k], B[k] == null ? A[k] : B[k], t); return o; };
+// keys: [[at, pose], ...] sorted; eased between neighbours.
+function poseAt(keys, p) {
+  if (p <= keys[0][0]) return keys[0][1];
+  for (let i = 1; i < keys.length; i++) if (p <= keys[i][0]) return poseMix(keys[i - 1][1], keys[i][1], smooth((p - keys[i - 1][0]) / (keys[i][0] - keys[i - 1][0])));
+  return keys[keys.length - 1][1];
+}
+const THROW = [
+  [0, { t: -78, h: 4, dx: -3, lift: 0, ll: [132, 138, 118], rl: [44, 90, 6], la: [130, 100], ra: [56, 24] }],
+  [.14, { t: -75, h: 0, dx: 0, lift: 0, ll: [136, 141, 120], rl: [34, 84, 5], la: [147, 141], ra: [0, -3] }],
+  [.4, { t: -71, h: -4, dx: 4, lift: 0, ll: [138, 150, 124], rl: [32, 86, 5], la: [158, 150], ra: [-16, -28] }]
+];
+const RELEASE = .14, CATCH = 1.88;
+const JUMP = [
+  [1.3, { t: -64, h: -12, dx: 0, lift: 0, ll: [72, 128, 10], rl: [38, 112, 5], la: [122, 72], ra: [106, 60] }],
+  [1.58, { t: -80, h: -16, dx: 0, lift: 3, ll: [96, 100, 72], rl: [84, 96, 60], la: [-18, -58], ra: [-40, -70] }],
+  [CATCH, { t: -88, h: -20, dx: 0, lift: 40, ll: [102, 116, 72], rl: [70, 120, 62], la: [-70, -80], ra: [-84, -90] }],
+  [2, { t: -89, h: -20, dx: 0, lift: 44, ll: [104, 120, 74], rl: [68, 124, 64], la: [-70, -80], ra: [-84, -90] }]
+];
+const RUN_A = { t: -70, h: 4, dx: 0, lift: 5, rl: [18, 105, 20], ll: [128, 178, 100], ra: [125, 40], la: [55, -35] };
+const RUN_B = { t: -70, h: 4, dx: 0, lift: 5, rl: RUN_A.ll, ll: RUN_A.rl, ra: RUN_A.la, la: RUN_A.ra };
+// Where an athlete stands in the scene: x, scale, facing (1 right, -1 left).
+function place(fig, x, s, face) {
+  const y0 = groundY(x) - fig.low * s;
+  return { tf: `translate(${x.toFixed(1)} ${y0.toFixed(1)}) scale(${(face * s).toFixed(3)} ${s})`, at: (q) => [x + face * s * q[0], y0 + s * q[1]] };
+}
+// Everything that moves, for a scene position p.
+function sceneAt(p) {
+  const S = {};
+  const thr = figure(poseAt(THROW, p)), thrP = place(thr, 186, .74, 1);
+  S.thr = { d: thr.d, tf: thrP.tf, gx: 186, low: thr.low };
+  const holdAt = (pp) => { const f = figure(poseAt(THROW, pp)), q = place(f, 186, .74, 1); return q.at(stepTo(f.J.ra, f.J.raa, 9)); };
+  const cat = figure(poseAt(JUMP, p)), catP = place(cat, 1006, .5, -1);
+  S.cat = { d: cat.d, tf: catP.tf, gx: 1006, low: cat.low };
+  const hands = (pp) => { const f = figure(poseAt(JUMP, pp)), q = place(f, 1006, .5, -1), a = q.at(f.J.la), b = q.at(f.J.ra); return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - 3]; };
+  // Teammates run in. Their stride is tied to the ground they cover: one full cycle (two steps) per 2 x 105 body units.
+  const cyc = (ph) => (1 - Math.cos(Math.PI * 2 * ph)) / 2, e = smooth(p - 1), inR = smooth((p - 1.02) / .25);
+  const runner = (x0, x1, sc, face, off) => { const x = mix(x0, x1, e), f = figure(poseMix(RUN_A, RUN_B, cyc(Math.abs(x - x0) / (210 * sc) + off))); return { d: f.d, tf: place(f, x, sc, face).tf, gx: x, low: f.low }; };
+  S.r1 = Object.assign(runner(808, 902, .43, 1, 0), { op: inR }); S.r2 = runner(1240, 1108, .4, -1, .25);
+  // The disc: in the thrower's hand, in flight to the middle (growing), in flight to the catch (shrinking), in the catcher's hands.
+  const MID = [615, 100], path = (pp) => {
+    if (pp <= RELEASE) return holdAt(pp);
+    if (pp <= 1) { const a = holdAt(RELEASE), t = smooth((pp - RELEASE) / (1 - RELEASE)); return [mix(a[0], MID[0], t), mix(a[1], MID[1], t) - 26 * Math.sin(Math.PI * t)]; }
+    if (pp < CATCH) { const b = hands(CATCH), t = smooth((pp - 1) / (CATCH - 1)); return [mix(MID[0], b[0], t), mix(MID[1], b[1], t) - 18 * Math.sin(Math.PI * t)]; }
+    return hands(pp);
+  };
+  const c = path(p), big = p <= 1 ? smooth((p - RELEASE) / (1 - RELEASE)) : 1 - smooth((p - 1) / (CATCH - 1));
+  const rx = p <= 1 ? mix(18, 78, big) : mix(19, 78, big);
+  S.disc = { x: c[0], y: c[1], rx, ry: rx * mix(.27, .245, big), rot: p <= 1 ? mix(-14, -8, big) : mix(5, -8, big) };
+  // Flight line: where the disc has just been.
+  const tr = []; if (p > RELEASE && p < CATCH + .04) for (let i = 0; i <= 10; i++) tr.push(path(Math.max(RELEASE, Math.min(CATCH, p) - .3 * (1 - i / 10))));
+  S.trail = tr; S.rest = Math.abs(p - 1) < .001; S.p = p;
+  return S;
+}
+
+/* --- the still background: sky glow, two mountain ranges with a summit, the climbing ground --- */
+let panoBgCache = { key: '', html: '' };
+function panoBg(A, H, D, T) {
+  const key = A + H + D + T; if (panoBgCache.key === key) return panoBgCache.html;
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const range = (x0, x1, stepMin, stepVar, hFn, base) => { const pts = []; let x = x0, up = false; while (x < x1) { const h = hFn(x) * (up ? mix(.78, 1, rnd()) : mix(.3, .5, rnd())); pts.push([x, base(x) - h, up]); x += stepMin + rnd() * stepVar; up = !up; } return pts; };
+  const gauss = (x, c, w) => Math.exp(-Math.pow((x - c) / w, 2));
+  const xfar = range(-80, 1290, 70, 60, (x) => Math.min(groundY(x) - 38, 118 + 62 * gauss(x, 800, 240) + 44 * gauss(x, 300, 180) + 30 * gauss(x, 1150, 120)), (x) => groundY(x) - 10);
+  const far = range(-60, 1270, 44, 34, (x) => 72 + 96 * gauss(x, 973, 210) + 34 * gauss(x, 470, 170) + 22 * gauss(x, 110, 120), (x) => groundY(x) - 6);
+  const near = range(-40, 1270, 36, 30, (x) => 30 + 30 * gauss(x, 760, 200) + 16 * gauss(x, 250, 140), (x) => groundY(x) + 2);
+  const poly = (pts) => `M${pts[0][0]} 430 ` + pts.map(q => `L${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join(' ') + ` L${pts[pts.length - 1][0]} 430Z`;
+  // Each peak gets a lit side (light from the upper left) and a shadow side, so the ranges read as solid forms; tall peaks carry snow.
+  const tri = (a, b, c, fill, op) => `<path d="M${a[0].toFixed(1)} ${a[1].toFixed(1)} L${b[0].toFixed(1)} ${b[1].toFixed(1)} L${c[0].toFixed(1)} ${c[1].toFixed(1)}Z" fill="${fill}" opacity="${op}"/>`;
+  const faces = (pts, lit, op, sh) => pts.map((q, i) => { if (!q[2] || i === 0 || i === pts.length - 1) return ''; const a = pts[i - 1], b = pts[i + 1], foot = [q[0] + (b[0] - q[0]) * .3, Math.max(a[1], b[1]) + 30]; return tri(q, a, foot, lit, op) + tri(q, b, foot, '#000', sh); }).join('');
+  const snow = (pts, minH, op) => pts.map((q, i) => { if (!q[2] || i === 0 || i === pts.length - 1 || groundY(q[0]) - q[1] < minH) return ''; const a = pts[i - 1], b = pts[i + 1], k = .24; return `<path d="M${q[0].toFixed(1)} ${q[1].toFixed(1)} L${mix(q[0], a[0], k).toFixed(1)} ${mix(q[1], a[1], k).toFixed(1)} L${(q[0] - 2).toFixed(1)} ${(mix(q[1], a[1], k) - 4).toFixed(1)} L${(q[0] + 3).toFixed(1)} ${(mix(q[1], b[1], k) + 3).toFixed(1)} L${mix(q[0], b[0], k * .7).toFixed(1)} ${mix(q[1], b[1], k * .7).toFixed(1)}Z" fill="${T}" opacity="${op}"/>`; }).join('');
+  const stars = [...Array(56)].map(() => `<circle cx="${(rnd() * 1200).toFixed(0)}" cy="${(rnd() * 110).toFixed(0)}" r="${(.4 + rnd() * .7).toFixed(1)}" fill="#fff" opacity="${(.25 + rnd() * .5).toFixed(2)}"/>`).join('');
+  let g = 'M-10 430'; for (let x = -10; x <= 1210; x += 20) g += ` L${x} ${groundY(x).toFixed(1)}`; g += ' L1210 430Z';
+  const haze = '<rect x="-10" y="110" width="1220" height="170" fill="url(#haze)"/>';
+  // Layers marked "pl" drift with the swipe by their data-k (far things move less), which gives the scene its depth.
+  const html = `<rect x="-10" width="1220" height="430" fill="#000"/><rect x="-10" width="1220" height="430" fill="url(#sky)"/><rect x="-10" width="1220" height="430" fill="url(#halo)"/>
+    <g class="pl" data-k=".36">${stars}</g>
+    <g class="pl" data-k=".28"><path d="${poly(xfar)}" fill="url(#mxfar)"/>${faces(xfar, T, .1, .08)}${snow(xfar, 120, .5)}</g>${haze}
+    <g class="pl" data-k=".14"><path d="${poly(far)}" fill="url(#mfar)"/>${faces(far, H, .17, .22)}${snow(far, 96, .85)}</g>${haze}
+    <g class="pl" data-k=".05"><path d="${poly(near)}" fill="url(#mnear)"/>${faces(near, H, .08, .3)}</g>
+    <path d="${g}" fill="url(#turf)"/><path d="${g.replace(/^M-10 430 L/, 'M').replace(/ L1210 430Z$/, '')}" fill="none" stroke="${H}" stroke-opacity=".28" stroke-width="1.2"/>`;
+  panoBgCache = { key, html }; return html;
+}
+function discHtml(D, sfx) {
+  const { x, y, rx, ry, rot } = D, f = (n) => n.toFixed(1);
+  return `<g transform="rotate(${f(rot)} ${f(x)} ${f(y)})">
+    <ellipse cx="${f(x)}" cy="${f(y + ry * .2)}" rx="${f(rx * 1.45)}" ry="${f(ry * 2.6)}" fill="url(#dglow-${sfx})"/>
+    <ellipse cx="${f(x)}" cy="${f(y + ry * .28)}" rx="${f(rx)}" ry="${f(ry)}" fill="${css('--accent-deep')}"/>
+    <ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}" fill="url(#discg-${sfx})"/>
+    <ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rx * .97)}" ry="${f(ry * .9)}" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="${f(Math.max(.8, rx / 30))}"/>
+    <ellipse cx="${f(x)}" cy="${f(y - ry * .04)}" rx="${f(rx * .72)}" ry="${f(ry * .62)}" fill="none" stroke="${css('--accent-hi')}" stroke-opacity=".55" stroke-width="${f(Math.max(.6, rx / 60))}"/>
+    <ellipse cx="${f(x)}" cy="${f(y - ry * .06)}" rx="${f(rx * .52)}" ry="${f(ry * .44)}" fill="none" stroke="${css('--accent-hi')}" stroke-opacity=".35" stroke-width="${f(Math.max(.5, rx / 80))}"/>
+    ${rx > 40 ? `<ellipse cx="${f(x - rx * .35)}" cy="${f(y - ry * .35)}" rx="${f(rx * .32)}" ry="${f(ry * .16)}" fill="#fff" opacity="${f(.85 * smooth((rx - 40) / 30))}"/>` : ''}</g>`;
+}
+const PANO_FIGS = ['thr', 'r1', 'r2', 'cat'];
+function panoSvg(page, sfx) {
+  const A = css('--accent'), H = css('--accent-hi'), D = css('--accent-deep'), T = css('--accent-tint'), u = 'gradientUnits="userSpaceOnUse"';
+  const defs = `<defs>
+    <linearGradient id="sky" ${u} x1="0" y1="0" x2="0" y2="270"><stop offset="0" stop-color="${A}" stop-opacity=".5"/><stop offset=".7" stop-color="${H}" stop-opacity=".6"/><stop offset="1" stop-color="${T}" stop-opacity=".5"/></linearGradient>
+    <radialGradient id="halo" ${u} cx="600" cy="-60" r="760" gradientTransform="translate(0 -30) scale(1 .5)"><stop offset="0" stop-color="${H}" stop-opacity=".85"/><stop offset=".5" stop-color="${A}" stop-opacity=".3"/><stop offset="1" stop-color="${A}" stop-opacity="0"/></radialGradient>
+    <linearGradient id="mfar" ${u} x1="0" y1="60" x2="0" y2="270"><stop offset="0" stop-color="${D}"/><stop offset=".55" stop-color="#080a2c"/><stop offset="1" stop-color="#04051a"/></linearGradient>
+    <linearGradient id="mnear" ${u} x1="0" y1="150" x2="0" y2="280"><stop offset="0" stop-color="#090b26"/><stop offset="1" stop-color="#020208"/></linearGradient>
+    <linearGradient id="mxfar" ${u} x1="0" y1="20" x2="0" y2="250"><stop offset="0" stop-color="${H}" stop-opacity=".62"/><stop offset="1" stop-color="${A}" stop-opacity=".1"/></linearGradient>
+    <linearGradient id="haze" ${u} x1="0" y1="110" x2="0" y2="270"><stop offset="0" stop-color="${A}" stop-opacity="0"/><stop offset="1" stop-color="${A}" stop-opacity=".3"/></linearGradient>
+    <linearGradient id="turf" ${u} x1="0" y1="200" x2="0" y2="330"><stop offset="0" stop-color="#06071a"/><stop offset="1" stop-color="#000"/></linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${mixHex(mixHex(A, [0, 0, 0], .62), [255, 255, 255], .08)}"/><stop offset=".42" stop-color="#0a0b14"/><stop offset="1" stop-color="#000"/></linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".55" stop-color="#000" stop-opacity=".62"/><stop offset="1" stop-color="#000"/></linearGradient>
+    <radialGradient id="aura"><stop offset="0" stop-color="${A}" stop-opacity=".6"/><stop offset="1" stop-color="${A}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="dglow"><stop offset="0" stop-color="${A}" stop-opacity=".95"/><stop offset=".45" stop-color="${A}" stop-opacity=".5"/><stop offset="1" stop-color="${A}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="discg" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="${T}"/><stop offset="1" stop-color="${H}"/></radialGradient>
+  </defs>`.replace(/id="(\w+)"/g, `id="$1-${sfx}"`);
+  const fig = (k) => `<g class="pf pf-${k}"><ellipse class="pa" rx="150" ry="170" cy="-130" fill="url(#aura-${sfx})"/><ellipse class="ps" rx="62" ry="6" fill="#000" opacity=".7"/>
+    <g fill="${T}"><path id="f${k}-${sfx}" class="pd"/></g><use href="#f${k}-${sfx}" fill="url(#skin-${sfx})" transform="translate(3.4 2.8)"/></g>`;
+  return `<svg viewBox="${page * 400} 0 400 430" preserveAspectRatio="xMidYMin slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}
+    ${panoBg(A, H, D, T).replace(/url\(#(\w+)\)/g, `url(#$1-${sfx})`)}
+    ${PANO_FIGS.map(fig).join('')}
+    <polyline class="pt" fill="none" stroke="${T}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/><polyline class="pt" fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity=".7" transform="translate(0 5)"/>
+    <g class="pdisc"></g>
+    <rect x="${page * 400 - 10}" y="92" width="420" height="160" fill="url(#fade-${sfx})"/><rect x="${page * 400 - 10}" y="251" width="420" height="200" fill="#000"/></svg>`;
+}
+// Put a painted hero at scene position p. Only touches what changed.
+function panoApply(el, S) {
+  const svg = el.firstElementChild; if (!svg || svg.tagName !== 'svg') return;
+  const page = +el.dataset.page, x0 = page * 400 - 90, x1 = page * 400 + 490, sfx = el.dataset.sfx;
+  PANO_FIGS.forEach(k => {
+    const g = svg.querySelector('.pf-' + k), F = S[k], on = F.gx > x0 && F.gx < x1 && (F.op == null || F.op > 0);
+    g.style.display = on ? '' : 'none'; if (!on) return;
+    g.setAttribute('transform', F.tf); g.style.opacity = F.op == null ? '' : F.op;
+    const pd = g.querySelector('.pd'); if (pd._d !== F.d) { pd._d = F.d; pd.setAttribute('d', F.d); }
+    g.querySelector('.ps').setAttribute('cy', F.low.toFixed(1)); g.querySelector('.pa').setAttribute('cy', (F.low - 130).toFixed(1));
+  });
+  svg.querySelectorAll('.pl').forEach(n => n.setAttribute('transform', `translate(${(+n.dataset.k * S.p * 400).toFixed(1)} 0)`));
+  const tr = S.trail.map(q => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ');
+  svg.querySelectorAll('.pt').forEach(n => n.setAttribute('points', tr));
+  const dg = svg.querySelector('.pdisc'), vis = S.disc.x + S.disc.rx * 1.5 > page * 400 && S.disc.x - S.disc.rx * 1.5 < page * 400 + 400;
+  dg.innerHTML = vis ? discHtml(S.disc, sfx) : ''; dg.classList.toggle('hx-float', S.rest);
+}
+let sceneP = 0, sceneLast = null;
+function setScene(p) {
+  sceneP = Math.max(0, Math.min(2, p));
+  const live = [...document.querySelectorAll('.art[data-live="1"]')].filter(el => !el.closest('section').classList.contains('hidden'));
+  if (!live.length) return;
+  const S = sceneLast && sceneLast.p === sceneP ? sceneLast.S : sceneAt(sceneP); sceneLast = { p: sceneP, S };
+  live.forEach(el => panoApply(el, S));
 }
 /* ---------- app colour: brand blue, a colour the athlete picks, or their team's colour ---------- */
 const PALETTE = ['#1f2bff', '#0a84ff', '#00a6a6', '#12b76a', '#f5b700', '#ff6a13', '#e5212b', '#ff2d87', '#7a2cff'];
@@ -980,9 +1183,14 @@ function applyTheme() {
 }
 function paintHeroes() {
   document.querySelectorAll('.art[data-art]').forEach((el, i) => {
-    const k = el.dataset.art, photo = BRAND.heroPhotos[k];
-    el.innerHTML = photo ? `<img src="${esc(photo)}" alt="">` : heroArt(k).replace(/\b(g1|mt|trail|glow|soft)\b(?=[")])/g, `$1-${i}`);
+    const k = el.dataset.art, photo = BRAND.heroPhotos[k], page = PANO_PAGE[k] || 0;
+    if (photo) { el.innerHTML = `<img src="${esc(photo)}" alt="">`; return; }
+    // Home, Stats and Team follow the swipe; Live and Session complete show their page of the scene at rest.
+    el.dataset.page = page; el.dataset.sfx = i; el.dataset.live = /^view-(setup|stats|team)$/.test(el.closest('section').id) ? 1 : 0;
+    el.innerHTML = panoSvg(page, i); el.parentElement.classList.add('pano');
+    if (el.dataset.live !== '1') panoApply(el, sceneAt(page));
   });
+  sceneLast = null; setScene(sceneP);
 }
 
 /* ---------- storage with versioned data ----------
@@ -2906,8 +3114,9 @@ function renderTeamName(edit) {
   const tt = $('teamTitle'); tt.textContent = has && nm ? nm : tr('Team'); tt.style.fontSize = '';
   // long names shrink to stay on one line
   const L = tt.textContent.length; if (L > 8) tt.style.fontSize = `${parseFloat(getComputedStyle(tt).fontSize) * Math.max(.42, 8.5 / L)}px`;
-  const show = has && (edit || !nm);
-  $('teamNameCard').classList.toggle('hidden', !show); $('renameTeam').classList.toggle('hidden', !nm);
+  // Only captains edit the name and colour (any member may name a team that has no captain yet).
+  const may = isOwner() || !(teamData && teamData.has_captain), show = has && may && (edit || !nm);
+  $('teamNameCard').classList.toggle('hidden', !show); $('renameTeam').classList.toggle('hidden', !nm || !may);
   if (show) {
     $('teamNameInput').value = nm; pickedTeamColor = (activeTeam() || {}).color || '';
     paintTeamSwatches(); if (edit) $('teamNameInput').focus();
@@ -2922,8 +3131,11 @@ $('renameTeam').onclick = () => { renderTeamName(true); $('teamNameCard').scroll
 $('saveTeamName').onclick = async () => {
   const nm = $('teamNameInput').value.trim().slice(0, 30);
   if (!nm) { $('teamNameInput').focus(); return; }
-  setTeamMeta(state.profile.team, { name: nm, color: pickedTeamColor }); renderTeamName(); renderTeamTabs(); toast(tr('Team saved'));
-  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'name', code: state.profile.team, team_name: nm, team_color: pickedTeamColor, name: state.profile.name }) }); } catch {}
+  const t = activeTeam(), before = { name: (t && t.name) || '', color: (t && t.color) || '' };
+  if (isOwner()) capKey();
+  setTeamMeta(state.profile.team, { name: nm, color: pickedTeamColor }); renderTeamName(); renderTeamTabs(); applyTheme(); toast(tr('Team saved'));
+  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'name', code: state.profile.team, team_name: nm, team_color: pickedTeamColor, ...(await whoBody()) }) }); }
+  catch (e) { if (e.status === 403) { setTeamMeta(state.profile.team, before); renderTeamName(); renderTeamTabs(); applyTheme(); toast(tr('Only captains can do that')); loadTeam(); } }
 };
 $('teamNameInput').onkeydown = (e) => { if (e.key === 'Enter') $('saveTeamName').click(); };
 function joinTeam(code, teamName = '') {
@@ -3380,7 +3592,7 @@ function showGptRewarded() {
    ============================================================================= */
 let currentView = 'setup';
 function showView(v) {
-  currentView = v;
+  const prevView = currentView; currentView = v;
   ['setup', 'target', 'distance', 'practice', 'result', 'stats', 'team'].forEach(k => $('view-' + k).classList.toggle('hidden', k !== v));
   document.body.classList.toggle('flow-mode', v === 'target' || v === 'distance');
   const tab = ['practice', 'result', 'target', 'distance'].includes(v) ? 'setup' : v;
@@ -3389,6 +3601,9 @@ function showView(v) {
   if (v === 'stats') renderStats();
   if (v === 'team') renderTeamView();
   window.scrollTo(0, 0);
+  if (v === 'setup' || v === 'stats' || v === 'team') { sceneLast = null; setScene(['setup', 'stats', 'team'].indexOf(v)); }
+  let slid = false; try { slid = sliding; } catch (_) {}
+  if (v !== prevView || !showView.done) { showView.done = true; motionEnter(v, slid); }
 }
 document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => {
   if (tabDrag.suppress) return; const v = session && b.dataset.view === 'setup' ? 'practice' : b.dataset.view, i = MAIN.indexOf(currentView), j = MAIN.indexOf(v);
@@ -3423,7 +3638,8 @@ const tabDrag = { id: null, cur: null, moved: false, x0: 0, suppress: false };
     if (!cancel && tabDrag.cur) {
       const v = tabDrag.cur.dataset.view;
       tabDrag.suppress = true; setTimeout(() => { tabDrag.suppress = false; }, 350);
-      showView(session && v === 'setup' ? 'practice' : v);
+      const t = session && v === 'setup' ? 'practice' : v, i = MAIN.indexOf(currentView), j = MAIN.indexOf(t);
+      if (i >= 0 && j >= 0 && i !== j) slideTo(t, j > i ? 1 : -1); else showView(t);
     }
   };
   nav.addEventListener('pointerup', (e) => end(e, false));
@@ -3450,18 +3666,49 @@ window.addEventListener('online', () => { loadConfig().then(retryPendingShares);
    then slides out while the next one slides in from the other side. Tab taps slide the same way. */
 const MAIN = ['setup', 'stats', 'team'];
 let sliding = false;
-function slideTo(v, dir, from = 0) {
-  const cur = $('view-' + currentView), W = innerWidth;
-  if (sliding || v === currentView) return; sliding = true;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { cur.style.transform = ''; showView(v); sliding = false; return; }
-  cur.style.transition = 'transform .18s ease-in, opacity .18s'; cur.style.transform = `translateX(${-dir * W}px)`; cur.style.opacity = '.4';
-  setTimeout(() => {
-    cur.style.transition = cur.style.transform = cur.style.opacity = '';
-    showView(v); const nx = $('view-' + v);
-    nx.style.transition = 'none'; nx.style.transform = `translateX(${dir * W * .35}px)`; nx.style.opacity = '.4'; void nx.offsetWidth;
-    nx.style.transition = 'transform .26s cubic-bezier(.2,.8,.2,1), opacity .26s'; nx.style.transform = ''; nx.style.opacity = '';
-    setTimeout(() => { nx.style.transition = ''; sliding = false; }, 280);
-  }, from ? 120 : 170);
+// Home, Stats and Team sit side by side like one strip: while you drag, the next page
+// rides in right next to the current one, and letting go finishes (or undoes) the move.
+// The incoming page is shown fixed at the top during the move, then handed to showView.
+const peek = { v: null, dir: 0 };
+const RENDER = { setup: () => renderSetup(), stats: () => renderStats(), team: () => renderTeamView() };
+function peekShow(v, dir) {
+  if (peek.v === v && peek.dir === dir) return; peekHide();
+  const el = $('view-' + v); peek.v = v; peek.dir = dir;
+  el.classList.remove('hidden');
+  Object.assign(el.style, { position: 'fixed', top: '0', left: '0', right: '0', zIndex: '5', background: 'var(--bg)', pointerEvents: 'none', transform: `translateX(${dir * innerWidth}px)` });
+  try { RENDER[v] && RENDER[v](); } catch (_) {}
+  // Scrolled down a little? Show the next page scrolled by the same amount, so the two heroes stay level.
+  peek.y = Math.round(Math.min(window.scrollY, Math.max(0, el.offsetHeight + 84 - innerHeight))); el.style.top = -peek.y + 'px';
+  sceneLast = null; setScene(sceneP);
+}
+function peekHide() { if (!peek.v) return; const el = $('view-' + peek.v); el.classList.add('hidden'); el.style.cssText = ''; peek.v = null; }
+let stripDx = 0, stripRaf = 0;
+function stripAt(dx) {
+  dx = Math.round(dx); stripDx = dx; const i = MAIN.indexOf(currentView);
+  $('view-' + currentView).style.transform = dx ? `translateX(${dx}px)` : '';
+  if (peek.v) $('view-' + peek.v).style.transform = `translateX(${dx + peek.dir * innerWidth}px)`;
+  if (i >= 0) setScene(i - dx / innerWidth);
+}
+// Finish (or undo) a move. Driven frame by frame so the scene animates with the pages.
+function stripGo(commit, ms = 340, ease = (t) => 1 - Math.pow(1 - t, 3), then) {
+  const from = stripDx, to = commit && peek.v ? -peek.dir * innerWidth : 0, t0 = performance.now();
+  sliding = true; cancelAnimationFrame(stripRaf);
+  const done = () => {
+    const cur = $('view-' + currentView); cur.style.transform = ''; stripDx = 0;
+    if (commit && peek.v) { const v = peek.v, nx = $('view-' + v), y = peek.y || 0; nx.style.cssText = ''; peek.v = null; showView(v); if (y) window.scrollTo(0, y); }
+    else { peekHide(); setScene(MAIN.indexOf(currentView)); }
+    sliding = false; if (then) then();
+  };
+  const tick = (t) => { const k = Math.min(1, (t - t0) / ms); stripAt(mix(from, to, ease(k))); if (k < 1) stripRaf = requestAnimationFrame(tick); else done(); };
+  stripRaf = requestAnimationFrame(tick);
+}
+function slideTo(v, dir) {
+  if (sliding || v === currentView) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { showView(v); return; }
+  const i = MAIN.indexOf(currentView), j = MAIN.indexOf(v), io = (t) => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  // Two pages away: pass through the middle page so the scene stays in one piece.
+  if (Math.abs(j - i) === 2) { peekShow(MAIN[1], dir); stripGo(true, 380, (t) => t * t, () => { peekShow(v, dir); stripGo(true, 420); }); return; }
+  peekShow(v, dir); stripGo(true, 620, io);
 }
 (() => {
   let x0 = null, y0 = 0, t0 = 0, dx = 0, lock = null;
@@ -3471,15 +3718,18 @@ function slideTo(v, dir, from = 0) {
     if (x0 == null) return; const ddx = e.touches[0].clientX - x0, ddy = e.touches[0].clientY - y0;
     if (!lock && Math.hypot(ddx, ddy) > 10) lock = Math.abs(ddx) > Math.abs(ddy) * 1.3 ? 'x' : 'y';
     if (lock !== 'x') return;
-    const i = MAIN.indexOf(currentView), edge = (ddx > 0 && i === 0) || (ddx < 0 && i === MAIN.length - 1);
-    dx = edge ? ddx * .25 : ddx; $('view-' + currentView).style.transform = `translateX(${dx}px)`;
+    const i = MAIN.indexOf(currentView), dir = ddx < 0 ? 1 : -1, j = i + dir;
+    if (j >= 0 && j < MAIN.length) { peekShow(MAIN[j], dir); dx = ddx; } else { peekHide(); dx = ddx * .25; }
+    stripAt(dx);
   }, { passive: true });
-  document.addEventListener('touchend', () => {
+  const end = () => {
     if (x0 == null) return; x0 = null; if (lock !== 'x') return;
-    const cur = $('view-' + currentView), i = MAIN.indexOf(currentView), dir = dx < 0 ? 1 : -1, j = i + dir, fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > .5;
-    if (j >= 0 && j < MAIN.length && (Math.abs(dx) > innerWidth * .22 || (fast && Math.abs(dx) > 30))) { hapticTick(); slideTo(MAIN[j], dir, 1); return; }
-    cur.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)'; cur.style.transform = ''; setTimeout(() => { cur.style.transition = ''; }, 240);
-  });
+    const fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > .5, go = !!peek.v && (Math.abs(dx) > innerWidth * .22 || (fast && Math.abs(dx) > 30));
+    if (go) hapticTick();
+    stripGo(go, go ? 300 : 240);
+  };
+  document.addEventListener('touchend', end);
+  document.addEventListener('touchcancel', end);
 })();
 /* Pull down at the top of Home, Stats or Team to refresh (also checks for a new app version). */
 (() => {
@@ -3651,7 +3901,68 @@ if (!session) nextIntro();
 if (goParam && !session) setTimeout(() => { if (session || document.querySelector('.modal-bg:not(.hidden)')) return; setup.shape && state.sessions.length ? $('quickStart').click() : tryStart(); }, 700);
 loadConfig().then(() => { if (recovered) { shareToTeam(recovered); if (state.strava) { current = recovered; autoPostStrava(); } } renderSetup(); handleOAuthReturn(); claimHandoff(); claimAccount(); syncAccount(); claimPendingInvite(); retryPendingShares(); resyncWind(); retryPendingDeletes(); handleProReturn(); refreshPro(false); });
 // phrases(): the data words the language files translate (used when adding a language).
-window.LANZA = { version: APP_VERSION, state, drawStory, drawSticker, openSession, parseOutcomes, view: () => currentView, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
+/* =============================================================================
+   Motion: staggered page entrances, number count-ups, tap light, sheet close.
+   Purely visual: nothing here changes app state, and it all stands down when the
+   phone asks for reduced motion.
+   ============================================================================= */
+function calm() { return matchMedia('(prefers-reduced-motion: reduce)').matches; }
+var enterTimer = 0;
+function motionEnter(v, slid) {
+  const el = $('view-' + v); if (!el) return;
+  if (slid) return;
+  if (!calm()) {
+    el.classList.remove('enter'); void el.offsetWidth;
+    [el, el.querySelector(':scope > .head'), el.querySelector(':scope > .body')].forEach(p => p && [...p.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 9))));
+    el.classList.add('enter'); clearTimeout(enterTimer); enterTimer = setTimeout(() => el.classList.remove('enter'), 1500);
+  }
+  if (v !== 'practice') countUp(el);
+}
+// Whole numbers in the big stat spots count up from zero. If the app rewrites a number
+// while it is counting, the count stops and the app's value stays.
+function countUp(root) {
+  if (calm()) return;
+  root.querySelectorAll('.trio .v, .big .n, .card .cv, .goal .gv').forEach(el => {
+    const node = el.firstChild; if (!node || node.nodeType !== 3) return;
+    const m = /^(\d{1,5})(%?)$/.exec(node.data.trim()); if (!m) return;
+    const end = +m[1], unit = m[2]; if (end < 2) return;
+    const t0 = performance.now(), dur = 700 + Math.min(500, end * 4);
+    let last = '0' + unit; node.data = last;
+    const step = (t) => {
+      if (node.data !== last || !node.isConnected) return;
+      const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      last = Math.round(end * e) + unit; node.data = last;
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
+// Tap light: a soft glow grows from where the finger touched a button.
+document.addEventListener('pointerdown', (e) => {
+  const b = e.target.closest && e.target.closest('.btn'); if (!b || b.disabled || calm()) return;
+  const r = b.getBoundingClientRect(), s = document.createElement('span');
+  s.className = 'rip'; s.style.left = (e.clientX - r.left) + 'px'; s.style.top = (e.clientY - r.top) + 'px';
+  s.style.setProperty('--s', Math.ceil(Math.hypot(r.width, r.height) / 6));
+  b.appendChild(s); setTimeout(() => s.remove(), 650);
+}, { passive: true });
+// Sheets close with a slide down. The real sheet hides at once (so app logic never waits);
+// a copy without ids or inputs plays the exit and is removed.
+new MutationObserver((list) => {
+  if (calm()) return;
+  list.forEach(m => {
+    const el = m.target;
+    if (!el.classList.contains('modal-bg') || el.classList.contains('ghost')) return;
+    if ((m.oldValue || '').includes('hidden') || !el.classList.contains('hidden')) return;
+    const g = el.cloneNode(true); g.classList.remove('hidden'); g.classList.add('ghost'); g.removeAttribute('id'); g.setAttribute('aria-hidden', 'true'); g.inert = true;
+    g.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    const src = el.querySelectorAll('canvas'), dst = g.querySelectorAll('canvas');
+    src.forEach((c, i) => { try { dst[i].getContext('2d').drawImage(c, 0, 0); } catch (_) {} });
+    document.body.appendChild(g);
+    const sm = el.querySelector('.modal'), gm = g.querySelector('.modal'); if (sm && gm) gm.scrollTop = sm.scrollTop;
+    setTimeout(() => g.remove(), 300);
+  });
+}).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+window.LANZA = { version: APP_VERSION, scene: { panoSvg, sceneAt, panoApply, discHtml, setScene }, state, drawStory, drawSticker, openSession, parseOutcomes, view: () => currentView, phrases: () => [...THROWS.flatMap(t => [t.name, t.many]), ...STYLES.flatMap(t => [t.name, t.many]), ...WIND.map(x => x.name), ...WET.map(x => x.name), ...SIZE_TIERS.map(x => x.name), ...BANDS.map(x => x[1]), ...BRAND.sessionNames, ...ONB.flatMap(o => [o.title, o.text]), ...Object.values(CH_KINDS)] };
 })();
 </script>
 </body>
