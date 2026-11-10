@@ -3114,8 +3114,9 @@ function renderTeamName(edit) {
   const tt = $('teamTitle'); tt.textContent = has && nm ? nm : tr('Team'); tt.style.fontSize = '';
   // long names shrink to stay on one line
   const L = tt.textContent.length; if (L > 8) tt.style.fontSize = `${parseFloat(getComputedStyle(tt).fontSize) * Math.max(.42, 8.5 / L)}px`;
-  const show = has && (edit || !nm);
-  $('teamNameCard').classList.toggle('hidden', !show); $('renameTeam').classList.toggle('hidden', !nm);
+  // Only captains edit the name and colour (any member may name a team that has no captain yet).
+  const may = isOwner() || !(teamData && teamData.has_captain), show = has && may && (edit || !nm);
+  $('teamNameCard').classList.toggle('hidden', !show); $('renameTeam').classList.toggle('hidden', !nm || !may);
   if (show) {
     $('teamNameInput').value = nm; pickedTeamColor = (activeTeam() || {}).color || '';
     paintTeamSwatches(); if (edit) $('teamNameInput').focus();
@@ -3130,8 +3131,11 @@ $('renameTeam').onclick = () => { renderTeamName(true); $('teamNameCard').scroll
 $('saveTeamName').onclick = async () => {
   const nm = $('teamNameInput').value.trim().slice(0, 30);
   if (!nm) { $('teamNameInput').focus(); return; }
-  setTeamMeta(state.profile.team, { name: nm, color: pickedTeamColor }); renderTeamName(); renderTeamTabs(); toast(tr('Team saved'));
-  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'name', code: state.profile.team, team_name: nm, team_color: pickedTeamColor, name: state.profile.name }) }); } catch {}
+  const t = activeTeam(), before = { name: (t && t.name) || '', color: (t && t.color) || '' };
+  if (isOwner()) capKey();
+  setTeamMeta(state.profile.team, { name: nm, color: pickedTeamColor }); renderTeamName(); renderTeamTabs(); applyTheme(); toast(tr('Team saved'));
+  try { await api('/team', { method: 'POST', body: JSON.stringify({ action: 'name', code: state.profile.team, team_name: nm, team_color: pickedTeamColor, ...(await whoBody()) }) }); }
+  catch (e) { if (e.status === 403) { setTeamMeta(state.profile.team, before); renderTeamName(); renderTeamTabs(); applyTheme(); toast(tr('Only captains can do that')); loadTeam(); } }
 };
 $('teamNameInput').onkeydown = (e) => { if (e.key === 'Enter') $('saveTeamName').click(); };
 function joinTeam(code, teamName = '') {
