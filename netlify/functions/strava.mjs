@@ -9,6 +9,10 @@ const handoffs = async () => (await import('@netlify/blobs')).getStore({ name: '
 const TOKEN_URL = 'https://www.strava.com/oauth/token';
 const ACTIVITY_URL = 'https://www.strava.com/api/v3/activities';
 
+// Strava allows the app 600 calls per 15 minutes (6,000 a day). Past that it answers 429:
+// tell the app it's busy, so the session stays saved and can be posted again in a few minutes.
+const BUSY = () => json({ error: 'Strava is busy right now. Try again in a few minutes.', busy: true }, 429);
+
 const pickAthlete = (a) => a && { id: a.id, firstname: a.firstname, lastname: a.lastname, profile: a.profile_medium || a.profile };
 
 export default async (req) => {
@@ -35,6 +39,7 @@ export default async (req) => {
     if (action === 'exchange') { params.set('grant_type', 'authorization_code'); params.set('code', String(body.code || '')); }
     else { params.set('grant_type', 'refresh_token'); params.set('refresh_token', String(body.refresh_token || '')); }
     const r = await fetch(TOKEN_URL, { method: 'POST', body: params });
+    if (r.status === 429) return BUSY();
     const d = await r.json().catch(() => ({}));
     if (!r.ok) return json({ error: d.message || 'Strava rejected the sign-in.' }, r.status);
     const tokens = { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at, athlete: pickAthlete(d.athlete) };
@@ -57,6 +62,7 @@ export default async (req) => {
       description: String(a.description || '').slice(0, 2000)
     });
     const r = await fetch(ACTIVITY_URL, { method: 'POST', headers: { authorization: `Bearer ${body.access_token}` }, body: params });
+    if (r.status === 429) return BUSY();
     const d = await r.json().catch(() => ({}));
     if (!r.ok) {
       const scope = (d.errors || []).some((e) => /activity:write|permission/i.test(`${e.field} ${e.code}`));
@@ -72,6 +78,7 @@ export default async (req) => {
     if (a.name) params.set('name', String(a.name).slice(0, 120));
     if (a.description != null) params.set('description', String(a.description).slice(0, 2000));
     const r = await fetch(`${ACTIVITY_URL}/${aid}`, { method: 'PUT', headers: { authorization: `Bearer ${body.access_token}` }, body: params });
+    if (r.status === 429) return BUSY();
     const d = await r.json().catch(() => ({}));
     if (!r.ok) return json({ error: d.message || 'Strava update failed.' }, r.status);
     return json({ id: d.id });

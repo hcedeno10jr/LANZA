@@ -33,7 +33,7 @@ Throwing practice for Ultimate Frisbee. Athletes can start a session in one tap.
 |---|---|
 | `STRAVA_CLIENT_ID` | From the Strava API page |
 | `STRAVA_CLIENT_SECRET` | From the Strava API page. Keep it secret. |
-| `STRAVA_LIMITED` | On by default: while Strava caps your app's athletes, people already connected keep Strava, nobody new is offered it, and the app runs on the LANZA account (Google sign-in), stories and stickers. Set it to `false` once Strava approves the app. |
+| `STRAVA_LIMITED` | Off by default (Strava approved LANZA in Nov 2026, so everyone is offered Strava). Set it to `true` only if Strava caps the app again: people already connected keep Strava and nobody new is offered it. Strava's limits for LANZA are 600 calls per 15 min and 6,000 a day; if they're hit, the app says Strava is busy and the session stays saved to post later. |
 | `ADS_ENABLED` | Leave unset for now. Set it to `true` to turn on the weekly ad gate. |
 | `AD_UNIT_PATH` | Optional. A Google Ad Manager rewarded ad unit, for example `/1234567/lanza_rewarded` |
 | `ADS_TEST` | Optional. `true` shows Google's sample rewarded ad, to test the flow before your own unit is approved. Remove it when `AD_UNIT_PATH` is set. |

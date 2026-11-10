@@ -1,5 +1,6 @@
 // History backup: a copy of each athlete's sessions, keyed by their LANZA account (or, for older
 // apps, their Strava athlete id). The account or Strava token proves who is asking.
+import { stravaAthlete } from './_shared.mjs';
 import { sanitize } from './team-core.mjs';
 import { accountOf } from './account-core.mjs';
 
@@ -52,8 +53,8 @@ export async function handle(req, store, fetchImpl = fetch, accounts = null) {
     if (!body.access_token) return [{ error: 'Sign in to use the backup.' }, 401];
     let athleteId = null;
     try {
-      const r = await fetchImpl('https://www.strava.com/api/v3/athlete', { headers: { authorization: `Bearer ${body.access_token}` } });
-      if (r.ok) athleteId = (await r.json()).id;
+      const x = await stravaAthlete(body.access_token, fetchImpl);
+      if (x) athleteId = x.id;
     } catch { /* handled below */ }
     if (!athleteId) return [{ error: 'Strava sign-in expired. Connect again.' }, 401];
     key = `athlete/${athleteId}`;

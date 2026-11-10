@@ -829,7 +829,7 @@ nav.tabs button{position:relative;z-index:1}
    ============================================================================= */
 (() => {
 'use strict';
-const APP_VERSION = '2.35.0';
+const APP_VERSION = '2.36.0';
 
 /* BRAND: words and hero images. Colors are the tokens at the top of the CSS.
    heroPhotos: drop real photos next to index.html (e.g. 'hero-home.jpg') and name
@@ -2333,8 +2333,8 @@ $('postNo').onclick = () => { if (postFromDone) leaveResult(); else { $('postMod
    Strava
    ============================================================================= */
 const stravaReady = () => !!state.config.stravaClientId;
-// STRAVA_LIMITED=true (while Strava caps the app's athletes): people already connected keep Strava,
-// nobody new is offered it, and the app runs on Google sign-in, stories and photo cards.
+// Strava approved LANZA, so everyone is offered Strava. STRAVA_LIMITED=true (only if the app is capped
+// again): people already connected keep Strava, nobody new is offered it.
 const stravaOpen = () => stravaReady() && !state.config.stravaLimited;
 const stravaShown = () => !!state.strava || stravaOpen();
 const PERSON_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
@@ -2632,7 +2632,7 @@ async function handleOAuthReturn() {
   if (qs.startsWith('h.')) {
     // Started in the home-screen app: hand the tokens over through the server.
     try { await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'exchange', code: q.get('code'), handoff: qs }) }); }
-    catch (e) { toast(e.message); return; }
+    catch (e) { toast(stravaErr(e)); return; }
     const h = LS.get('oauthHandoff', null);
     if (h && h.st === qs) return claimHandoff();
     $('handoffModal').classList.remove('hidden'); return;
@@ -2642,7 +2642,7 @@ async function handleOAuthReturn() {
   try {
     const t = await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'exchange', code: q.get('code') }) });
     await stravaConnected(t);
-  } catch (e) { toast(e.message); }
+  } catch (e) { toast(stravaErr(e)); }
 }
 async function claimHandoff() {
   const h = LS.get('oauthHandoff', null);
@@ -2786,8 +2786,13 @@ async function stravaToken() {
     const t = await api('/strava', { method: 'POST', body: JSON.stringify({ action: 'refresh', refresh_token: state.strava.refresh_token }) });
     state.strava = { ...state.strava, ...t, athlete: t.athlete || state.strava.athlete }; LS.set('strava', state.strava);
     return state.strava.access_token;
-  } catch (e) { if (e.status && e.status < 500) { state.strava = null; LS.del('strava'); renderStravaPill(); } return null; }
+  } catch (e) { stravaErr(e); if (e.status && e.status < 500 && e.status !== 429) { state.strava = null; LS.del('strava'); renderStravaPill(); } return null; }
 }
+// Strava answers 429 when the whole app is past its rate limit (600 calls / 15 min). Nothing is lost:
+// the session stays saved and the athlete can post it again in a few minutes.
+let stravaBusyAt = 0;
+const STRAVA_BUSY = () => tr('Strava is busy right now. Your session is saved, so try again in a few minutes.');
+const stravaErr = (e) => e && e.status === 429 ? (stravaBusyAt = Date.now(), STRAVA_BUSY()) : e.message;
 function localIso(d) { const z = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`; }
 // Off by default: athletes choose to post (one tap when they tap Done). The toggle keeps the old auto-post.
 const autoStrava = () => LS.get('autoStrava2', false);
@@ -2808,7 +2813,9 @@ function scheduleStravaSync() {
 async function uploadToStrava() {
   if (!current) return;
   if (!stravaReady()) { renderStravaBox(tr('Strava goes live once the app is deployed.'), 'err'); return; }
+  stravaBusyAt = 0;
   const token = await stravaToken();
+  if (!token && stravaBusyAt) { renderStravaBox(STRAVA_BUSY(), 'err'); toast(STRAVA_BUSY()); return; }
   if (!token) { stravaAuthorize(); return; }
   const s = current;
   $('stravaUpload').disabled = true; renderStravaBox(tr('Uploading…'));
@@ -2822,7 +2829,7 @@ async function uploadToStrava() {
     shareToTeam(s);
   } catch (e) {
     if (e.data && e.data.needsScope) { state.strava = null; LS.del('strava'); renderStravaPill(); }
-    renderStravaBox(e.message, 'err');
+    const msg = stravaErr(e); renderStravaBox(msg, 'err'); if (e.status === 429) toast(msg);
   }
 }
 // Connected: open the editor first. Not connected yet: uploadToStrava starts the sign-in.

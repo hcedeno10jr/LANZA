@@ -965,7 +965,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "<b>{n} compañeros</b> ya lanzaron esta semana. Te toca.",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}: lancen sus 20 esta semana. {n} de {m} ya lo hicieron. Abran LANZA en la práctica y toquen Empezar: {link}",
 "Message copied. Paste it in your team chat.": "Mensaje copiado. Pégalo en el chat del equipo.",
-"The mic stopped. Tap it to keep listening.": "El micrófono se detuvo. Tócalo para seguir escuchando."
+"The mic stopped. Tap it to keep listening.": "El micrófono se detuvo. Tócalo para seguir escuchando.",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava está saturado ahora mismo. Tu sesión está guardada, así que inténtalo de nuevo en unos minutos."
 },
 "pt-BR": {
 "#{r} of {n} on {team} this month": "#{r} de {n} no {team} este mês",
@@ -1494,7 +1495,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "<b>{n} colegas</b> já lançaram esta semana. Sua vez.",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}: façam seus 20 esta semana. {n} de {m} já fizeram. Abram o LANZA no treino e toquem em Começar: {link}",
 "Message copied. Paste it in your team chat.": "Mensagem copiada. Cole no chat do time.",
-"The mic stopped. Tap it to keep listening.": "O microfone parou. Toque nele para continuar ouvindo."
+"The mic stopped. Tap it to keep listening.": "O microfone parou. Toque nele para continuar ouvindo.",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "O Strava está sobrecarregado agora. Sua sessão está salva, então tente de novo em alguns minutos."
 },
 "fr": {
 "#{r} of {n} on {team} this month": "#{r} sur {n} chez {team} ce mois-ci",
@@ -2029,7 +2031,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "<b>{n} coéquipiers</b> ont lancé cette semaine. À toi.",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team} : faites vos 20 cette semaine. {n} sur {m} l’ont déjà fait. Ouvrez LANZA à l’entraînement et touchez Commencer : {link}",
 "Message copied. Paste it in your team chat.": "Message copié. Colle-le dans le chat de l’équipe.",
-"The mic stopped. Tap it to keep listening.": "Le micro s’est arrêté. Touche-le pour continuer l’écoute."
+"The mic stopped. Tap it to keep listening.": "Le micro s’est arrêté. Touche-le pour continuer l’écoute.",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava est saturé en ce moment. Ta séance est enregistrée, réessaie dans quelques minutes."
 },
 "de": {
 "#{r} of {n} on {team} this month": "#{r} von {n} bei {team} diesen Monat",
@@ -2562,7 +2565,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "<b>{n} Mitspieler</b> haben diese Woche geworfen. Du bist dran.",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}: Werft diese Woche eure 20. {n} von {m} haben es schon. Öffnet LANZA im Training und tippt auf Start: {link}",
 "Message copied. Paste it in your team chat.": "Nachricht kopiert. Füge sie im Team-Chat ein.",
-"The mic stopped. Tap it to keep listening.": "Das Mikro hat gestoppt. Tippe darauf, um weiter zuzuhören."
+"The mic stopped. Tap it to keep listening.": "Das Mikro hat gestoppt. Tippe darauf, um weiter zuzuhören.",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava ist gerade überlastet. Deine Session ist gespeichert, versuch es in ein paar Minuten noch mal."
 },
 "it": {
 "#{r} of {n} on {team} this month": "#{r} di {n} in {team} questo mese",
@@ -3111,7 +3115,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "<b>{n} compagni</b> hanno lanciato questa settimana. Tocca a te.",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}: fate i vostri 20 questa settimana. {n} su {m} li hanno già fatti. Aprite LANZA all’allenamento e toccate Inizia: {link}",
 "Message copied. Paste it in your team chat.": "Messaggio copiato. Incollalo nella chat della squadra.",
-"The mic stopped. Tap it to keep listening.": "Il microfono si è fermato. Toccalo per continuare ad ascoltare."
+"The mic stopped. Tap it to keep listening.": "Il microfono si è fermato. Toccalo per continuare ad ascoltare.",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava è sovraccarico in questo momento. La tua sessione è salvata, riprova tra qualche minuto."
 },
 "nl": {
 "#{r} of {n} on {team} this month": "#{r} van {n} bij {team} deze maand",
@@ -3627,7 +3632,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "<b>{n} teamgenoten</b> gooiden deze week. Jij bent.",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}: gooi deze week je 20. {n} van {m} deden het al. Open LANZA op de training en tik op Start: {link}",
 "Message copied. Paste it in your team chat.": "Bericht gekopieerd. Plak het in de teamchat.",
-"The mic stopped. Tap it to keep listening.": "De microfoon is gestopt. Tik erop om verder te luisteren."
+"The mic stopped. Tap it to keep listening.": "De microfoon is gestopt. Tik erop om verder te luisteren.",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava is nu even overbelast. Je sessie is opgeslagen, probeer het over een paar minuten opnieuw."
 },
 "ja": {
 "#{r} of {n} on {team} this month": "今月{team}で{n}人中{r}位",
@@ -4193,7 +4199,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "今週<b>{n}人のチームメイト</b>が投げました。次はあなた。",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}：今週の20投をやろう。{m}人中{n}人が完了。練習でLANZAを開いてスタートをタップ：{link}",
 "Message copied. Paste it in your team chat.": "メッセージをコピーしました。チームのチャットに貼り付けてください。",
-"The mic stopped. Tap it to keep listening.": "マイクが止まりました。タップすると聞き取りを再開します。"
+"The mic stopped. Tap it to keep listening.": "マイクが止まりました。タップすると聞き取りを再開します。",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Stravaが現在混み合っています。セッションは保存されているので、数分後にもう一度お試しください。"
 },
 "zh-Hans": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -4754,7 +4761,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "本周已有<b>{n}位队友</b>练过。轮到你了。",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}：本周完成你的20投。{m}人中已有{n}人完成。训练时打开 LANZA，点开始：{link}",
 "Message copied. Paste it in your team chat.": "消息已复制。粘贴到球队群聊里。",
-"The mic stopped. Tap it to keep listening.": "麦克风已停止。轻点即可继续收听。"
+"The mic stopped. Tap it to keep listening.": "麦克风已停止。轻点即可继续收听。",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava 目前繁忙。你的训练已保存，请几分钟后再试。"
 },
 "zh-Hant": {
 "#{r} of {n} on {team} this month": "本月在{team}排名第{r}/{n}",
@@ -5315,7 +5323,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "本週已有<b>{n}位隊友</b>練過。輪到你了。",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}：本週完成你的20投。{m}人中已有{n}人完成。練習時打開 LANZA，點開始：{link}",
 "Message copied. Paste it in your team chat.": "訊息已複製。貼到球隊群組裡。",
-"The mic stopped. Tap it to keep listening.": "麥克風已停止。輕點即可繼續收聽。"
+"The mic stopped. Tap it to keep listening.": "麥克風已停止。輕點即可繼續收聽。",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava 目前忙碌中。你的練習已儲存，請幾分鐘後再試。"
 },
 "ko": {
 "#{r} of {n} on {team} this month": "이번 달 {team} {n}명 중 #{r}",
@@ -5879,7 +5888,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "이번 주 <b>팀원 {n}명</b>이 던졌어요. 이제 당신 차례.",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}: 이번 주 20번 던지기. {m}명 중 {n}명 완료. 연습 때 LANZA를 열고 시작을 누르세요: {link}",
 "Message copied. Paste it in your team chat.": "메시지를 복사했어요. 팀 채팅에 붙여 넣으세요.",
-"The mic stopped. Tap it to keep listening.": "마이크가 멈췄어요. 탭하면 다시 들어요."
+"The mic stopped. Tap it to keep listening.": "마이크가 멈췄어요. 탭하면 다시 들어요.",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "지금 Strava가 혼잡합니다. 세션은 저장되었으니 몇 분 후에 다시 시도하세요."
 },
 "he": {
 "#{r} of {n} on {team} this month": "מקום #{r} מתוך {n} ב-{team} החודש",
@@ -6444,7 +6454,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "<b>{n} חברים לקבוצה</b> כבר זרקו השבוע. תורכם.",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}: זרקו את ה-20 שלכם השבוע. {n} מתוך {m} כבר עשו. פתחו את LANZA באימון והקישו התחלה: {link}",
 "Message copied. Paste it in your team chat.": "ההודעה הועתקה. הדביקו אותה בצ'אט הקבוצה.",
-"The mic stopped. Tap it to keep listening.": "המיקרופון נעצר. הקישו עליו כדי להמשיך להאזין."
+"The mic stopped. Tap it to keep listening.": "המיקרופון נעצר. הקישו עליו כדי להמשיך להאזין.",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava עמוס כרגע. האימון שלך נשמר, אז נסו שוב בעוד כמה דקות."
 },
 "hi": {
 "#{r} of {n} on {team} this month": "इस महीने {team} में {n} में से #{r}",
@@ -6976,7 +6987,8 @@ window.LANZA_I18N = {
 "<b>{n} teammates</b> threw this week. Your turn.": "इस हफ़्ते <b>{n} साथियों</b> ने थ्रो किया। अब आपकी बारी।",
 "{team}: throw your 20 this week. {n} of {m} already did. Open LANZA at practice and tap Start: {link}": "{team}: इस हफ़्ते अपने 20 थ्रो करें। {m} में से {n} कर चुके हैं। प्रैक्टिस पर LANZA खोलें और शुरू टैप करें: {link}",
 "Message copied. Paste it in your team chat.": "संदेश कॉपी हो गया। इसे टीम चैट में पेस्ट करें।",
-"The mic stopped. Tap it to keep listening.": "माइक रुक गया। सुनना जारी रखने के लिए इसे टैप करें।"
+"The mic stopped. Tap it to keep listening.": "माइक रुक गया। सुनना जारी रखने के लिए इसे टैप करें।",
+"Strava is busy right now. Your session is saved, so try again in a few minutes.": "Strava अभी व्यस्त है। आपका सत्र सेव है, कुछ मिनट बाद फिर से कोशिश करें।"
 }
 }
 };

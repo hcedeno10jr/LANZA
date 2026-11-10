@@ -5,9 +5,9 @@ import { json, env } from './_shared.mjs';
 export default async () =>
   json({
     stravaClientId: env('STRAVA_CLIENT_ID') || null,
-    // On by default while Strava caps the app's athletes: only people already connected see Strava.
-    // Set STRAVA_LIMITED=false once Strava approves the app, to offer it to everyone again.
-    stravaLimited: env('STRAVA_LIMITED') !== 'false',
+    // Strava approved LANZA (Nov 2026), so everyone is offered Strava again. STRAVA_LIMITED=true brings
+    // back the old mode (only people already connected see Strava) if the app is ever capped again.
+    stravaLimited: env('STRAVA_LIMITED') === 'true',
     googleClientId: env('GOOGLE_CLIENT_ID') || null,
     adsEnabled: env('ADS_ENABLED') === 'true',
     adUnitPath: env('AD_UNIT_PATH') || null, // Google Ad Manager rewarded ad unit, e.g. /1234567/lanza_rewarded
